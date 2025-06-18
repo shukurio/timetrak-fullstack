@@ -21,7 +21,5 @@ public class EmployeeResponseDTO {
     private Long companyId;
     private Long departmentId;
 
-    public String getFirstName() {
-        return firstName;
-    }
+
 }

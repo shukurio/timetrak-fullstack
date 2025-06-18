@@ -1,4 +1,4 @@
-package com.timetrak.dto;
+package com.timetrak.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
