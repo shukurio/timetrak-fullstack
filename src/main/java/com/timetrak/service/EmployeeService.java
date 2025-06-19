@@ -30,5 +30,7 @@ public interface EmployeeService {
     // Legacy methods (keeping for backward compatibility)
     EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto);
     Optional<Employee> findByUsername(String username);
+    //TODO login Auth Request
+    //TODO Employee Statistics
 }
 

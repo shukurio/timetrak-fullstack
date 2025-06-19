@@ -4,6 +4,7 @@ package com.timetrak.service.impl;
 import com.timetrak.dto.DepartmentResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.EmployeeResponseDTO;
+import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.Role;
@@ -32,7 +33,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final DepartmentServiceImpl departmentServiceImpl;
+    private final CompanyServiceImpl companyServiceImpl;
 
 
     @Override
@@ -146,7 +148,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto) {
-        // Note: Simplified for now - job relationships can be added later if needed
+        // Note: Simplified for now, job relationships can be added later if needed
+
+        Department department = departmentServiceImpl.getDepartmentById(dto.getDepartmentId());
+        Company company = companyServiceImpl.getCompanyById(dto.getCompanyId());
         Employee employee = Employee.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
@@ -154,6 +159,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(Role.EMPLOYEE)
+                .department(department)
+                .company(company)
                 .isActive(true)
                 .build();
 
@@ -181,6 +188,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .phoneNumber(employee.getPhoneNumber())
                 .isActive(employee.getIsActive())
                 .departmentId(employee.getDepartment().getId())
+                .companyId(employee.getCompany().getId())
                 .build();
     }
 
@@ -196,5 +204,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .isActive(department.getIsActive())
                 .build();
     }
+
 }
 

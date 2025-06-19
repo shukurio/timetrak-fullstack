@@ -1,0 +1,91 @@
+
+package com.timetrak.controller;
+
+
+import com.timetrak.dto.EmployeeResponseDTO;
+import com.timetrak.dto.request.EmployeeRequestDTO;
+import com.timetrak.service.impl.EmployeeServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+        import java.util.List;
+import java.util.Map;
+
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    private final EmployeeServiceImpl employeeService;
+
+
+    @Operation(summary = "Get all employees", description = "Get all employees with pagination")
+    @GetMapping
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(pageable);
+        return ResponseEntity.ok(employees);
+    }
+
+
+    @Operation(summary = "Get employee by ID", description = "Get a specific employee by ID")
+    @GetMapping("/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
+        EmployeeResponseDTO employee = employeeService.getEmployeeById(id);
+        return ResponseEntity.ok(employee);
+    }
+
+
+    @Operation(summary = "Deactivate employee", description = "Deactivate an employee account")
+    @PutMapping("/{id}/deactivate")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, String>> deactivateEmployee(@PathVariable Long id) {
+        employeeService.deactivateEmployee(id);
+        return ResponseEntity.ok(Map.of("message", "Employee deactivated successfully"));
+    }
+
+    @Operation(summary = "Activate employee", description = "Activate an employee account")
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, String>> activateEmployee(@PathVariable Long id) {
+        employeeService.activateEmployee(id);
+        return ResponseEntity.ok(Map.of("message", "Employee activated successfully"));
+    }
+
+    @Operation(summary = "Search employees", description = "Search employees by name, username, or email")
+    @GetMapping("/search")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeResponseDTO>> searchEmployees(@RequestParam String query) {
+        List<EmployeeResponseDTO> employees = employeeService.searchEmployees(query);
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Get active employees", description = "Get all active employees")
+    @GetMapping("/active")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getActiveEmployees() {
+        List<EmployeeResponseDTO> employees = employeeService.getActiveEmployees();
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Get employees by department", description = "Get all employees in a specific department")
+    @GetMapping("/department/{departmentId}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeesByDepartment(@PathVariable Long departmentId) {
+        List<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId);
+        return ResponseEntity.ok(employees);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<EmployeeResponseDTO> registerEmployee(@RequestBody EmployeeRequestDTO request) {
+        EmployeeResponseDTO employee = employeeService.registerEmployee(request);
+        return ResponseEntity.ok(employee);
+    }
+}
