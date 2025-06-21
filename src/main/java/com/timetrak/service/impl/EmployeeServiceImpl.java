@@ -1,15 +1,17 @@
 package com.timetrak.service.impl;
 
 
-import com.timetrak.dto.DepartmentResponseDTO;
+import com.timetrak.dto.response.DepartmentResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.dto.EmployeeResponseDTO;
+import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.Role;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.repository.EmployeeRepository;
+import com.timetrak.service.CompanyService;
+import com.timetrak.service.DepartmentService;
 import com.timetrak.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +35,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DepartmentServiceImpl departmentServiceImpl;
-    private final CompanyServiceImpl companyServiceImpl;
+    private final DepartmentService departmentService;
+    private final CompanyService companyService;
 
 
     @Override
@@ -96,7 +98,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
+        employee.setIsActive(false);
         employee.markAsDeleted();
+
         employeeRepository.save(employee);
         log.info("Deleted employee: {} (ID: {})", employee.getUsername(), employee.getId());
     }
@@ -148,10 +152,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto) {
-        // Note: Simplified for now, job relationships can be added later if needed
+        // Validate and fetch company
+        Company company = companyService.getCompanyById(dto.getCompanyId());
 
-        Department department = departmentServiceImpl.getDepartmentById(dto.getDepartmentId());
-        Company company = companyServiceImpl.getCompanyById(dto.getCompanyId());
+        // Validate and fetch department within the company
+        Department department = departmentService.getDepartmentById(dto.getDepartmentId(), dto.getCompanyId());
+
+        // Create new employee
         Employee employee = Employee.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
@@ -165,10 +172,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
 
         employee = employeeRepository.save(employee);
+
         log.info("Registered new employee: {} (ID: {})", employee.getUsername(), employee.getId());
 
         return mapToDTO(employee);
     }
+
 
 
 
@@ -178,6 +187,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private EmployeeResponseDTO mapToDTO(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
         return EmployeeResponseDTO.builder()
                 .id(employee.getId())
                 .firstName(employee.getFirstName())
@@ -192,18 +204,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
     }
 
-    private DepartmentResponseDTO mapDepartmentToDTO(Department department) {
-        if (department == null) {
-            return null;
-        }
-        return DepartmentResponseDTO.builder()
-                .id(department.getId())
-                .name(department.getName())
-                .code(department.getCode())
-                .description(department.getDescription())
-                .isActive(department.getIsActive())
-                .build();
-    }
 
 }
 

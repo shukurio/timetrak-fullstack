@@ -1,35 +1,99 @@
 package com.timetrak.service.impl;
 
+import com.timetrak.dto.response.DepartmentResponseDTO;
+import com.timetrak.dto.request.DepartmentRequestDTO;
+import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.exception.ResourceNotFoundException;
+import com.timetrak.exception.UnauthorizedAccessException;
+import com.timetrak.mapper.CompanyMapper;
+import com.timetrak.mapper.DepartmentMapper;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.service.DepartmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class DepartmentServiceImpl implements DepartmentService {
+
     private final DepartmentRepository departmentRepository;
+    private final CompanyServiceImpl companyService;
+    private final DepartmentMapper departmentMapper;
+    private final CompanyMapper companyMapper;
+
+    @Override
+    public Department getDepartmentById(Long id, Long companyId) {
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
+
+        if (!department.getCompany().getId().equals(companyId)) {
+            throw new UnauthorizedAccessException("Access denied: Department does not belong to your company.");
+        }
+
+        return department;
+    }
+
+    @Override
+    public DepartmentResponseDTO getDepartmentDTOById(Long id, Long companyId) {
+        Department department = getDepartmentById(id, companyId);
+        return departmentMapper.toDTO(department);
+    }
+
+    @Override
+    public Page<DepartmentResponseDTO> getAllByCompanyId(Long companyId, Pageable pageable) {
+        return departmentRepository.findAllByCompanyId(companyId, pageable)
+                .map(departmentMapper::toDTO);
+    }
+
+    @Override
+    public DepartmentResponseDTO addDepartment(DepartmentRequestDTO request, Long companyId) {
+        Company company = companyService.getCompanyById(companyId);
+
+        Department department = Department.builder()
+                .name(request.getName())
+                .code(request.getCode())
+                .description(request.getDescription())
+                .isActive(true)
+                .company(company)
+                .build();
+
+        Department saved = departmentRepository.save(department);
+        return departmentMapper.toDTO(saved);
+    }
+
+    @Override
+    public void deleteDepartment(Long id, Long companyId) {
+        Department department = getDepartmentById(id, companyId);
+        department.markAsDeleted();
+        departmentRepository.save(department);
+    }
 
 
     @Override
-    public Department getDepartmentById(Long id) {
-        return departmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
+    public DepartmentResponseDTO updateDepartment(Long id, Long companyId, DepartmentRequestDTO updatedRequest) {
+        Department department = getDepartmentById(id, companyId);
+
+        department.setName(updatedRequest.getName());
+        department.setCode(updatedRequest.getCode());
+        department.setDescription(updatedRequest.getDescription());
+        // Optional: Only update if not null, or use patching logic
+
+        Department updated = departmentRepository.save(department);
+        return departmentMapper.toDTO(updated);
     }
 
-//    public DepartmentResponseDTO mapToDTO(Department department) {
-//        return DepartmentResponseDTO.builder()
-//                .id(department.getId())
-//                .name(department.getName())
-//                .code(department.getCode())
-//                .description(department.getDescription())
-//                .isActive(department.getIsActive())
-//                .companyId(department.getCompany().getId())
-//                .build();
-//
-//    }
+    @Override
+    public DepartmentResponseDTO getDepartmentByCode(String code, Long companyId){
+        Department department = departmentRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with code: " + code));
+        if(!department.getCompany().getId().equals(companyId)){
+            throw new UnauthorizedAccessException("Access denied");
+        }
+        return departmentMapper.toDTO(department);
+    }
 }

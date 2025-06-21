@@ -1,4 +1,4 @@
-package com.timetrak.dto;
+package com.timetrak.dto.response;
 
 import com.timetrak.enums.Role;
 import lombok.*;

@@ -2,9 +2,9 @@
 package com.timetrak.controller;
 
 
-import com.timetrak.dto.EmployeeResponseDTO;
+import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.service.impl.EmployeeServiceImpl;
+import com.timetrak.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
-    private final EmployeeServiceImpl employeeService;
+    private final EmployeeService employeeService;
 
 
     @Operation(summary = "Get all employees", description = "Get all employees with pagination")
@@ -88,4 +88,12 @@ public class EmployeeController {
         EmployeeResponseDTO employee = employeeService.registerEmployee(request);
         return ResponseEntity.ok(employee);
     }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        employeeService.deleteEmployee(id);
+        return ResponseEntity.noContent().build();  // 204
+    }
 }
+
