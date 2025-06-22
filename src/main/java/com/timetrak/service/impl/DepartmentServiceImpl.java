@@ -6,9 +6,9 @@ import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.exception.UnauthorizedAccessException;
-import com.timetrak.mapper.CompanyMapper;
 import com.timetrak.mapper.DepartmentMapper;
 import com.timetrak.repository.DepartmentRepository;
+import com.timetrak.service.CompanyService;
 import com.timetrak.service.DepartmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,8 @@ import org.springframework.stereotype.Service;
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
-    private final CompanyServiceImpl companyService;
+    private final CompanyService companyService;
     private final DepartmentMapper departmentMapper;
-    private final CompanyMapper companyMapper;
 
     @Override
     public Department getDepartmentById(Long id, Long companyId) {

@@ -1,12 +1,12 @@
 package com.timetrak.service.impl;
 
 
-import com.timetrak.dto.response.DepartmentResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
+import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.repository.EmployeeRepository;
@@ -22,10 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.List;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,16 +53,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable) {
-        return employeeRepository.findAllActiveAndEnabled(pageable)
+        return employeeRepository.findAll(pageable)
                 .map(this::mapToDTO);
     }
 
     @Override
-    public List<EmployeeResponseDTO> getAllActiveEmployees() {
-        return employeeRepository.findAllActiveAndEnabled()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<EmployeeResponseDTO> getAllActiveEmployees(Pageable pageable) {
+        return employeeRepository.findAllActive(pageable)
+                .map(this::mapToDTO);
+
     }
 
     @Override
@@ -98,7 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
-        employee.setIsActive(false);
+        employee.setStatus(EmployeeStatus.DELETED);
         employee.markAsDeleted();
 
         employeeRepository.save(employee);
@@ -110,7 +107,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
-        employee.setIsActive(true);
+        employee.setStatus(EmployeeStatus.ACTIVE);
         employeeRepository.save(employee);
         log.info("Activated employee: {} (ID: {})", employee.getUsername(), employee.getId());
     }
@@ -120,33 +117,24 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
 
-        employee.setIsActive(false);
+        employee.setStatus(EmployeeStatus.INACTIVE);
         employeeRepository.save(employee);
         log.info("Deactivated employee: {} (ID: {})", employee.getUsername(), employee.getId());
     }
 
+
+
     @Override
-    public List<EmployeeResponseDTO> getActiveEmployees() {
-        return employeeRepository.findAllActiveAndEnabled()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<EmployeeResponseDTO> searchEmployees(String query,Pageable pageable) {
+        return employeeRepository.searchActiveEmployees(query, pageable)
+                .map(this::mapToDTO);
+
     }
 
     @Override
-    public List<EmployeeResponseDTO> searchEmployees(String query) {
-        return employeeRepository.searchActiveEmployees(query)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId,Pageable pageable) {
+        return employeeRepository.findByDepartmentIdActive(departmentId, pageable)
+                .map(this::mapToDTO);
     }
 
 
@@ -168,7 +156,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .role(Role.EMPLOYEE)
                 .department(department)
                 .company(company)
-                .isActive(true)
+                .status(EmployeeStatus.PENDING)
                 .build();
 
         employee = employeeRepository.save(employee);
@@ -198,7 +186,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .email(employee.getEmail())
                 .role(employee.getRole())
                 .phoneNumber(employee.getPhoneNumber())
-                .isActive(employee.getIsActive())
+                .status(employee.getStatus())
                 .departmentId(employee.getDepartment().getId())
                 .companyId(employee.getCompany().getId())
                 .build();

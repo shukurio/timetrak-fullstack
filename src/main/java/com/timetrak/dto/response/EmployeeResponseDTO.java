@@ -1,5 +1,6 @@
 package com.timetrak.dto.response;
 
+import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;
 import lombok.*;
 
@@ -16,7 +17,7 @@ public class EmployeeResponseDTO {
     private String username;
     private String email;
     private String phoneNumber;
-    private Boolean isActive;
+    private EmployeeStatus status;
     private Role role;
     private Long companyId;
     private Long departmentId;

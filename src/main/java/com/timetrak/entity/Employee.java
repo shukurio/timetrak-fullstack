@@ -1,6 +1,7 @@
 package com.timetrak.entity;
 
 
+import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -49,8 +50,9 @@ public class Employee extends BaseEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length =20)
+    private EmployeeStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
@@ -63,4 +65,10 @@ public class Employee extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @Override
+    public void markAsDeleted() {
+        super.markAsDeleted();
+        this.status = EmployeeStatus.DELETED;
+    }
 }

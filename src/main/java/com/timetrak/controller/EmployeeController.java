@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-        import java.util.List;
 import java.util.Map;
 
 
@@ -26,10 +25,18 @@ public class EmployeeController {
 
 
     @Operation(summary = "Get all employees", description = "Get all employees with pagination")
-    @GetMapping
+    @GetMapping("/all")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(Pageable pageable) {
         Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(pageable);
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Get all Active employees", description = "Get all employees with pagination")
+    @GetMapping("/active")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getAllActiveEmployees(Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getAllActiveEmployees(pageable);
         return ResponseEntity.ok(employees);
     }
 
@@ -62,24 +69,18 @@ public class EmployeeController {
     @Operation(summary = "Search employees", description = "Search employees by name, username, or email")
     @GetMapping("/search")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmployeeResponseDTO>> searchEmployees(@RequestParam String query) {
-        List<EmployeeResponseDTO> employees = employeeService.searchEmployees(query);
+    public ResponseEntity<Page<EmployeeResponseDTO>> searchEmployees(@RequestParam String query, Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.searchEmployees(query, pageable);
         return ResponseEntity.ok(employees);
     }
 
-    @Operation(summary = "Get active employees", description = "Get all active employees")
-    @GetMapping("/active")
-//    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmployeeResponseDTO>> getActiveEmployees() {
-        List<EmployeeResponseDTO> employees = employeeService.getActiveEmployees();
-        return ResponseEntity.ok(employees);
-    }
 
     @Operation(summary = "Get employees by department", description = "Get all employees in a specific department")
     @GetMapping("/department/{departmentId}")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeesByDepartment(@PathVariable Long departmentId) {
-        List<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId);
+    public ResponseEntity<Page<EmployeeResponseDTO>> getEmployeesByDepartment
+            (@PathVariable Long departmentId, Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId, pageable);
         return ResponseEntity.ok(employees);
     }
 
