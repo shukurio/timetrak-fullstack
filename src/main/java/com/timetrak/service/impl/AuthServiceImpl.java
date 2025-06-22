@@ -200,6 +200,7 @@ public class AuthServiceImpl implements AuthService {
 
         // In a real application, I would send an email with a reset link
         // For now, we'll just log the action
+        //TODO Implement  Email system
         log.info("Password reset requested for email: {}", email);
 
         // TODO: Implement email service for password reset

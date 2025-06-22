@@ -6,7 +6,6 @@ import com.timetrak.dto.response.CompanyResponseDTO;
 import com.timetrak.entity.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {

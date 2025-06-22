@@ -1,6 +1,5 @@
 package com.timetrak.dto.request;
 
-import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;
 import jakarta.validation.constraints.Email;

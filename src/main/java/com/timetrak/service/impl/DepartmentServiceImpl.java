@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 @Transactional
 public class DepartmentServiceImpl implements DepartmentService {
@@ -76,14 +75,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentResponseDTO updateDepartment(Long id, Long companyId, DepartmentRequestDTO updatedRequest) {
         Department department = getDepartmentById(id, companyId);
-
-        department.setName(updatedRequest.getName());
-        department.setCode(updatedRequest.getCode());
-        department.setDescription(updatedRequest.getDescription());
-        // Optional: Only update if not null, or use patching logic
-
-        Department updated = departmentRepository.save(department);
-        return departmentMapper.toDTO(updated);
+        departmentMapper.updateDepartmentFromDto(updatedRequest,department);
+        Department saved = departmentRepository.save(department);
+        return departmentMapper.toDTO(saved);
     }
 
     @Override

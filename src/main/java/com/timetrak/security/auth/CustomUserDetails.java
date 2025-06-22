@@ -1,17 +1,18 @@
 package com.timetrak.security.auth;
 
 import com.timetrak.entity.Employee;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+
 
 public class CustomUserDetails implements UserDetails {
-    private Employee employee;
+    private final Employee employee;
 
     public CustomUserDetails(Employee employee) {
         this.employee = employee;
@@ -23,6 +24,10 @@ public class CustomUserDetails implements UserDetails {
 
     public Employee getEmployee() {
         return employee;
+    }
+
+    public Long getCompanyId() {
+        return employee.getCompany() != null ? employee.getCompany().getId() : null;
     }
 
     @Override

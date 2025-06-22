@@ -5,6 +5,9 @@ public enum JobTitle {
     BUSSER,
     DISHWASHER,
     HOUSEMAN,
-    HOUSEKEEPER
+    HOUSEKEEPER,
+    WAITER,
+    COOK
+
 }
 

@@ -21,8 +21,6 @@ public interface CompanyService {
     CompanyResponseDTO createCompany(CompanyRequestDTO dto);
     CompanyResponseDTO updateCompany(Long id, CompanyRequestDTO dto);
 
-    // Soft delete / deactivate
-    void deleteCompany(Long id);
 
     // Utility
     boolean existsById(Long id);

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
-    private CompanyMapper companyMapper;
+    private final CompanyMapper companyMapper;
 
 
     @Override
@@ -28,13 +28,6 @@ public class CompanyServiceImpl implements CompanyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
     }
 
-    @Override
-    public void deleteCompany(Long id) {
-            Company company = companyRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
-            company.markAsDeleted();
-            companyRepository.save(company);
-    }
 
     @Override
     public boolean existsById(Long id) {
@@ -49,11 +42,13 @@ public class CompanyServiceImpl implements CompanyService {
          return companyMapper.toDTO(company);
     }
 
+    //SYSADMIN-ONLY
     @Override
     public Page<CompanyResponseDTO> getAllCompanies(Pageable pageable) {
         return companyRepository.findAll(pageable).map(companyMapper::toDTO) ;
     }
 
+    //SYSADMIN-ONLY
     @Override
     public Page<CompanyResponseDTO> getActiveCompanies(Pageable pageable) {
         return companyRepository.findAllActive(pageable).map(companyMapper::toDTO);
@@ -68,7 +63,12 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyResponseDTO updateCompany(Long id, CompanyRequestDTO dto) {
-        return null;
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+        
+        companyMapper.updateCompanyFromDto(dto, company);
+        Company updated = companyRepository.save(company);
+        return companyMapper.toDTO(updated);
     }
 
 
