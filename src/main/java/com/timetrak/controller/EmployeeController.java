@@ -19,6 +19,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/employees")
+@PreAuthorize("hasRole('ADMIN')")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -26,7 +27,6 @@ public class EmployeeController {
 
     @Operation(summary = "Get all employees", description = "Get all employees with pagination")
     @GetMapping("/all")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(Pageable pageable) {
         Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(pageable);
         return ResponseEntity.ok(employees);
@@ -34,7 +34,6 @@ public class EmployeeController {
 
     @Operation(summary = "Get all Active employees", description = "Get all employees with pagination")
     @GetMapping("/active")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllActiveEmployees(Pageable pageable) {
         Page<EmployeeResponseDTO> employees = employeeService.getAllActiveEmployees(pageable);
         return ResponseEntity.ok(employees);
@@ -43,7 +42,6 @@ public class EmployeeController {
 
     @Operation(summary = "Get employee by ID", description = "Get a specific employee by ID")
     @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
         EmployeeResponseDTO employee = employeeService.getEmployeeById(id);
         return ResponseEntity.ok(employee);
@@ -52,7 +50,6 @@ public class EmployeeController {
 
     @Operation(summary = "Deactivate employee", description = "Deactivate an employee account")
     @PutMapping("/{id}/deactivate")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> deactivateEmployee(@PathVariable Long id) {
         employeeService.deactivateEmployee(id);
         return ResponseEntity.ok(Map.of("message", "Employee deactivated successfully"));
@@ -60,7 +57,6 @@ public class EmployeeController {
 
     @Operation(summary = "Activate employee", description = "Activate an employee account")
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> activateEmployee(@PathVariable Long id) {
         employeeService.activateEmployee(id);
         return ResponseEntity.ok(Map.of("message", "Employee activated successfully"));
@@ -68,7 +64,6 @@ public class EmployeeController {
 
     @Operation(summary = "Search employees", description = "Search employees by name, username, or email")
     @GetMapping("/search")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EmployeeResponseDTO>> searchEmployees(@RequestParam String query, Pageable pageable) {
         Page<EmployeeResponseDTO> employees = employeeService.searchEmployees(query, pageable);
         return ResponseEntity.ok(employees);
@@ -77,7 +72,6 @@ public class EmployeeController {
 
     @Operation(summary = "Get employees by department", description = "Get all employees in a specific department")
     @GetMapping("/department/{departmentId}")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EmployeeResponseDTO>> getEmployeesByDepartment
             (@PathVariable Long departmentId, Pageable pageable) {
         Page<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId, pageable);

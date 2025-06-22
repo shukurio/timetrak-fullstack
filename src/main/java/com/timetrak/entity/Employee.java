@@ -6,6 +6,7 @@ import com.timetrak.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,6 +55,7 @@ public class Employee extends BaseEntity {
     @Column(name = "status", nullable = false, length =20)
     private EmployeeStatus status;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private Role role;

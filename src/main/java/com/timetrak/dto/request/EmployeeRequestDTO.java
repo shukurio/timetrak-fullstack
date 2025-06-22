@@ -1,5 +1,8 @@
 package com.timetrak.dto.request;
 
+import com.timetrak.entity.Employee;
+import com.timetrak.enums.EmployeeStatus;
+import com.timetrak.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +31,12 @@ public class EmployeeRequestDTO {
     @Email
     private String email;
 
+    private Role role;
+
     private String phoneNumber;
+
+    @NotNull
+    private EmployeeStatus status;
 
     @NotBlank
     @Size(min = 8)
