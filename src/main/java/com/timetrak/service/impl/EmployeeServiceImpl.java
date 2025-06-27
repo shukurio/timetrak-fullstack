@@ -174,6 +174,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findByUsername(username);
     }
 
+    @Override
+    public String getEmployeeNameById(Long id) {
+        return employeeRepository.findFullNameById(id)
+                .orElse("Employee " + id);
+    }
+
     private EmployeeResponseDTO mapToDTO(Employee employee) {
         if (employee == null) {
             return null;

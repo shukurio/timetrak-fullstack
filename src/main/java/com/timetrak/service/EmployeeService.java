@@ -30,5 +30,7 @@ public interface EmployeeService {
     Optional<Employee> findByUsername(String username);
     //TODO login Auth Request
     //TODO Employee Statistics
+
+    String getEmployeeNameById(Long id);
 }
 

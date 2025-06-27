@@ -23,6 +23,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
 
+
+    @Query("SELECT CONCAT(e.firstName, ' ', e.lastName) FROM Employee e WHERE e.id = :employeeId AND e.deletedAt IS NULL")
+    Optional<String> findFullNameById(@Param("employeeId") Long employeeId);
+
     // Role-based
     List<Employee> findByRole(Role role);
 
@@ -48,6 +52,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             "LOWER(e.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(e.email) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Employee> searchActiveEmployees(@Param("search") String search, Pageable pageable);
+
 
 
 }
