@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Data
@@ -29,6 +31,8 @@ public class ShiftResponseDTO {
 
     private JobTitle jobTitle;
     private java.math.BigDecimal hourlyWage;
+    private Double totalHours;
+    private BigDecimal shiftEarnings;
 
     public boolean isActive() {
         return status == ShiftStatus.ACTIVE;
@@ -41,6 +45,14 @@ public class ShiftResponseDTO {
     public Double getTotalHours() {
         if (clockIn != null && clockOut != null) {
             return java.time.Duration.between(clockIn, clockOut).toMinutes() / 60.0;
+        }
+        return null;
+    }
+
+    public BigDecimal getShiftEarnings() {
+        if((hourlyWage != null) && getTotalHours() != null && status == ShiftStatus.COMPLETED) {
+            BigDecimal earnings = hourlyWage.multiply(BigDecimal.valueOf(getTotalHours()));
+            return earnings.setScale(2, RoundingMode.HALF_UP);
         }
         return null;
     }
