@@ -1,22 +1,41 @@
 package com.timetrak.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.timetrak.enums.ShiftStatus;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = false)
+@Table(name="shift")
 public class Shift extends BaseEntity{
+
     @ManyToOne
     @JoinColumn(name="employee_job_id")
     private EmployeeJob employeeJob;
 
+
     @Column(name="clock_in")
-    private java.time.LocalDateTime clockIn;
+    private LocalDateTime clockIn;
 
     @Column(name="clock_out")
-    private java.time.LocalDateTime clockOut;
+    private LocalDateTime clockOut;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name="status")
+    private ShiftStatus status;
+
+    @Column(name="notes")
+    private String notes;
 
 }
