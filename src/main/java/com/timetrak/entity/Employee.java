@@ -73,4 +73,8 @@ public class Employee extends BaseEntity {
         super.markAsDeleted();
         this.status = EmployeeStatus.DELETED;
     }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }
