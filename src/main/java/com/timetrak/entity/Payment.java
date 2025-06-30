@@ -1,43 +1,122 @@
 package com.timetrak.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.timetrak.entity.BaseEntity;
+import com.timetrak.entity.Employee;
+import com.timetrak.entity.PaymentJobBreakdown;
 import com.timetrak.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "payment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Payment extends BaseEntity {
 
+    // EMPLOYEE REFERENCE
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "payments"})
     private Employee employee;
 
-    @Column(nullable = false)
-    private BigDecimal totalHours;
-
-    @Column(nullable = false)
-    private BigDecimal amount;
-
-    @Column(nullable = false)
+    // PAYMENT PERIOD
+    @Column(name = "period_start", nullable = false)
     private LocalDate periodStart;
 
-    @Column(nullable = false)
+    @Column(name = "period_end", nullable = false)
     private LocalDate periodEnd;
 
+    // WORK & PAY DETAILS
+    @Column(name = "total_hours", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalHours = BigDecimal.ZERO;
+
+    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal totalAmount = BigDecimal.ZERO;
+
+    @Column(name = "shifts_count", nullable = false)
+    private Integer shiftsCount = 0;
+
+    // JOB BREAKDOWN (for multi-job employees)
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<PaymentJobBreakdown> jobBreakdowns = new ArrayList<>();
+
+    // STATUS
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentStatus status; // CALCULATED, ISSUED, RECEIVED
+    @Column(name = "status", nullable = false)
+    private PaymentStatus status = PaymentStatus.CALCULATED;
 
+    // MANUAL CHECK PROCESS
+
+
+    // TRACKING
+    @Column(name = "calculated_at")
     private LocalDateTime calculatedAt;
-    private LocalDateTime issuedAt;
-    private LocalDateTime receivedAt;
-}
 
+    @Column(name = "issued_at")
+    private LocalDate issuedAt;
+
+    @Column(name = "received_at")
+    private LocalDate receivedAt;
+
+    @Column(name = "calculated_by")
+    private Long calculatedBy;
+
+    // NOTES
+    @Column(name = "notes", length = 500)
+    private String notes;
+
+    // BUSINESS METHODS
+
+    public void addJobBreakdown(PaymentJobBreakdown breakdown) {
+        jobBreakdowns.add(breakdown);
+        breakdown.setPayment(this);
+    }
+
+    public boolean isReadyForCheckWriting() {
+        return status == PaymentStatus.CALCULATED &&
+                totalAmount.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+
+    public boolean isCompleted() {
+        return status == PaymentStatus.RECEIVED;
+    }
+
+    public String getFormattedPeriod() {
+        return periodStart + " to " + periodEnd;
+    }
+
+
+    public void markCheckIssued(LocalDate date) {
+        this.status = PaymentStatus.ISSUED;
+        this.issuedAt = date;
+    }
+
+    public void markReceived(LocalDate date) {
+        this.status = PaymentStatus.RECEIVED;
+        this.receivedAt = date;
+    }
+
+    public void validate() {
+        if (periodStart != null && periodEnd != null && periodStart.isAfter(periodEnd)) {
+            throw new IllegalArgumentException("Period start must be before end date");
+        }
+
+        if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Payment amount cannot be negative");
+        }
+    }
+}
