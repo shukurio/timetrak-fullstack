@@ -2,9 +2,6 @@ package com.timetrak.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.timetrak.entity.BaseEntity;
-import com.timetrak.entity.Employee;
-import com.timetrak.entity.PaymentJobBreakdown;
 import com.timetrak.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,8 +65,8 @@ public class Payment extends BaseEntity {
     @Column(name = "issued_at")
     private LocalDate issuedAt;
 
-    @Column(name = "received_at")
-    private LocalDate receivedAt;
+    @Column(name = "completed_at")
+    private LocalDate completedAt;
 
     @Column(name = "calculated_by")
     private Long calculatedBy;
@@ -92,7 +89,7 @@ public class Payment extends BaseEntity {
 
 
     public boolean isCompleted() {
-        return status == PaymentStatus.RECEIVED;
+        return status == PaymentStatus.COMPLETED;
     }
 
     public String getFormattedPeriod() {
@@ -105,9 +102,9 @@ public class Payment extends BaseEntity {
         this.issuedAt = date;
     }
 
-    public void markReceived(LocalDate date) {
-        this.status = PaymentStatus.RECEIVED;
-        this.receivedAt = date;
+    public void markCompleted(LocalDate date) {
+        this.status = PaymentStatus.COMPLETED;
+        this.completedAt = date;
     }
 
     public void validate() {
