@@ -77,4 +77,23 @@ public class Employee extends BaseEntity {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    public boolean isActive(){
+        return status == EmployeeStatus.ACTIVE;
+    }
+
+    public boolean isDeactivated(){
+        return status == EmployeeStatus.DEACTIVATED;
+    }
+    public boolean isPending(){
+        return status == EmployeeStatus.PENDING;
+    }
+
+    //Overrides IsDeleted from BAseEntity
+    public boolean isDeleted(){
+        return status == EmployeeStatus.DELETED;
+    }
+    public boolean isRejected() {
+        return this.status == EmployeeStatus.REJECTED;
+    }
 }
