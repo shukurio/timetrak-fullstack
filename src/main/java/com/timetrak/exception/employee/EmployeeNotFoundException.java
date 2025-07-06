@@ -6,7 +6,7 @@ public class EmployeeNotFoundException extends EmployeeException {
     private final Long employeeId;
 
     public EmployeeNotFoundException(Long employeeId) {
-        super(String.format("Payment not found with ID: %d", employeeId), ERROR_CODE);
+        super(String.format("Employee not found with ID: %d", employeeId), ERROR_CODE);
         this.employeeId = employeeId;
     }
 
