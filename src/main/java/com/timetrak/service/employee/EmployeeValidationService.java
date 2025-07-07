@@ -55,10 +55,120 @@ public class EmployeeValidationService {
         }
     }
 
+    public void validateDeactivation(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Cannot deactivate deleted employee", employee.getId());
+        }
+
+        if (employee.isDeactivated()) {
+            throw new InvalidEmployeeException("Employee is already deactivated", employee.getId());
+        }
+
+        // ✅ ADD: Only active employees can be deactivated
+        if (!employee.isActive()) {
+            throw new InvalidEmployeeException("Only active employees can be deactivated", employee.getId());
+        }
+
+        validateNoActiveShifts(employee.getId(), "Cannot deactivate employee with active shifts");
+    }
+
+
+    public void validateRejection(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Cannot reject deleted employee", employee.getId());
+        }
+
+        if (employee.isRejected()) {
+            throw new InvalidEmployeeException("Employee is already rejected", employee.getId());
+        }
+
+        // Only pending employees can be rejected
+        if (!employee.isPending()) {
+            throw new InvalidEmployeeException("Only pending employees can be rejected", employee.getId());
+        }
+
+        validateNoActiveShifts(employee.getId(), "Cannot reject employee with active shifts");
+    }
+
+    public void validateApproval(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Cannot approve deleted employee", employee.getId());
+        }
+
+        if (employee.isActive()) {
+            throw new InvalidEmployeeException("Employee is already active", employee.getId());
+        }
+
+        // Only pending employees can be approved
+        if (!employee.isPending()) {
+            throw new InvalidEmployeeException("Only pending employees can be approved", employee.getId());
+        }
+    }
+
+    public void validateReactivation(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Cannot reactivate deleted employee", employee.getId());
+        }
+
+        if (employee.isActive() || employee.isPending()) {
+            throw new InvalidEmployeeException("Employee is already active or pending approval", employee.getId());
+        }
+
+        // Can reactivate from REJECTED or DEACTIVATED
+        if (!employee.isRejected() && !employee.isDeactivated()) {
+            throw new InvalidEmployeeException("Employee must be rejected or deactivated to request reactivation", employee.getId());
+        }
+
+        validateNoActiveShifts(employee.getId(), "Cannot reactivate employee with active shifts");
+    }
+
+    public void validateCanWork(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Deleted employees cannot work", employee.getId());
+        }
+
+        if (employee.isPending()) {
+            throw new InvalidEmployeeException("Pending employees cannot work until approved", employee.getId());
+        }
+
+        if (employee.isDeactivated()) {
+            throw new InvalidEmployeeException("Deactivated employees cannot work", employee.getId());
+        }
+
+        if (employee.isRejected()) {
+            throw new InvalidEmployeeException("Rejected employees cannot work", employee.getId());
+        }
+
+        // Only ACTIVE employees can work
+        if (!employee.isActive()) {
+            throw new InvalidEmployeeException("Only active employees can perform work operations", employee.getId());
+        }
+    }
+
+
+    public void validateCanReceivePayment(Employee employee) {
+        if (employee.isDeleted()) {
+            throw new InvalidEmployeeException("Deleted employees cannot receive payments", employee.getId());
+        }
+
+        if (employee.isPending()) {
+            throw new InvalidEmployeeException("Pending employees cannot receive payments until approved", employee.getId());
+        }
+
+        if (employee.isRejected()) {
+            throw new InvalidEmployeeException("Rejected employees cannot receive payments", employee.getId());
+        }
+
+        // ACTIVE and DEACTIVATED employees can receive payments for past work
+    }
+
     // ========== UPDATE VALIDATION ==========
 
     public void validateUpdate(Employee existing, EmployeeRequestDTO dto) {
         validateEmployeeNotDeleted(existing);
+        if (existing.isRejected()) {
+            throw new InvalidEmployeeException("Rejected employees can only be reactivated, not updated", existing.getId());
+        }
 
         if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
             if (!employeeRepository.existsByEmailAndId(dto.getEmail(), existing.getId())) {
@@ -80,7 +190,6 @@ public class EmployeeValidationService {
     }
 
     public void validateActivation(Employee employee) {
-        // More comprehensive status checking
         if (employee.isDeleted()) {
             throw new InvalidEmployeeException("Cannot activate deleted employee", employee.getId());
         }
@@ -89,20 +198,12 @@ public class EmployeeValidationService {
             throw new InvalidEmployeeException("Employee is already active", employee.getId());
         }
 
-        // Allow activation from PENDING, DEACTIVATED, or REJECTED
+        //Validate which statuses can be activated
+        if (!employee.isPending() && !employee.isDeactivated() && !employee.isRejected()) {
+            throw new InvalidEmployeeException("Employee must be in PENDING, DEACTIVATED, or REJECTED status to activate", employee.getId());
+        }
     }
 
-    public void validateDeactivation(Employee employee) {
-        if (employee.isDeleted()) {
-            throw new InvalidEmployeeException("Cannot deactivate deleted employee", employee.getId());
-        }
-
-        if (employee.isDeactivated()) {
-            throw new InvalidEmployeeException("Employee is already deactivated", employee.getId());
-        }
-
-        validateNoActiveShifts(employee.getId(), "Cannot deactivate employee with active shifts");
-    }
 
     // ========== COMMON VALIDATIONS ==========
 
