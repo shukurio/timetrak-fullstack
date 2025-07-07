@@ -184,6 +184,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("Employee requested reactivation: {} (ID: {})", employee.getUsername(), employee.getId());
     }
 
+    @Override
+    public Page<EmployeeResponseDTO> getByStatus(EmployeeStatus status, Pageable pageable) {
+        return employeeRepository.findByStatusPaged(status, pageable)
+                .map(employeeMapper::toDTO);
+    }
+
 
     @Override
     public Page<EmployeeResponseDTO> searchEmployees(String query, Pageable pageable) {
