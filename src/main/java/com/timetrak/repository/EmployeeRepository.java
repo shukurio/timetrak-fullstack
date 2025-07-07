@@ -22,6 +22,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean existsByEmailAndId(String email, Long id);
 
 
     @Query("SELECT CONCAT(e.firstName, ' ', e.lastName) FROM Employee e WHERE e.id = :employeeId AND e.deletedAt IS NULL")
