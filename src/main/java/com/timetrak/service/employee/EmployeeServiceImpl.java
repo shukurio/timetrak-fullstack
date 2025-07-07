@@ -145,6 +145,45 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.info("Deactivated employee: {} (ID: {})", employee.getUsername(), employee.getId());
     }
 
+    @Override
+    @Transactional
+    public void approveEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        validationService.validateApproval(employee);
+
+        employee.setStatus(EmployeeStatus.ACTIVE);
+        employeeRepository.save(employee);
+        log.info("Approved employee: {} (ID: {})", employee.getUsername(), employee.getId());
+    }
+
+    @Override
+    @Transactional
+    public void rejectEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        validationService.validateRejection(employee);
+
+        employee.setStatus(EmployeeStatus.REJECTED);
+        employeeRepository.save(employee);
+        log.info("Rejected employee: {} (ID: {})", employee.getUsername(), employee.getId());
+    }
+
+    @Override
+    @Transactional
+    public void requestReactivation(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        validationService.validateReactivation(employee);
+
+        employee.setStatus(EmployeeStatus.PENDING);
+        employeeRepository.save(employee);
+        log.info("Employee requested reactivation: {} (ID: {})", employee.getUsername(), employee.getId());
+    }
+
 
     @Override
     public Page<EmployeeResponseDTO> searchEmployees(String query, Pageable pageable) {

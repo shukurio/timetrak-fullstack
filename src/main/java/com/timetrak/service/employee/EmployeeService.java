@@ -26,6 +26,9 @@ public interface EmployeeService {
     void deactivateEmployee(Long id);
     Page<EmployeeResponseDTO> searchEmployees(String query, Pageable pageable);
     Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId, Pageable pageable);
+    void approveEmployee(Long id);
+    void rejectEmployee(Long id);
+    void requestReactivation(Long id);
 
     // Legacy methods (keeping for backward compatibility)
     EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto);
