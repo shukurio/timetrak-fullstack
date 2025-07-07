@@ -4,7 +4,7 @@ package com.timetrak.controller;
 
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.service.EmployeeService;
+import com.timetrak.service.employee.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,7 +43,7 @@ public class EmployeeController {
     @Operation(summary = "Get employee by ID", description = "Get a specific employee by ID")
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
-        EmployeeResponseDTO employee = employeeService.getEmployeeById(id);
+        EmployeeResponseDTO employee = employeeService.getEmployeeDTOById(id);
         return ResponseEntity.ok(employee);
     }
 
