@@ -172,7 +172,7 @@ public class EmployeeValidationService {
         }
 
         if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
-            if (!employeeRepository.existsByEmailAndId(dto.getEmail(), existing.getId())) {
+            if (employeeRepository.existsByEmailAndIdNot(dto.getEmail(), existing.getId())) {
                 throw new DuplicateEmployeeException("email", dto.getEmail());
             }
         }
