@@ -26,6 +26,7 @@ public class EmployeeValidationService {
         dto.normalize();
         validateBusinessRules(dto);
         validateUniqueness(dto.getUsername(), dto.getEmail());
+        validateDepartmentExists(dto.getDepartmentId());
     }
 
     public void validateBusinessRules(EmployeeRequestDTO dto) {
@@ -64,7 +65,7 @@ public class EmployeeValidationService {
             throw new InvalidEmployeeException("Employee is already deactivated", employee.getId());
         }
 
-        // ✅ ADD: Only active employees can be deactivated
+        // Only active employees can be deactivated
         if (!employee.isActive()) {
             throw new InvalidEmployeeException("Only active employees can be deactivated", employee.getId());
         }

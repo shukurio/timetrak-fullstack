@@ -15,7 +15,9 @@ public class EmployeeNotFoundException extends EmployeeException {
         this.employeeId = null;
     }
 
-    public Long getPaymentId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
+
+
 }
