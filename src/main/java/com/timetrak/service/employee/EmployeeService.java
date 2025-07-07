@@ -14,7 +14,6 @@ public interface EmployeeService {
     EmployeeResponseDTO getEmployeeDTOById(Long id);
     Employee getById(Long id);
 
-    EmployeeResponseDTO getEmployeeDTOByUsername(String username);
     Employee getByUsername(String username);
     Employee getByEmail(String email);
     Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable);

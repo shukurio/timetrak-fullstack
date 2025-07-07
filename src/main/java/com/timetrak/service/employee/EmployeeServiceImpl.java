@@ -46,12 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
-    @Override
-    public EmployeeResponseDTO getEmployeeDTOByUsername(String username) {
-        Employee employee = employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new EmployeeNotFoundException(username));
-        return employeeMapper.toDTO(employee);
-    }
+
 
     @Override
     public Employee getByUsername(String username) {
@@ -227,11 +222,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
 
-    @Override
-    public String getEmployeeNameById(Long id) {
-        return employeeRepository.findFullNameById(id)
-                .orElse("Employee " + id);
-    }
 
     // ========== HELPER METHODS ==========
 
