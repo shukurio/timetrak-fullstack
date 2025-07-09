@@ -75,8 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = getById(id);
 
 
         validationService.validateUpdate(employee,
@@ -91,7 +90,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         } catch (DataIntegrityViolationException e) {
             log.error("Data integrity violation while updating employee {}: {}", id, e.getMessage());
-            handleDataIntegrityViolation(e, dto, employee);
+            handleDataIntegrityViolation(e, employee.getUsername(), employee.getEmail());
             throw new EmployeeValidationException("Unexpected data integrity violation", e);
         }
     }
@@ -99,8 +98,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public void deleteEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = getById(id);
 
 
         validationService.validateDeletion(employee);
@@ -115,8 +113,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public void activateEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee  employee = getById(id);
 
         validationService.validateActivation(employee);
 
@@ -128,12 +125,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public void deactivateEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
-
-
+        Employee  employee = getById(id);
         validationService.validateDeactivation(employee);
-
         employee.setStatus(EmployeeStatus.DEACTIVATED);
         employeeRepository.save(employee);
 
@@ -143,9 +136,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public void approveEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
-
+        Employee  employee = getById(id);
         validationService.validateApproval(employee);
 
         employee.setStatus(EmployeeStatus.ACTIVE);
@@ -156,9 +147,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public void rejectEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
-
+        Employee  employee = getById(id);
         validationService.validateRejection(employee);
 
         employee.setStatus(EmployeeStatus.REJECTED);
@@ -169,8 +158,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public void requestReactivation(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee  employee = getById(id);
 
         validationService.validateReactivation(employee);
 
@@ -216,7 +204,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         } catch (DataIntegrityViolationException e) {
             log.error("Data integrity violation while registering employee: {}", e.getMessage());
-            handleRegistrationDataIntegrityViolation(e, dto);
+            handleDataIntegrityViolation(e, dto.getUsername(), dto.getEmail());
             throw new EmployeeValidationException("Unexpected data integrity violation", e);
         }
     }
@@ -238,24 +226,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (dto.getPhoneNumber() != null) {
             employee.setPhoneNumber(dto.getPhoneNumber());
         }
-    }
 
-    private void handleDataIntegrityViolation(DataIntegrityViolationException e,
-                                              EmployeeRequestDTO dto,
-                                              Employee employee) {
-        if (e.getMessage().contains("email")) {
-            throw new DuplicateEmployeeException("email", dto.getEmail());
-        } else if (e.getMessage().contains("username")) {
-            throw new DuplicateEmployeeException("username", employee.getUsername());
+        if(dto.getUsername()!=null) {
+            employee.setUsername(dto.getUsername());
         }
     }
 
-    private void handleRegistrationDataIntegrityViolation(DataIntegrityViolationException e,
-                                                          EmployeeRequestDTO dto) {
+    private void handleDataIntegrityViolation(DataIntegrityViolationException e,
+                                              String username, String email) {
         if (e.getMessage().contains("username")) {
-            throw new DuplicateEmployeeException("username", dto.getUsername());
+            throw new DuplicateEmployeeException("username", username);
         } else if (e.getMessage().contains("email")) {
-            throw new DuplicateEmployeeException("email", dto.getEmail());
+            throw new DuplicateEmployeeException("email", email);
         }
     }
 }
