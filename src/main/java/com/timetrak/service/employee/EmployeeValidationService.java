@@ -176,6 +176,12 @@ public class EmployeeValidationService {
                 throw new DuplicateEmployeeException("email", dto.getEmail());
             }
         }
+
+        if (dto.getUsername() != null && !dto.getUsername().equals(existing.getUsername())) {
+            if (employeeRepository.existsByUsernameAndIdNot(dto.getUsername(), existing.getId())) {
+                throw new DuplicateEmployeeException("username", dto.getUsername());
+            }
+        }
     }
 
 

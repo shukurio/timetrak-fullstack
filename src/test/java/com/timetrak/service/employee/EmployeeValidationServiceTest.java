@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -39,13 +38,16 @@ class EmployeeValidationServiceTest {
     @BeforeEach
     void setUp() {
         validDto = EmployeeRequestDTO.builder()
-                .firstName("John").lastName("Doe").username("johndoe")
+                .firstName("John").lastName("Doe")
+                .username("johndoe")
                 .email("john@example.com").password("Password123!")
                 .role(Role.EMPLOYEE).companyId(1L).departmentId(1L)
                 .build();
 
         employee = Employee.builder()
-                .id(1L).username("johndoe").email("john@example.com")
+                .id(1L)
+                .username("johndoe")
+                .email("john@example.com")
                 .status(EmployeeStatus.ACTIVE).role(Role.EMPLOYEE)
                 .build();
     }
@@ -273,6 +275,16 @@ class EmployeeValidationServiceTest {
         }
 
         @Test
+        @DisplayName("Username change validates uniqueness - success")
+        void usernameChangeValidatesUniqueness() {
+            EmployeeRequestDTO updateDto = new EmployeeRequestDTO();
+            updateDto.setUsername("new.username");
+            when(employeeRepository.existsByUsernameAndIdNot("new.username", 1L)).thenReturn(false); // Unique
+
+            assertDoesNotThrow(() -> validationService.validateUpdate(employee, updateDto));
+        }
+
+        @Test
         @DisplayName("Duplicate email during update rejected")
         void duplicateEmailDuringUpdateRejected() {
             EmployeeRequestDTO updateDto = new EmployeeRequestDTO();
@@ -284,6 +296,20 @@ class EmployeeValidationServiceTest {
 
             assertEquals("email", ex.getDuplicateField());
             assertEquals("taken@example.com", ex.getDuplicateValue());
+        }
+
+        @Test
+        @DisplayName("Duplicate username during update rejected")
+        void duplicateUsernameDuringUpdateRejected() {
+            EmployeeRequestDTO updateDto = new EmployeeRequestDTO();
+            updateDto.setUsername("taken");
+            when(employeeRepository.existsByUsernameAndIdNot("taken", 1L)).thenReturn(true); // Already taken
+
+            DuplicateEmployeeException ex = assertThrows(DuplicateEmployeeException.class,
+                    () -> validationService.validateUpdate(employee, updateDto));
+
+            assertEquals("username", ex.getDuplicateField());
+            assertEquals("taken", ex.getDuplicateValue());
         }
     }
 
