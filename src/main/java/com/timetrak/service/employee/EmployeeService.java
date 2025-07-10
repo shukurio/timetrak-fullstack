@@ -33,6 +33,8 @@ public interface EmployeeService {
 
     // Legacy methods (keeping for backward compatibility)
     EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto);
+
+    String getEmployeeNameById(Long employeeId);
     //TODO login Auth Request
     //TODO Employee Statistics
 }

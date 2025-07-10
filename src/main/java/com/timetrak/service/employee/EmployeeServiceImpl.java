@@ -209,6 +209,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+    @Override
+    public String getEmployeeNameById(Long id) {
+        return employeeRepository.findFullNameById(id)
+                .orElse("Employee " + id);
+    }
 
 
     // ========== HELPER METHODS ==========
