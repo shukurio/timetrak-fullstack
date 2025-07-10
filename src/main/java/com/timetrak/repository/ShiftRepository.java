@@ -51,5 +51,8 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
     @Query("SELECT s FROM Shift s WHERE s.clockIn >= :startDateTime ORDER BY s.clockIn DESC")
     Page<Shift> findByDateFrom(@Param("startDateTime") LocalDateTime startDateTime, Pageable pageable);
 
+    @Query("SELECT CASE WHEN EXISTS(SELECT 1 FROM Shift s WHERE s.status = com.timetrak.enums.ShiftStatus.ACTIVE AND s.employeeJob.employee.id = :employeeId) THEN true ELSE false END")
+    boolean hasActiveShifts(@Param("employeeId") Long employeeId);
+
 
 }

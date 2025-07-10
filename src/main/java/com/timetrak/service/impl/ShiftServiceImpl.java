@@ -13,7 +13,7 @@ import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.EmployeeJobService;
-import com.timetrak.service.EmployeeService;
+import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.ShiftService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -62,10 +62,10 @@ public class ShiftServiceImpl implements ShiftService {
     @Transactional
     public ShiftResponseDTO createShift(ShiftRequestDTO request) {
         validateShiftRequest(request);
-        
+
         Shift shift = shiftMapper.toEntity(request);
         Shift savedShift = shiftRepository.save(shift);
-        
+
         log.info("Created shift {} for employee job {}", savedShift.getId(), request.getEmployeeJobId());
         return shiftMapper.toDTO(savedShift);
     }
@@ -74,13 +74,13 @@ public class ShiftServiceImpl implements ShiftService {
     @Transactional
     public ShiftResponseDTO updateShift(Long shiftId, ShiftRequestDTO request) {
         validateShiftRequest(request);
-        
+
         Shift shift = getShiftById(shiftId);
         validateShiftUpdatePermissions(shift);
-        
+
         shiftMapper.updateShiftFromDto(request, shift);
         Shift updatedShift = shiftRepository.save(shift);
-        
+
         log.info("Updated shift {} for employee job {}", shiftId, request.getEmployeeJobId());
         return shiftMapper.toDTO(updatedShift);
     }
@@ -88,7 +88,7 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public Shift getShiftById(Long shiftId) {
         Objects.requireNonNull(shiftId, "Shift ID cannot be null");
-        
+
         return shiftRepository.findById(shiftId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(ClockErrorCode.SHIFT_NOT_FOUND.getDefaultMessage() + " with id: " + shiftId));
@@ -98,12 +98,12 @@ public class ShiftServiceImpl implements ShiftService {
     @Transactional
     public void deleteShift(Long id) {
         Objects.requireNonNull(id, "Shift ID cannot be null");
-        
+
         Shift shift = getShiftById(id);
         validateShiftDeletionPermissions(shift);
         shift.markAsDeleted();
         shiftRepository.save(shift);
-        
+
         log.info("Soft deleted shift {}", id);
     }
 
@@ -113,7 +113,7 @@ public class ShiftServiceImpl implements ShiftService {
         validateClockInRequest(request);
 
         log.info("Processing group clock-in for {} employees", request.getEmployeeJobIds().size());
-        
+
         List<EmployeeJobInfoDTO> employeeJobs = employeeJobService.getEmpJobsInfoByIds(request.getEmployeeJobIds());
         List<ClockFailureResponse> failed = new ArrayList<>();
         List<Shift> shiftsToSave = new ArrayList<>();
@@ -412,11 +412,11 @@ public class ShiftServiceImpl implements ShiftService {
         if (request.getEmployeeJobId() == null) {
             throw new InvalidOperationException("Employee job ID is required");
         }
-        
+
         if (request.getClockIn() != null && request.getClockOut() != null) {
             validateClockOutTime(request.getClockIn(), request.getClockOut());
         }
-        
+
         if (request.getNotes() != null && request.getNotes().length() > MAX_NOTES_LENGTH) {
             throw new InvalidOperationException("Notes exceed maximum length of " + MAX_NOTES_LENGTH + " characters");
         }
@@ -480,7 +480,7 @@ public class ShiftServiceImpl implements ShiftService {
         if (clockOut.isBefore(clockIn)) {
             throw new InvalidOperationException("Clock out time cannot be before clock in time");
         }
-        
+
         Duration shiftDuration = Duration.between(clockIn, clockOut);
         if (shiftDuration.toHours() > MAX_SHIFT_DURATION_HOURS) {
             throw new InvalidOperationException("Shift duration cannot exceed " + MAX_SHIFT_DURATION_HOURS + " hours");
@@ -513,7 +513,7 @@ public class ShiftServiceImpl implements ShiftService {
      */
     private String sanitizeNotes(String notes) {
         if (notes == null) return null;
-        
+
         return notes.trim()
                    .replaceAll("<script[^>]*>.*?</script>", "")
                    .replaceAll("<[^>]+>", "");
@@ -524,7 +524,7 @@ public class ShiftServiceImpl implements ShiftService {
      */
     private String truncateNotes(String notes) {
         if (notes == null) return null;
-        return notes.length() > MAX_NOTES_LENGTH ? 
+        return notes.length() > MAX_NOTES_LENGTH ?
                notes.substring(0, MAX_NOTES_LENGTH - 3) + "..." : notes;
     }
 

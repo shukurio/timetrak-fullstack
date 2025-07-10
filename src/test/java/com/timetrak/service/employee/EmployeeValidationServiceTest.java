@@ -7,7 +7,9 @@ import com.timetrak.enums.Role;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeValidationException;
 import com.timetrak.exception.employee.InvalidEmployeeException;
+import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
+import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.DepartmentService;
 import com.timetrak.service.ShiftService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +30,8 @@ import static org.mockito.Mockito.*;
 class EmployeeValidationServiceTest {
 
     @Mock private EmployeeRepository employeeRepository;
-    @Mock private DepartmentService departmentService;
-    @Mock private ShiftService shiftService;
+    @Mock private DepartmentRepository departmentRepository;
+    @Mock private ShiftRepository shiftRepository;
     @InjectMocks private EmployeeValidationService validationService;
 
     private EmployeeRequestDTO validDto;
@@ -154,7 +156,7 @@ class EmployeeValidationServiceTest {
         @Test
         @DisplayName("Cannot deactivate with active shifts")
         void cannotDeactivateWithActiveShifts() {
-            when(shiftService.hasActiveShifts(1L)).thenReturn(true);
+            when(shiftRepository.hasActiveShifts(1L)).thenReturn(true);
 
             assertThrows(InvalidEmployeeException.class,
                     () -> validationService.validateDeactivation(employee));
@@ -178,7 +180,7 @@ class EmployeeValidationServiceTest {
         @DisplayName("Can reject pending employee")
         void canRejectPendingEmployee() {
             employee.setStatus(EmployeeStatus.PENDING);
-            when(shiftService.hasActiveShifts(1L)).thenReturn(false);
+            when(shiftRepository.hasActiveShifts(1L)).thenReturn(false);
             assertDoesNotThrow(() -> validationService.validateRejection(employee));
         }
 
@@ -186,7 +188,7 @@ class EmployeeValidationServiceTest {
         @DisplayName("Can reactivate deactivated employee")
         void canReactivateDeactivatedEmployee() {
             employee.setStatus(EmployeeStatus.DEACTIVATED);
-            when(shiftService.hasActiveShifts(1L)).thenReturn(false);
+            when(shiftRepository.hasActiveShifts(1L)).thenReturn(false);
             assertDoesNotThrow(() -> validationService.validateReactivation(employee));
         }
     }
@@ -240,7 +242,7 @@ class EmployeeValidationServiceTest {
         void validRegistrationPasses() {
             when(employeeRepository.existsByUsername(anyString())).thenReturn(false);
             when(employeeRepository.existsByEmail(anyString())).thenReturn(false);
-            when(departmentService.existsById(1L)).thenReturn(true);
+            when(departmentRepository.existsById(1L)).thenReturn(true);
 
             assertDoesNotThrow(() -> validationService.validateRegistration(validDto));
         }
@@ -250,7 +252,7 @@ class EmployeeValidationServiceTest {
         void invalidDepartmentRejected() {
             when(employeeRepository.existsByUsername(anyString())).thenReturn(false);
             when(employeeRepository.existsByEmail(anyString())).thenReturn(false);
-            when(departmentService.existsById(1L)).thenReturn(false);
+            when(departmentRepository.existsById(1L)).thenReturn(false);
 
             assertThrows(EmployeeValidationException.class,
                     () -> validationService.validateRegistration(validDto));
@@ -341,7 +343,7 @@ class EmployeeValidationServiceTest {
         @Test
         @DisplayName("Valid department ID accepted")
         void validDepartmentIdAccepted() {
-            when(departmentService.existsById(1L)).thenReturn(true);
+            when(departmentRepository.existsById(1L)).thenReturn(true);
             assertDoesNotThrow(() -> validationService.validateDepartmentExists(1L));
         }
     }

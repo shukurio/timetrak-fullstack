@@ -3,10 +3,13 @@ package com.timetrak.service.employee;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.Role;
+import com.timetrak.enums.ShiftStatus;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeValidationException;
 import com.timetrak.exception.employee.InvalidEmployeeException;
+import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
+import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.DepartmentService;
 import com.timetrak.service.ShiftService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +20,8 @@ import org.springframework.stereotype.Service;
 public class EmployeeValidationService {
 
     private final EmployeeRepository employeeRepository;
-    private final ShiftService shiftService;
-    private final DepartmentService departmentService;
+    private final DepartmentRepository departmentRepository;
+    private final ShiftRepository shiftRepository;
 
     // ========== REGISTRATION VALIDATION ==========
 
@@ -221,7 +224,7 @@ public class EmployeeValidationService {
     }
 
     public void validateNoActiveShifts(Long employeeId, String errorMessage) {
-        if (shiftService.hasActiveShifts(employeeId)) {
+        if (shiftRepository.hasActiveShifts(employeeId)) {
             throw new InvalidEmployeeException(errorMessage, employeeId);
         }
     }
@@ -236,7 +239,7 @@ public class EmployeeValidationService {
 
     //fixed department validation
     public void validateDepartmentExists(Long departmentId) {
-        if (departmentId == null || departmentId <= 0 || !departmentService.existsById(departmentId)) {
+        if (departmentId == null || departmentId <= 0 || !departmentRepository.existsById(departmentId)) {
             throw new EmployeeValidationException("Invalid department ID: " + departmentId);
         }
     }
