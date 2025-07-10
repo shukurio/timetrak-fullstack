@@ -28,4 +28,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByEmployeeAndPeriod(@Param("employeeId") Long employeeId,
                                               @Param("periodStart") LocalDate periodStart,
                                               @Param("periodEnd") LocalDate periodEnd);
+
+    boolean existsByEmployeeIdAndPeriodStartAndPeriodEnd(Long employeeId, LocalDate start, LocalDate end);
 }

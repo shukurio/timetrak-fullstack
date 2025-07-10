@@ -10,8 +10,7 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
 @Table(name = "payment")
@@ -45,18 +44,12 @@ public class Payment extends BaseEntity {
     @Column(name = "shifts_count", nullable = false)
     private Integer shiftsCount = 0;
 
-    // JOB BREAKDOWN (for multi-job employees)
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<PaymentJobBreakdown> jobBreakdowns = new ArrayList<>();
-
     // STATUS
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.CALCULATED;
 
     // MANUAL CHECK PROCESS
-
 
     // TRACKING
     @Column(name = "calculated_at")
@@ -77,10 +70,6 @@ public class Payment extends BaseEntity {
 
     // BUSINESS METHODS
 
-    public void addJobBreakdown(PaymentJobBreakdown breakdown) {
-        jobBreakdowns.add(breakdown);
-        breakdown.setPayment(this);
-    }
 
     public boolean isReadyForCheckWriting() {
         return status == PaymentStatus.CALCULATED &&

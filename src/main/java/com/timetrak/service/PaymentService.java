@@ -1,5 +1,6 @@
 package com.timetrak.service;
 
+import com.timetrak.dto.request.PaymentBatchRequestDTO;
 import com.timetrak.dto.request.PaymentRequestDTO;
 import com.timetrak.dto.response.PaymentResponseDTO;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ public interface PaymentService {
      * Calculate payment for a single employee for specified period
      */
     PaymentResponseDTO calculatePayment(PaymentRequestDTO request);
+
+    Page<PaymentResponseDTO> calculateBatchPayments(PaymentBatchRequestDTO request, Pageable pageable);
 
     /**
      * Get payment by ID
