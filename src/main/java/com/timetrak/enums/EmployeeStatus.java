@@ -3,7 +3,7 @@ package com.timetrak.enums;
 public enum EmployeeStatus {
     PENDING,
     ACTIVE,
-    INACTIVE,
+    DEACTIVATED,
     DELETED,
     REJECTED
 }

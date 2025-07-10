@@ -4,11 +4,14 @@ package com.timetrak.controller;
 
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.service.EmployeeService;
+import com.timetrak.enums.EmployeeStatus;
+import com.timetrak.service.employee.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +46,7 @@ public class EmployeeController {
     @Operation(summary = "Get employee by ID", description = "Get a specific employee by ID")
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
-        EmployeeResponseDTO employee = employeeService.getEmployeeById(id);
+        EmployeeResponseDTO employee = employeeService.getEmployeeDTOById(id);
         return ResponseEntity.ok(employee);
     }
 
@@ -79,9 +82,9 @@ public class EmployeeController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<EmployeeResponseDTO> registerEmployee(@RequestBody EmployeeRequestDTO request) {
+    public ResponseEntity<EmployeeResponseDTO> registerEmployee(@Valid @RequestBody EmployeeRequestDTO request) {
         EmployeeResponseDTO employee = employeeService.registerEmployee(request);
-        return ResponseEntity.ok(employee);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employee);  // 201 CREATED
     }
 
 
@@ -89,6 +92,57 @@ public class EmployeeController {
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();  // 204
+    }
+
+    @Operation(summary = "Approve pending employee", description = "Approve a pending employee application")
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<Map<String, String>> approveEmployee(@PathVariable Long id) {
+        employeeService.approveEmployee(id);
+        return ResponseEntity.ok(Map.of("message", "Employee approved successfully"));
+    }
+
+    @Operation(summary = "Reject pending employee", description = "Reject a pending employee application")
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<Map<String, String>> rejectEmployee(@PathVariable Long id) {
+        employeeService.rejectEmployee(id);
+        return ResponseEntity.ok(Map.of("message", "Employee rejected successfully"));
+    }
+
+    @Operation(summary = "Request reactivation", description = "Request reactivation for rejected/deactivated employee")
+    @PutMapping("/{id}/reactivate")
+    public ResponseEntity<Map<String, String>> requestReactivation(@PathVariable Long id) {
+        employeeService.requestReactivation(id);
+        return ResponseEntity.ok(Map.of("message", "Reactivation requested successfully"));
+    }
+
+    @Operation(summary = "Get pending employees", description = "Get all employees pending approval")
+    @GetMapping("/pending")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getPendingEmployees(Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.PENDING, pageable);
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Get rejected employees", description = "Get all rejected employees")
+    @GetMapping("/rejected")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getRejectedEmployees(Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.REJECTED, pageable);
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Get deactivated employees", description = "Get all deactivated employees")
+    @GetMapping("/deactivated")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getDeactivatedEmployees(Pageable pageable) {
+        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.DEACTIVATED, pageable);
+        return ResponseEntity.ok(employees);
+    }
+
+    @Operation(summary = "Update employee", description = "Update employee information")
+    @PutMapping("/{id}")
+    public ResponseEntity<EmployeeResponseDTO> updateEmployee(
+            @PathVariable Long id,
+            @Valid @RequestBody EmployeeRequestDTO request) {
+        EmployeeResponseDTO employee = employeeService.updateEmployee(id, request);
+        return ResponseEntity.ok(employee);
     }
 }
 
