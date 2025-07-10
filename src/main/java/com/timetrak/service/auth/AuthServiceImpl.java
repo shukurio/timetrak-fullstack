@@ -1,4 +1,4 @@
-package com.timetrak.service.impl;
+package com.timetrak.service.auth;
 
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
@@ -17,7 +17,6 @@ import com.timetrak.security.auth.CustomUserDetails;
 import com.timetrak.security.auth.JwtService;
 import com.timetrak.security.auth.dto.AuthRequest;
 import com.timetrak.security.auth.dto.AuthResponse;
-import com.timetrak.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
