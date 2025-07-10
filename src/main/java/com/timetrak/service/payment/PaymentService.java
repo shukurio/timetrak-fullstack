@@ -1,4 +1,4 @@
-package com.timetrak.service;
+package com.timetrak.service.payment;
 
 import com.timetrak.dto.request.PaymentBatchRequestDTO;
 import com.timetrak.dto.request.PaymentRequestDTO;
