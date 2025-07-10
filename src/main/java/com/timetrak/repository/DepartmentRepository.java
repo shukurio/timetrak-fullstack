@@ -30,4 +30,6 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     @Query("SELECT d FROM Department d WHERE d.company.id = :companyId AND d.deletedAt IS NULL AND d.isActive = true")
     Page<Department> findActiveByCompanyId(Long companyId, Pageable pageable);
+
+    boolean existsByIdAndCompanyId(Long departmentId, Long companyId);
 }

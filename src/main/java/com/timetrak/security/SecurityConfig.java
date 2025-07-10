@@ -28,8 +28,15 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll() // Public auth routes (login/register)
-                        .anyRequest().authenticated()               // All other endpoints require auth
+                        // Public auth routes
+                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+
+                        // error endpoint (for validation errors)
+                        .requestMatchers("/error").permitAll()
+
+
+                        // All other endpoints require authentication
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions

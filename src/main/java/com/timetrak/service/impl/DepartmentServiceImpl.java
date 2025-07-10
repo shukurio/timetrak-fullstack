@@ -90,4 +90,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
         return departmentMapper.toDTO(department);
     }
+
+    @Override
+    public boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId) {
+        if (departmentId == null || companyId == null) {
+            return false;
+        }
+        return departmentRepository.existsByIdAndCompanyId(departmentId, companyId);
+    }
 }

@@ -2,8 +2,7 @@ package com.timetrak.service.impl;
 
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.dto.response.DepartmentResponseDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
@@ -11,6 +10,7 @@ import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.exception.TokenExpiredException;
+import com.timetrak.mapper.EmployeeMapper;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.security.auth.CustomUserDetails;
@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmployeeMapper employeeMapper;
 
     @Override
     public AuthResponse login(AuthRequest request) {
@@ -56,8 +57,8 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + request.getUsername()));
 
             if (!EmployeeStatus.ACTIVE.equals(employee.getStatus()))
-                {
-                //TODO Dont hARdcode
+            {
+                //TODO Dont hArdcode
                 throw new InvalidCredentialsException("Account is deactivated");
             }
 
@@ -74,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
                     .refreshToken(refreshToken)
                     .tokenType("Bearer")
                     .expiresIn(jwtService.getExpirationTime())
-                    .user(mapToEmployeeDTO(employee))
+                    .user(employeeMapper.toDTO(employee))
                     .build();
 
         } catch (AuthenticationException e) {
@@ -112,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
-                .status(request.getStatus())
+                .status(EmployeeStatus.PENDING)
                 .role(request.getRole())
                 .department(department)
                 .build();
@@ -131,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(jwtService.getExpirationTime())
-                .user(mapToEmployeeDTO(employee))
+                .user(employeeMapper.toDTO(employee))
                 .build();
     }
 
@@ -165,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
                     .refreshToken(newRefreshToken)
                     .tokenType("Bearer")
                     .expiresIn(jwtService.getExpirationTime())
-                    .user(mapToEmployeeDTO(employee))
+                    .user(employeeMapper.toDTO(employee))
                     .build();
 
         } catch (TokenExpiredException e) {
@@ -207,28 +208,5 @@ public class AuthServiceImpl implements AuthService {
         throw new UnsupportedOperationException("Password reset functionality not yet implemented");
     }
 
-    private EmployeeResponseDTO mapToEmployeeDTO(Employee employee) {
-        DepartmentResponseDTO departmentDTO = null;
-        if (employee.getDepartment() != null) {
-            departmentDTO = DepartmentResponseDTO.builder()
-                    .id(employee.getDepartment().getId())
-                    .name(employee.getDepartment().getName())
-                    .code(employee.getDepartment().getCode())
-                    .build();
-        }
-
-        assert departmentDTO != null;
-        return EmployeeResponseDTO.builder()
-                .id(employee.getId())
-                .firstName(employee.getFirstName())
-                .lastName(employee.getLastName())
-                .username(employee.getUsername())
-                .email(employee.getEmail())
-                .role(employee.getRole())
-                .phoneNumber(employee.getPhoneNumber())
-                .status(employee.getStatus())
-                .departmentId(departmentDTO.getId())
-                .build();
-    }
 }
 
