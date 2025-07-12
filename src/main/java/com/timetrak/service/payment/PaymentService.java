@@ -1,12 +1,17 @@
 package com.timetrak.service.payment;
 
-import com.timetrak.dto.request.PaymentBatchRequestDTO;
-import com.timetrak.dto.request.PaymentRequestDTO;
-import com.timetrak.dto.response.PaymentResponseDTO;
+import com.timetrak.dto.payment.PaymentBatchRequestDTO;
+import com.timetrak.dto.payment.PaymentRequestDTO;
+import com.timetrak.dto.payment.JobDetailsDTO;
+import com.timetrak.dto.payment.PaymentDashboardDTO;
+import com.timetrak.dto.payment.PaymentResponseDTO;
+import com.timetrak.dto.payment.PaymentSummaryDTO;
+import com.timetrak.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface PaymentService {
 
@@ -67,4 +72,107 @@ public interface PaymentService {
      * Check if payment already exists for employee and period
      */
     boolean paymentExistsForPeriod(Long employeeId, LocalDate startDate, LocalDate endDate);
+
+    // =============== PAYMENT WORKFLOW ===============
+
+    /**
+     * Approve pending payment (ADMIN only)
+     */
+    PaymentResponseDTO approvePayment(Long paymentId, String approvedBy);
+
+    /**
+     * Reject/void payment with reason (ADMIN only)
+     */
+    PaymentResponseDTO voidPayment(Long paymentId, String reason, String voidedBy);
+
+    /**
+     * Bulk approve multiple payments
+     */
+    List<PaymentResponseDTO> bulkApprovePayments(List<Long> paymentIds, String approvedBy);
+
+    /**
+     * Reprocess/recalculate payment if there were errors
+     */
+    PaymentResponseDTO reprocessPayment(Long paymentId, String reason);
+
+    //TODO probably dont need it
+
+    // =============== SEARCH & FILTERING ===============
+
+    /**
+     * Search payments by multiple criteria
+     */
+    Page<PaymentResponseDTO> searchPayments(Long companyId,
+                                            LocalDate startDate,
+                                            LocalDate endDate,
+                                            PaymentStatus status,
+                                            String employeeName,
+                                            Pageable pageable);
+
+    /**
+     * Get payments by status for company
+     */
+    Page<PaymentResponseDTO> getPaymentsByStatus(Long companyId,
+                                                 PaymentStatus status,
+                                                 Pageable pageable);
+
+    /**
+     * Get payments by date range
+     */
+    Page<PaymentResponseDTO> getPaymentsByDateRange(Long companyId,
+                                                    LocalDate startDate,
+                                                    LocalDate endDate,
+                                                    Pageable pageable);
+
+    // =============== REPORTING ===============
+
+    /**
+     * Get payment summary for period
+     */
+    PaymentSummaryDTO getPaymentSummary(Long companyId,
+                                        LocalDate startDate,
+                                        LocalDate endDate);
+
+    /**
+     * Get payment dashboard data
+     */
+    PaymentDashboardDTO getPaymentDashboard(Long companyId);
+
+    /**
+     * Export payments for accounting/payroll systems
+     */
+    byte[] exportPayments(Long companyId,
+                          LocalDate startDate,
+                          LocalDate endDate,
+                          String format); // CSV, PDF, etc.
+
+    // =============== BULK OPERATIONS ===============
+
+    /**
+     * Calculate payments for entire company for period
+     */
+    Page<PaymentResponseDTO> calculateCompanyPayroll(Long companyId,
+                                                     LocalDate startDate,
+                                                     LocalDate endDate,
+                                                     Pageable pageable);
+
+    /**
+     * Bulk mark payments as issued
+     */
+    List<PaymentResponseDTO> bulkMarkPaymentsIssued(List<Long> paymentIds,
+                                                    LocalDate issuedDate,
+                                                    String issuedBy);
+
+    // =============== PAYMENT DETAILS ===============
+
+
+    /**
+     * Add check number to payment
+     */
+    PaymentResponseDTO addCheckNumber(Long paymentId, String checkNumber);
+
+    /**
+     * Get payment breakdown details (overtime, regular, bonuses, etc.)
+     */
+    JobDetailsDTO getPaymentJobDetails(Long paymentId);
 }
