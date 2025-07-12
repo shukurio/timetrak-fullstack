@@ -1,7 +1,7 @@
 package com.timetrak.mapper;
 
-import com.timetrak.dto.response.JobDetailsDTO;
-import com.timetrak.dto.response.PaymentResponseDTO;
+import com.timetrak.dto.payment.JobDetailsDTO;
+import com.timetrak.dto.payment.PaymentResponseDTO;
 import com.timetrak.entity.Payment;
 import org.mapstruct.*;
 

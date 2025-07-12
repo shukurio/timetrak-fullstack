@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.payment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.timetrak.enums.PaymentStatus;

@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.payment;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

@@ -1,18 +1,22 @@
-package com.timetrak.dto.request;
+package com.timetrak.dto.payment;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder
-public class PaymentBatchRequestDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class PaymentRequestDTO {
+
     @NotNull(message = "Employee ID is required")
-    private List<Long> employeeIds;
+    private Long employeeId;
 
     @NotNull(message = "Period start date is required")
     @PastOrPresent(message = "Period start date cannot be in the future")
@@ -22,8 +26,7 @@ public class PaymentBatchRequestDTO {
     @PastOrPresent(message = "Period end date cannot be in the future")
     private LocalDate periodEnd;
 
-    private String notes;
-
+    private String notes; // Optional notes for the payment
 
     // VALIDATION HELPER METHOD
     public void validate() {
