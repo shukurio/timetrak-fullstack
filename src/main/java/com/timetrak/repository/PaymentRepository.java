@@ -30,4 +30,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
                                               @Param("periodEnd") LocalDate periodEnd);
 
     boolean existsByEmployeeIdAndPeriodStartAndPeriodEnd(Long employeeId, LocalDate start, LocalDate end);
+
+    boolean existsByIdAndCompanyId(Long paymentId, Long CompanyId);
+
+    boolean existsByIdAndEmployeeId(Long paymentId, Long employeeId);
 }

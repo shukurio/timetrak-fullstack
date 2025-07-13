@@ -27,6 +27,9 @@ public class Payment extends BaseEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "payments"})
     private Employee employee;
 
+    @Column(name = "company_id", nullable = false)
+    private Long companyId;
+
     // PAYMENT PERIOD
     @Column(name = "period_start", nullable = false)
     private LocalDate periodStart;
@@ -67,6 +70,13 @@ public class Payment extends BaseEntity {
     // NOTES
     @Column(name = "notes", length = 500)
     private String notes;
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+        if (employee != null && employee.getCompany() != null) {
+            this.companyId = employee.getCompany().getId();
+        }
+    }
 
     // BUSINESS METHODS
 
