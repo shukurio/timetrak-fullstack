@@ -1,7 +1,7 @@
 package com.timetrak.mapper;
 
 import com.timetrak.dto.payment.JobDetailsDTO;
-import com.timetrak.dto.payment.PaymentResponseDTO;
+import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.entity.Payment;
 import org.mapstruct.*;
 
@@ -20,7 +20,7 @@ public interface PaymentMapper {
     @Mapping(target = "calculatedByName", ignore = true)
     @Mapping(target = "checkNumber", ignore = true)
     @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
-    PaymentResponseDTO toResponseDTO(Payment payment, List<JobDetailsDTO> jobDetails);
+    PaymentDetailsDTO toResponseDTO(Payment payment, List<JobDetailsDTO> jobDetails);
 
     @Mapping(target = "employeeId", source = "employee.id")
     @Mapping(target = "employeeName", source = "employee.fullName")
@@ -30,7 +30,7 @@ public interface PaymentMapper {
     @Mapping(target = "calculatedByName", ignore = true)
     @Mapping(target = "checkNumber", ignore = true)
     @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
-    PaymentResponseDTO toSimpleResponseDTO(Payment payment);
+    PaymentDetailsDTO toSimpleResponseDTO(Payment payment);
 
     default Integer getJobsCount(List<JobDetailsDTO> jobDetails) {
         return jobDetails != null ? jobDetails.size() : 0;
