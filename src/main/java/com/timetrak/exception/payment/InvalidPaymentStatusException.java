@@ -11,9 +11,9 @@ public class InvalidPaymentStatusException extends PaymentException {
     private final PaymentStatus currentStatus;
     private final PaymentStatus requestedStatus;
 
-    public InvalidPaymentStatusException(PaymentStatus currentStatus, PaymentStatus requestedStatus) {
-        super(String.format("Cannot transition payment from %s to %s",
-                currentStatus, requestedStatus), ERROR_CODE);
+    public InvalidPaymentStatusException(PaymentStatus currentStatus, PaymentStatus requestedStatus,String reason) {
+        super(String.format("Cannot transition payment from %s to %s. %s",
+                currentStatus, requestedStatus, reason), ERROR_CODE);
         this.currentStatus = currentStatus;
         this.requestedStatus = requestedStatus;
     }

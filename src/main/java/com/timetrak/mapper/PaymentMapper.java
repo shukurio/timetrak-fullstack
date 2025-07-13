@@ -48,4 +48,6 @@ public interface PaymentMapper {
         return payment.getTotalAmount()
                 .divide(payment.getTotalHours(), 2, RoundingMode.HALF_UP);
     }
+
+    List<PaymentDetailsDTO> toDTOList(List<Payment> payments);
 }
