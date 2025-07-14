@@ -306,6 +306,14 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
+    public List<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        return shiftRepository.findByEmployeeIdAndDateRange(employeeId,startDateTime,endDateTime)
+                .stream().map(shiftMapper::toDTO).toList();
+    }
+
+    @Override
     public Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Pageable pageable) {
         LocalDateTime startDateTime = toStartOfDay(startDate);
         return shiftRepository.findByDateFrom(startDateTime, pageable).map(shiftMapper::toDTO);

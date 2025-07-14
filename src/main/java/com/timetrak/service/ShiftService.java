@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 /**
@@ -46,6 +47,9 @@ public interface ShiftService {
     Page<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status, Pageable pageable);
+
+    List<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate);
+
 
     Page<ShiftResponseDTO> getTodaysShifts(Pageable pageable);
     Page<ShiftResponseDTO> getThisWeekShifts(Pageable pageable);
