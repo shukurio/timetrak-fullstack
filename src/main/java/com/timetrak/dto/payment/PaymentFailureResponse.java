@@ -1,6 +1,8 @@
 package com.timetrak.dto.payment;
 
 
+import lombok.Builder;
+@Builder
 public class PaymentFailureResponse {
     private Long employeeId;
     private Long paymentId;

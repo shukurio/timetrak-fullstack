@@ -22,6 +22,7 @@ public class PaymentResponseDTO {
     private int failureCount;
     private LocalDateTime operationTime;
     private String operationType;
+    private String paymentPeriod;
     private List<PaymentDetailsDTO> successful;
     private List<PaymentFailureResponse> failed;
     private boolean isCompletelySuccessful(){
