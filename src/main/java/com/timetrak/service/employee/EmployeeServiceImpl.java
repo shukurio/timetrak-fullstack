@@ -12,6 +12,7 @@ import com.timetrak.mapper.EmployeeMapper;
 import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.service.CompanyService;
 import com.timetrak.service.DepartmentService;
+import com.timetrak.service.auth.AuthContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,11 +22,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
+    private final AuthContextService authContextService;
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentService departmentService;
@@ -46,6 +50,18 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
+    @Override
+    public List<Employee> getByIds(List<Long> ids) {
+        return employeeRepository.findAllByIdAndCompanyIdDeletedIncluded(ids, authContextService.getCurrentCompanyId());
+    }
+
+    //for company
+    @Override
+    public Page<EmployeeResponseDTO> getAllActiveInCurrentCompany(Pageable pageable) {
+        return employeeRepository.findAllActiveByCompanyId(authContextService.getCurrentCompanyId(),pageable)
+                .map(employeeMapper::toDTO);
+
+    }
 
 
     @Override
@@ -61,16 +77,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable) {
-        return employeeRepository.findAll(pageable)
+    public Page<EmployeeResponseDTO> getAllEmployeesForCompany(Pageable pageable) {
+        return employeeRepository.findAllByCompanyId(authContextService.getCurrentCompanyId(), pageable)
                 .map(employeeMapper::toDTO);
     }
 
-    @Override
-    public Page<EmployeeResponseDTO> getAllActiveEmployees(Pageable pageable) {
-        return employeeRepository.findAllActive(pageable)
-                .map(employeeMapper::toDTO);
-    }
+
+
+
 
     @Transactional
     @Override
@@ -169,7 +183,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<EmployeeResponseDTO> getByStatus(EmployeeStatus status, Pageable pageable) {
-        return employeeRepository.findByStatusPaged(status, pageable)
+        return employeeRepository.findAllByCompanyIdAndStatusPaged(authContextService.getCurrentCompanyId(), status, pageable)
                 .map(employeeMapper::toDTO);
     }
 
@@ -178,7 +192,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Page<EmployeeResponseDTO> searchEmployees(String query, Pageable pageable) {
         validationService.validateSearchQuery(query);
 
-        return employeeRepository.searchActiveEmployees(query, pageable)
+        return employeeRepository.searchActiveEmployees(query, authContextService.getCurrentCompanyId(), pageable)
                 .map(employeeMapper::toDTO);
     }
 
@@ -244,5 +258,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         } else if (e.getMessage().contains("email")) {
             throw new DuplicateEmployeeException("email", email);
         }
+    }
+
+    //============Internal Use, return List===========
+
+    @Override
+    public List<Long> getAllActiveEmployeeIdsForCompany() {
+        return employeeRepository.findActiveEmployeeIdsByCompanyId(authContextService.getCurrentCompanyId());
     }
 }

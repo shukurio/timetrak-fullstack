@@ -8,16 +8,21 @@ import com.timetrak.enums.EmployeeStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface EmployeeService {
 
     // Basic CRUD operations
     EmployeeResponseDTO getEmployeeDTOById(Long id);
     Employee getById(Long id);
+    List<Employee> getByIds(List<Long> ids);
+    Page<EmployeeResponseDTO> getAllActiveInCurrentCompany(Pageable pageable);
 
     Employee getByUsername(String username);
     Employee getByEmail(String email);
-    Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable);
-    Page<EmployeeResponseDTO> getAllActiveEmployees(Pageable pageable);
+    Page<EmployeeResponseDTO> getAllEmployeesForCompany(Pageable pageable);
+    List<Long> getAllActiveEmployeeIdsForCompany();
+
     EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto);
     void deleteEmployee(Long id);
 
