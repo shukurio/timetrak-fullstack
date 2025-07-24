@@ -23,6 +23,12 @@ public class Shift extends BaseEntity{
     @JoinColumn(name="employee_job_id")
     private EmployeeJob employeeJob;
 
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
+
+    @Column(name = "company_id", nullable = false)
+    private Long companyId;
+
 
     @Column(name="clock_in")
     private LocalDateTime clockIn;

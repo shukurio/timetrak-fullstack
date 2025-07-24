@@ -55,13 +55,14 @@ public class Employee extends BaseEntity {
     @Column(name = "status", nullable = false, length =20)
     private EmployeeStatus status;
 
-    @NotNull
+    @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id",nullable = false)
+    @NotNull(message = "Company is required")
     private Company company;
 
     @ManyToOne

@@ -41,8 +41,8 @@ public class Payment extends BaseEntity {
     @Column(name = "total_hours", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalHours = BigDecimal.ZERO;
 
-    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal totalAmount = BigDecimal.ZERO;
+    @Column(name = "total_earnings", nullable = false, precision = 12, scale = 2)
+    private BigDecimal totalEarnings = BigDecimal.ZERO;
 
     @Column(name = "shifts_count", nullable = false)
     private Integer shiftsCount = 0;
@@ -83,7 +83,7 @@ public class Payment extends BaseEntity {
 
     public boolean isReadyForCheckWriting() {
         return status == PaymentStatus.CALCULATED &&
-                totalAmount.compareTo(BigDecimal.ZERO) > 0;
+                totalEarnings.compareTo(BigDecimal.ZERO) > 0;
     }
 
 
@@ -106,13 +106,4 @@ public class Payment extends BaseEntity {
         this.completedAt = date;
     }
 
-    public void validate() {
-        if (periodStart != null && periodEnd != null && periodStart.isAfter(periodEnd)) {
-            throw new IllegalArgumentException("Period start must be before end date");
-        }
-
-        if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Payment amount cannot be negative");
-        }
-    }
 }
