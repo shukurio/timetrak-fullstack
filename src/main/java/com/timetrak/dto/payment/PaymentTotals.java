@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 public class PaymentTotals {
-    private BigDecimal totalHours;
-    private BigDecimal totalEarnings;
+    private final BigDecimal totalHours;
+    private final BigDecimal totalEarnings;
+    private final Integer shiftsCount;
 
 }

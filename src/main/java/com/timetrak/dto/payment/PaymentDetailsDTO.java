@@ -51,7 +51,7 @@ public class PaymentDetailsDTO {
     @NotNull(message = "Total amount is required")
     @DecimalMin(value = "0.0", message = "Total amount cannot be negative")
     @Digits(integer = 5, fraction = 2, message = "Total amount precision invalid")
-    private BigDecimal totalAmount;
+    private BigDecimal totalEarnings;
 
     @NotNull(message = "Shifts count is required")
     @Min(value = 0, message = "Shifts count cannot be negative")
