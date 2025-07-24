@@ -3,7 +3,6 @@ package com.timetrak.enums;
 public enum PayFrequency {
     WEEKLY("Weekly", 52),
     BIWEEKLY("Bi-weekly", 26),
-    SEMIMONTHLY("Semi-monthly", 24),
     MONTHLY("Monthly", 12);
 
     private final String description;

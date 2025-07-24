@@ -37,7 +37,7 @@ public interface PaymentMapper {
     }
 
     default BigDecimal calculateAverageRate(Payment payment) {
-        if (payment.getTotalHours() == null || payment.getTotalAmount() == null) {
+        if (payment.getTotalHours() == null || payment.getTotalEarnings() == null) {
             return BigDecimal.ZERO;
         }
 
@@ -45,7 +45,7 @@ public interface PaymentMapper {
             return BigDecimal.ZERO;
         }
 
-        return payment.getTotalAmount()
+        return payment.getTotalEarnings()
                 .divide(payment.getTotalHours(), 2, RoundingMode.HALF_UP);
     }
 
