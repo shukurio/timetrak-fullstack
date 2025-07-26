@@ -2,8 +2,8 @@ package com.timetrak.controller;
 
 import com.timetrak.dto.payment.PaymentRequestDTO;
 import com.timetrak.dto.payment.PaymentResponseDTO;
-import com.timetrak.service.payment.AutomaticPaymentService;
-import com.timetrak.service.payment.PaymentService;
+import com.timetrak.service.payment.calculation.AutomaticPaymentService;
+import com.timetrak.service.payment.calculation.PaymentCalculationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,15 +13,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/payments")
 public class PaymentController {
-    private final PaymentService paymentService;
+    private final PaymentCalculationService calculationService;
     private final AutomaticPaymentService automaticPaymentService;
 
     @PostMapping("/calculate-period")
     @PreAuthorize("hasRole('ADMIN')")
-    //TODO always validate if request is valid, cant have empty request in calculate period
     public ResponseEntity<PaymentResponseDTO> calculatePaymentsForPeriod(
             @RequestBody PaymentRequestDTO request) {
-        PaymentResponseDTO response = paymentService.calculatePayments(request);
+        PaymentResponseDTO response = calculationService.calculatePayments(request);
         return ResponseEntity.ok(response);
     }
 

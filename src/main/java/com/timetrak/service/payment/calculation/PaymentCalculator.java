@@ -1,4 +1,4 @@
-package com.timetrak.service.payment;
+package com.timetrak.service.payment.calculation;
 
 import com.timetrak.dto.payment.*;
 import com.timetrak.dto.response.ShiftResponseDTO;

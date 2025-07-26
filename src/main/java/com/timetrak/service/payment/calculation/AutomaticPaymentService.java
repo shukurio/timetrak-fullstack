@@ -1,4 +1,4 @@
-package com.timetrak.service.payment;
+package com.timetrak.service.payment.calculation;
 
 import com.timetrak.dto.payment.PaymentPeriod;
 import com.timetrak.dto.payment.PaymentResponseDTO;
@@ -6,6 +6,7 @@ import com.timetrak.entity.CompanyPaymentSettings;
 import com.timetrak.repository.CompanyPaymentSettingsRepository;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.employee.EmployeeService;
+import com.timetrak.service.payment.PaymentPeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,7 +25,7 @@ public class AutomaticPaymentService {
     //TODO need to implement Validation
 
     private final CompanyPaymentSettingsRepository companyPaymentSettingsRepository;
-    private final PaymentService paymentService;
+    private final PaymentCalculationService calculationService;
     private final PaymentPeriodService paymentPeriodService;
     private final EmployeeService employeeService;
     private final PaymentRepository paymentRepository;
@@ -102,7 +103,7 @@ public class AutomaticPaymentService {
             }
 
             // Calculate payments
-            PaymentResponseDTO response = paymentService.calculatePaymentsForPeriod(currentPeriod);
+            PaymentResponseDTO response = calculationService.calculatePaymentsForPeriod(currentPeriod);
 
             log.info("Automatic payment calculation completed for company {}: {} successful, {} failed",
                     companyId, response.getSuccessCount(), response.getFailureCount());
