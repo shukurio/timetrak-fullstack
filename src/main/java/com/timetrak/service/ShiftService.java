@@ -1,5 +1,6 @@
 package com.timetrak.service;
 
+import com.timetrak.dto.payment.PaymentPeriod;
 import com.timetrak.dto.request.*;
 import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -44,11 +46,8 @@ public interface ShiftService {
     Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status, Pageable pageable);
-
-    List<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate);
 
 
     Page<ShiftResponseDTO> getTodaysShifts(Pageable pageable);
@@ -61,5 +60,17 @@ public interface ShiftService {
     ShiftSummaryDTO getShiftSummary(Long employeeId, LocalDate startDate, LocalDate endDate);
 
     Shift getActiveShift(@NotNull Long employeeId);
+
+
+    Page<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId,
+                                                             LocalDate startDate,
+                                                             LocalDate endDate,
+                                                             Pageable pageable);
+
+    List<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId,
+                                                             LocalDate startDate,
+                                                             LocalDate endDate);
+
+    Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(LocalDate startDate, LocalDate endDate);
 }
 

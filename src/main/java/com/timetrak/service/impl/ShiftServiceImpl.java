@@ -13,6 +13,7 @@ import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.EmployeeJobService;
+import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.ShiftService;
 import jakarta.transaction.Transactional;
@@ -27,9 +28,8 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -57,6 +57,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final ShiftMapper shiftMapper;
     private final EmployeeJobService employeeJobService;
     private final EmployeeService employeeService;
+    private final AuthContextService authContextService;
 
     @Override
     @Transactional
@@ -131,6 +132,8 @@ public class ShiftServiceImpl implements ShiftService {
                 Shift shift = Shift.builder()
                         .clockIn(request.getClockInTime() != null ? request.getClockInTime() : LocalDateTime.now())
                         .employeeJob(employeeJob)
+                        .employeeId(empJob.getEmployeeId())
+                        .companyId(empJob.getCompanyId())
                         .status(ShiftStatus.ACTIVE)
                         .notes(sanitizeNotes(request.getNotes()))
                         .build();
@@ -264,6 +267,8 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public Page<ShiftResponseDTO> getAllShifts(Pageable pageable) {
         return shiftRepository.findAll(pageable).map(shiftMapper::toDTO);
+
+        //TODO SHiftValidator will be implemented and check the currentcompanyId for security reasons
     }
 
 
@@ -287,7 +292,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         LocalDateTime startDateTime = toStartOfDay(startDate);
         LocalDateTime endDateTime = toEndOfDay(endDate);
         Page<Shift> shifts = shiftRepository.findByEmployeeIdAndDateRange(employeeId, startDateTime, endDateTime, pageable);
@@ -295,22 +300,20 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
+    public List<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate) {
+       return shiftRepository.findByEmployeeIdAndDateRange(employeeId, startDate, endDate)
+               .stream().map(shiftMapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
     public Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable) {
-        return shiftRepository.findByStatusAndEmployeeJobEmployeeId(
+        return shiftRepository.findByStatusAndEmployeeId(
                 status, employeeId, pageable).map(shiftMapper::toDTO);
     }
 
     @Override
     public Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status,Pageable pageable) {
         return shiftRepository.findAllByStatus(status, pageable).map(shiftMapper::toDTO);
-    }
-
-    @Override
-    public List<ShiftResponseDTO> getShiftsByEmployeeAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate) {
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-        return shiftRepository.findByEmployeeIdAndDateRange(employeeId,startDateTime,endDateTime)
-                .stream().map(shiftMapper::toDTO).toList();
     }
 
     @Override
@@ -385,6 +388,24 @@ public class ShiftServiceImpl implements ShiftService {
         return shiftRepository.findActiveShiftByEmployeeId(employeeId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(ClockErrorCode.NO_ACTIVE_SHIFT.getDefaultMessage() + " for employee ID: " + employeeId));
+    }
+
+    @Override
+    public Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(
+             LocalDate startDate, LocalDate endDate) {
+
+        Long companyId = authContextService.getCurrentCompanyId();
+
+        // Single batch query
+        List<Shift> shifts = shiftRepository.findAllByCompanyIdAndDateRange(
+                startDate, endDate, companyId);
+
+        // Group by empID and convert to DTOs
+        return shifts.stream()
+                .collect(Collectors.groupingBy(
+                        Shift::getEmployeeId,
+                        Collectors.mapping(shiftMapper::toDTO, Collectors.toList())
+                ));
     }
 
     /**
