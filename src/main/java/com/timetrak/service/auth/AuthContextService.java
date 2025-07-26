@@ -2,7 +2,6 @@ package com.timetrak.service.auth;
 
 import com.timetrak.enums.Role;
 import com.timetrak.exception.UnauthorizedAccessException;
-import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthContextService {
 
-    private final EmployeeRepository employeeRepository;
 
     public Long getCurrentCompanyId() {
         return getCurrentUserDetails().getCompanyId();
@@ -33,34 +31,6 @@ public class AuthContextService {
         return getCurrentUserDetails().getEmployee().getRole();
     }
 
-    public void validateEmployeeInCompany(Long employeeId) {
-        if (employeeId == null) {
-            throw new UnauthorizedAccessException("Employee ID cannot be null");
-        }
-
-        Long currentCompanyId = getCurrentCompanyId();
-        boolean employeeBelongsToCompany = employeeRepository
-                .existsByIdAndCompanyId(employeeId, currentCompanyId);
-
-        if (!employeeBelongsToCompany) {
-            log.warn("Admin {} attempted to access employee {} from different company",
-                    getCurrentEmployeeId(), employeeId);
-            throw new UnauthorizedAccessException("Access denied: Employee belongs to different company");
-        }
-    }
-
-    public void validateCompanyAccess(Long companyId) {
-        if (companyId == null) {
-            throw new UnauthorizedAccessException("Company ID cannot be null");
-        }
-
-        Long currentCompanyId = getCurrentCompanyId();
-        if (!currentCompanyId.equals(companyId)) {
-            log.warn("User {} attempted to access company {}, but belongs to company {}",
-                    getCurrentUsername(), companyId, currentCompanyId);
-            throw new UnauthorizedAccessException("Access denied: User does not belong to company " + companyId);
-        }
-    }
 
     public CustomUserDetails getCurrentUserDetails() {
         Authentication authentication = getAuthentication();
