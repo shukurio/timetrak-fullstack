@@ -1,11 +1,7 @@
 package com.timetrak.service.payment;
 
-import com.timetrak.dto.payment.PaymentBatchRequestDTO;
-import com.timetrak.dto.payment.PaymentRequestDTO;
-import com.timetrak.dto.payment.JobDetailsDTO;
-import com.timetrak.dto.payment.PaymentDashboardDTO;
-import com.timetrak.dto.payment.PaymentResponseDTO;
-import com.timetrak.dto.payment.PaymentSummaryDTO;
+import com.timetrak.dto.payment.*;
+import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,40 +14,39 @@ public interface PaymentService {
     // =============== CORE PAYMENT OPERATIONS ===============
 
     /**
-     * Calculate payment for a single employee for specified period
+     * Calculate payment for a single and group of employees for specified period
      */
-    PaymentResponseDTO calculatePayment(PaymentRequestDTO request);
-
-    Page<PaymentResponseDTO> calculateBatchPayments(PaymentBatchRequestDTO request, Pageable pageable);
+    PaymentResponseDTO calculatePayments(PaymentRequestDTO request);
+    PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod);
 
     /**
      * Get payment by ID
      */
-    PaymentResponseDTO getPaymentById(Long paymentId);
+    PaymentDetailsDTO getPaymentById(Long paymentId);
 
     // =============== EMPLOYEE ACCESS ===============
 
     /**
      * Get employee's most recent payment
      */
-    PaymentResponseDTO getLastPaymentForEmployee(Long employeeId);
+    PaymentDetailsDTO getLastPaymentForEmployee(Long employeeId);
 
     /**
      * Get all payments for an employee with pagination
      */
-    Page<PaymentResponseDTO> getAllPaymentsForEmployee(Long employeeId, Pageable pageable);
+    Page<PaymentDetailsDTO> getAllPaymentsForEmployee(Long employeeId, Pageable pageable);
 
     // =============== ADMIN ACCESS ===============
 
     /**
      * Get all payments for company with pagination
      */
-    Page<PaymentResponseDTO> getAllPaymentsForCompany(Long companyId, Pageable pageable);
+    Page<PaymentDetailsDTO> getAllPaymentsForCompany(Long companyId, Pageable pageable);
 
     /**
      * Get payments for last completed pay period
      */
-    Page<PaymentResponseDTO> getAllPaymentsForLastPeriod(Pageable pageable);
+    Page<PaymentDetailsDTO> getAllPaymentsForLastPeriod(Pageable pageable);
 
 
     // =============== BASIC STATUS MANAGEMENT ===============
@@ -59,12 +54,12 @@ public interface PaymentService {
     /**
      * Mark payment as check issued
      */
-    PaymentResponseDTO markPaymentIssued(Long paymentId, LocalDate issuedDate);
+    PaymentDetailsDTO markPaymentIssued(Long paymentId, LocalDate issuedDate);
 
     /**
      * Mark payment as received by employee
      */
-    PaymentResponseDTO markPaymentReceived(Long paymentId, LocalDate receivedDate);
+    PaymentDetailsDTO markPaymentReceived(Long paymentId, LocalDate receivedDate);
 
     // =============== VALIDATION ===============
 
@@ -78,22 +73,22 @@ public interface PaymentService {
     /**
      * Approve pending payment (ADMIN only)
      */
-    PaymentResponseDTO approvePayment(Long paymentId, String approvedBy);
+    PaymentDetailsDTO approvePayment(Long paymentId, String approvedBy);
 
     /**
      * Reject/void payment with reason (ADMIN only)
      */
-    PaymentResponseDTO voidPayment(Long paymentId, String reason, String voidedBy);
+    PaymentDetailsDTO voidPayment(Long paymentId, String reason, String voidedBy);
 
     /**
      * Bulk approve multiple payments
      */
-    List<PaymentResponseDTO> bulkApprovePayments(List<Long> paymentIds, String approvedBy);
+    List<PaymentDetailsDTO> bulkApprovePayments(List<Long> paymentIds, String approvedBy);
 
     /**
      * Reprocess/recalculate payment if there were errors
      */
-    PaymentResponseDTO reprocessPayment(Long paymentId, String reason);
+    PaymentDetailsDTO reprocessPayment(Long paymentId, String reason);
 
     //TODO probably dont need it
 
@@ -102,41 +97,31 @@ public interface PaymentService {
     /**
      * Search payments by multiple criteria
      */
-    Page<PaymentResponseDTO> searchPayments(Long companyId,
-                                            LocalDate startDate,
-                                            LocalDate endDate,
-                                            PaymentStatus status,
-                                            String employeeName,
-                                            Pageable pageable);
+    Page<PaymentDetailsDTO> searchPayments(Long companyId,
+                                           LocalDate startDate,
+                                           LocalDate endDate,
+                                           PaymentStatus status,
+                                           String employeeName,
+                                           Pageable pageable);
 
     /**
      * Get payments by status for company
      */
-    Page<PaymentResponseDTO> getPaymentsByStatus(Long companyId,
-                                                 PaymentStatus status,
-                                                 Pageable pageable);
+    Page<PaymentDetailsDTO> getPaymentsByStatus(Long companyId,
+                                                PaymentStatus status,
+                                                Pageable pageable);
 
     /**
      * Get payments by date range
      */
-    Page<PaymentResponseDTO> getPaymentsByDateRange(Long companyId,
-                                                    LocalDate startDate,
-                                                    LocalDate endDate,
-                                                    Pageable pageable);
+    Page<PaymentDetailsDTO> getPaymentsByDateRange(Long companyId,
+                                                   LocalDate startDate,
+                                                   LocalDate endDate,
+                                                   Pageable pageable);
 
     // =============== REPORTING ===============
 
-    /**
-     * Get payment summary for period
-     */
-    PaymentSummaryDTO getPaymentSummary(Long companyId,
-                                        LocalDate startDate,
-                                        LocalDate endDate);
 
-    /**
-     * Get payment dashboard data
-     */
-    PaymentDashboardDTO getPaymentDashboard(Long companyId);
 
     /**
      * Export payments for accounting/payroll systems
@@ -151,17 +136,17 @@ public interface PaymentService {
     /**
      * Calculate payments for entire company for period
      */
-    Page<PaymentResponseDTO> calculateCompanyPayroll(Long companyId,
-                                                     LocalDate startDate,
-                                                     LocalDate endDate,
-                                                     Pageable pageable);
+    Page<PaymentDetailsDTO> calculateCompanyPayroll(Long companyId,
+                                                    LocalDate startDate,
+                                                    LocalDate endDate,
+                                                    Pageable pageable);
 
     /**
      * Bulk mark payments as issued
      */
-    List<PaymentResponseDTO> bulkMarkPaymentsIssued(List<Long> paymentIds,
-                                                    LocalDate issuedDate,
-                                                    String issuedBy);
+    List<PaymentDetailsDTO> bulkMarkPaymentsIssued(List<Long> paymentIds,
+                                                   LocalDate issuedDate,
+                                                   String issuedBy);
 
     // =============== PAYMENT DETAILS ===============
 
@@ -169,7 +154,7 @@ public interface PaymentService {
     /**
      * Add check number to payment
      */
-    PaymentResponseDTO addCheckNumber(Long paymentId, String checkNumber);
+    PaymentDetailsDTO addCheckNumber(Long paymentId, String checkNumber);
 
     /**
      * Get payment breakdown details (overtime, regular, bonuses, etc.)

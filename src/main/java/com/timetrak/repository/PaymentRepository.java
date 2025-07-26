@@ -29,9 +29,24 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
                                               @Param("periodStart") LocalDate periodStart,
                                               @Param("periodEnd") LocalDate periodEnd);
 
-    boolean existsByEmployeeIdAndPeriodStartAndPeriodEnd(Long employeeId, LocalDate start, LocalDate end);
+    boolean existsByEmployeeIdAndPeriodStartAndPeriodEndAndStatusNot(
+            Long employeeId, LocalDate start, LocalDate end, PaymentStatus status);
 
     boolean existsByIdAndCompanyId(Long paymentId, Long CompanyId);
 
     boolean existsByIdAndEmployeeId(Long paymentId, Long employeeId);
+
+    boolean existsByCompanyIdAndPeriodStartAndPeriodEnd(Long companyId, LocalDate periodStart, LocalDate periodEnd);
+
+    @Query("SELECT DISTINCT p.employee.id FROM Payment p " +
+            "WHERE p.employee.id IN :employeeIds " +
+            "AND p.periodStart = :periodStart " +
+            "AND p.periodEnd = :periodEnd " +
+            "AND p.status != :excludedStatus")
+    List<Long> findEmployeesWithExistingPaymentsInPeriod(
+            @Param("employeeIds") List<Long> employeeIds,
+            @Param("periodStart") LocalDate periodStart,
+            @Param("periodEnd") LocalDate periodEnd,
+            @Param("excludedStatus") PaymentStatus excludedStatus);
+
 }
