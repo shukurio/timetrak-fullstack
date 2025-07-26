@@ -31,14 +31,14 @@ public class EmployeeController {
     @Operation(summary = "Get all employees", description = "Get all employees with pagination")
     @GetMapping("/all")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployees(pageable);
+        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployeesForCompany(pageable);
         return ResponseEntity.ok(employees);
     }
 
     @Operation(summary = "Get all Active employees", description = "Get all employees with pagination")
     @GetMapping("/active")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllActiveEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllActiveEmployees(pageable);
+        Page<EmployeeResponseDTO> employees = employeeService.getAllActiveInCurrentCompany(pageable);
         return ResponseEntity.ok(employees);
     }
 
