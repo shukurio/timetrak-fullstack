@@ -5,7 +5,6 @@ import com.timetrak.entity.CompanyPaymentSettings;
 import com.timetrak.enums.PayFrequency;
 import com.timetrak.exception.payment.PaymentSettingsConfigurationException;
 import com.timetrak.repository.CompanyPaymentSettingsRepository;
-import com.timetrak.service.auth.AuthContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

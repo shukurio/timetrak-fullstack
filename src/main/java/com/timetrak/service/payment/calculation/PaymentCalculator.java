@@ -5,8 +5,8 @@ import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Payment;
 import com.timetrak.enums.PaymentStatus;
-import com.timetrak.exception.payment.PaymentCalculationException;
 
+import com.timetrak.exception.payment.PaymentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,6 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentCalculator {
+    private final PaymentCalculationValidator validator;
 
 
     public PaymentCalculationResult calculateAllPaymentsForCompany(List<Employee> employees,
@@ -36,8 +37,8 @@ public class PaymentCalculator {
                 Payment payment = calculateSingleEmployeePayment(employee, shifts, paymentPeriod, companyId);
                 successful.add(payment);
             } catch (Exception e) {
-                String errorCode = (e instanceof PaymentCalculationException)
-                        ? ((PaymentCalculationException) e).getErrorCode()
+                String errorCode = (e instanceof PaymentException)
+                        ? ((PaymentException) e).getErrorCode()
                         : e.getClass().getSimpleName();
 
                 errors.add(PaymentFailureResponse.builder()
@@ -62,7 +63,11 @@ public class PaymentCalculator {
         log.debug("Calculating payment for employee {} in period {}",
                 employee.getId(), period.getFormattedPeriod());
 
+        validator.validateNoDuplicatePayment(employee.getId(),companyId, period);
+        validator.validateShiftDataQuality(employee.getId(),shifts);
+
         PaymentTotals totals = calculateShiftTotals(shifts);
+        validator.validatePaymentEarningsAndHours(totals);
 
         Payment payment = Payment.builder()
                 .employee(employee)

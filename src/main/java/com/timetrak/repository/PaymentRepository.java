@@ -29,8 +29,18 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
                                               @Param("periodStart") LocalDate periodStart,
                                               @Param("periodEnd") LocalDate periodEnd);
 
-    boolean existsByEmployeeIdAndPeriodStartAndPeriodEndAndStatusNot(
-            Long employeeId, LocalDate start, LocalDate end, PaymentStatus status);
+    @Query("SELECT COUNT(p) > 0 FROM Payment p " +
+            "WHERE p.employee.id = :employeeId " +
+            "AND p.periodStart = :startDate " +
+            "AND p.periodEnd = :endDate " +
+            "AND p.companyId = :companyId " +
+            "AND p.status != :status")
+    boolean existsByEmployeeIdAndDateRangeAndCompanyIdAndStatusNot(
+            @Param("employeeId") Long employeeId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("companyId") Long companyId,
+            @Param("status") PaymentStatus status);
 
     boolean existsByIdAndCompanyId(Long paymentId, Long CompanyId);
 

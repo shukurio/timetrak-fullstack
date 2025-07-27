@@ -36,23 +36,26 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     private final PaymentPeriodService paymentPeriodService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
+    private final PaymentCalculationValidator validator;
 
 
     @Override
     @Transactional
     public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId) {
-        //validate Request
+
         try {
-            //getAllShiftsByDateRange already check current adm
+            validator.validateRequest(paymentPeriod,companyId);
+
             Map<Long, List<ShiftResponseDTO>> shifts =
                     shiftService.getAllShiftsByDateRange(paymentPeriod.getStartDate(),
                             paymentPeriod.getEndDate(),
                             companyId);
-
+            validator.validateShifts(shifts);
 
             List<Long> employeeIds = new ArrayList<>(shifts.keySet());
-
             List<Employee> employees = employeeService.getByIds(employeeIds,companyId);
+            validator.validateEmployees(employeeIds,employees,companyId);
+            validator.validateShiftsEmployeeConsistency(shifts,employeeIds);
 
             PaymentCalculationResult calculationResult = paymentCalculator
                     .calculateAllPaymentsForCompany(employees, shifts, paymentPeriod,
