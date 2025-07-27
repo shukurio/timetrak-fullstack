@@ -1,6 +1,5 @@
 package com.timetrak.service;
 
-import com.timetrak.dto.payment.PaymentPeriod;
 import com.timetrak.dto.request.*;
 import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
@@ -71,6 +70,6 @@ public interface ShiftService {
                                                              LocalDate startDate,
                                                              LocalDate endDate);
 
-    Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(LocalDate startDate, LocalDate endDate);
+    Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(LocalDate startDate, LocalDate endDate, Long companyId);
 }
 

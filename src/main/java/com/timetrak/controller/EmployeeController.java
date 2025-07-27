@@ -5,8 +5,10 @@ package com.timetrak.controller;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.enums.EmployeeStatus;
+import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,19 +28,26 @@ import java.util.Map;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final AuthContextService authContextService;
 
+    private Long getCompanyId() {
+        return authContextService.getCurrentCompanyId();
+    }
 
     @Operation(summary = "Get all employees", description = "Get all employees with pagination")
     @GetMapping("/all")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllEmployeesForCompany(pageable);
+        Page<EmployeeResponseDTO> employees = employeeService
+                .getAllEmployeesForCompany(getCompanyId(),pageable);
         return ResponseEntity.ok(employees);
     }
 
     @Operation(summary = "Get all Active employees", description = "Get all employees with pagination")
     @GetMapping("/active")
     public ResponseEntity<Page<EmployeeResponseDTO>> getAllActiveEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getAllActiveInCurrentCompany(pageable);
+
+        Page<EmployeeResponseDTO> employees = employeeService
+                .getAllActiveForCompany(getCompanyId(), pageable);
         return ResponseEntity.ok(employees);
     }
 
@@ -68,7 +77,8 @@ public class EmployeeController {
     @Operation(summary = "Search employees", description = "Search employees by name, username, or email")
     @GetMapping("/search")
     public ResponseEntity<Page<EmployeeResponseDTO>> searchEmployees(@RequestParam String query, Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.searchEmployees(query, pageable);
+        Page<EmployeeResponseDTO> employees = employeeService
+                .searchEmployees(query,getCompanyId(), pageable);
         return ResponseEntity.ok(employees);
     }
 
@@ -115,24 +125,18 @@ public class EmployeeController {
         return ResponseEntity.ok(Map.of("message", "Reactivation requested successfully"));
     }
 
-    @Operation(summary = "Get pending employees", description = "Get all employees pending approval")
-    @GetMapping("/pending")
-    public ResponseEntity<Page<EmployeeResponseDTO>> getPendingEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.PENDING, pageable);
-        return ResponseEntity.ok(employees);
-    }
+    @Operation(
+            summary = "Get employees by status",
+            description = "Get all employees filtered by their current status"
+    )
+    @GetMapping("/status/{status}")
+    public ResponseEntity<Page<EmployeeResponseDTO>> getEmployeesByStatus(
+            @Parameter(description = "Employee status to filter by", example = "PENDING")
+            @PathVariable EmployeeStatus status,
+            Pageable pageable) {
 
-    @Operation(summary = "Get rejected employees", description = "Get all rejected employees")
-    @GetMapping("/rejected")
-    public ResponseEntity<Page<EmployeeResponseDTO>> getRejectedEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.REJECTED, pageable);
-        return ResponseEntity.ok(employees);
-    }
-
-    @Operation(summary = "Get deactivated employees", description = "Get all deactivated employees")
-    @GetMapping("/deactivated")
-    public ResponseEntity<Page<EmployeeResponseDTO>> getDeactivatedEmployees(Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getByStatus(EmployeeStatus.DEACTIVATED, pageable);
+        Page<EmployeeResponseDTO> employees = employeeService
+                .getByStatus(getCompanyId(), status, pageable);
         return ResponseEntity.ok(employees);
     }
 

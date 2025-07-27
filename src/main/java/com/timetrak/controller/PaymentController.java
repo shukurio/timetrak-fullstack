@@ -2,6 +2,7 @@ package com.timetrak.controller;
 
 import com.timetrak.dto.payment.PaymentRequestDTO;
 import com.timetrak.dto.payment.PaymentResponseDTO;
+import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.payment.calculation.AutomaticPaymentService;
 import com.timetrak.service.payment.calculation.PaymentCalculationService;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     private final PaymentCalculationService calculationService;
     private final AutomaticPaymentService automaticPaymentService;
+    private final AuthContextService authContextService;
 
     @PostMapping("/calculate-period")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PaymentResponseDTO> calculatePaymentsForPeriod(
             @RequestBody PaymentRequestDTO request) {
-        PaymentResponseDTO response = calculationService.calculatePayments(request);
+        Long companyId = authContextService.getCurrentCompanyId();
+        PaymentResponseDTO response = calculationService.calculatePayments(request,companyId);
         return ResponseEntity.ok(response);
     }
 

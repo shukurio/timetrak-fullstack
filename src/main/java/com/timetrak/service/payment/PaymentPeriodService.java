@@ -23,11 +23,6 @@ public class PaymentPeriodService {
     private final CompanyPaymentSettingsRepository companyPaymentSettingsRepository;
     private final AuthContextService authContextService;
 
-    public PaymentPeriod getCurrentPaymentPeriod() {
-        Long currentCompanyId = authContextService.getCurrentCompanyId();
-        return getCurrentPaymentPeriod(currentCompanyId);
-    }
-
     public PaymentPeriod getCurrentPaymentPeriod(Long companyId) {
         LocalDate today = LocalDate.now();
         return getPaymentPeriodForDate(today, companyId);
@@ -47,9 +42,9 @@ public class PaymentPeriodService {
         return calculatePaymentPeriod(date, firstDay, frequency);
     }
 
-    public PaymentPeriod getPaymentPeriodByNumber(Integer periodNumber) {
+    public PaymentPeriod getPaymentPeriodByNumber(Integer periodNumber, Long companyId) {
 
-        CompanyPaymentSettings settings = getCompanyPaymentSettings(authContextService.getCurrentCompanyId());
+        CompanyPaymentSettings settings = getCompanyPaymentSettings(companyId);
         LocalDate baseDate = settings.getFirstDay();
         PayFrequency frequency = settings.getPayFrequency();
 
@@ -62,11 +57,6 @@ public class PaymentPeriodService {
         return calculatePaymentPeriod(targetDate, baseDate, frequency);
     }
 
-
-    public List<PaymentPeriod> getAvailablePaymentPeriods(int numberOfPeriods) {
-        Long currentCompanyId = authContextService.getCurrentCompanyId();
-        return getAvailablePaymentPeriods(numberOfPeriods, currentCompanyId);
-    }
 
     public List<PaymentPeriod> getAvailablePaymentPeriods(int numberOfPeriods, Long companyId) {
         CompanyPaymentSettings settings = getCompanyPaymentSettings(companyId);

@@ -13,7 +13,6 @@ import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.EmployeeJobService;
-import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.ShiftService;
 import jakarta.transaction.Transactional;
@@ -57,7 +56,6 @@ public class ShiftServiceImpl implements ShiftService {
     private final ShiftMapper shiftMapper;
     private final EmployeeJobService employeeJobService;
     private final EmployeeService employeeService;
-    private final AuthContextService authContextService;
 
     @Override
     @Transactional
@@ -392,10 +390,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(
-             LocalDate startDate, LocalDate endDate) {
-
-        Long companyId = authContextService.getCurrentCompanyId();
-
+             LocalDate startDate, LocalDate endDate, Long companyId) {
         // Single batch query
         List<Shift> shifts = shiftRepository.findAllByCompanyIdAndDateRange(
                 startDate, endDate, companyId);

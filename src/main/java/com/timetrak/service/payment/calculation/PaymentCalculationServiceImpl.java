@@ -11,7 +11,6 @@ import com.timetrak.exception.payment.PaymentProcessingException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.ShiftService;
-import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.payment.PaymentPeriodService;
 import com.timetrak.service.payment.PaymentResponseBuilder;
@@ -37,24 +36,27 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     private final PaymentPeriodService paymentPeriodService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
-    private final AuthContextService authContextService;
 
 
     @Override
     @Transactional
-    public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod) {
+    public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId) {
         //validate Request
         try {
+            //getAllShiftsByDateRange already check current adm
             Map<Long, List<ShiftResponseDTO>> shifts =
-                    shiftService.getAllShiftsByDateRange(paymentPeriod.getStartDate(), paymentPeriod.getEndDate());
+                    shiftService.getAllShiftsByDateRange(paymentPeriod.getStartDate(),
+                            paymentPeriod.getEndDate(),
+                            companyId);
+
 
             List<Long> employeeIds = new ArrayList<>(shifts.keySet());
 
-            List<Employee> employees = employeeService.getByIds(employeeIds);
+            List<Employee> employees = employeeService.getByIds(employeeIds,companyId);
 
             PaymentCalculationResult calculationResult = paymentCalculator
                     .calculateAllPaymentsForCompany(employees, shifts, paymentPeriod,
-                            authContextService.getCurrentCompanyId());
+                            companyId);
 
             List<PaymentDetailsDTO> successful = savePayments(calculationResult.getSuccessful());
 
@@ -76,10 +78,10 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
     @Override
     @Transactional
-    public PaymentResponseDTO calculatePayments(PaymentRequestDTO request) {
+    public PaymentResponseDTO calculatePayments(PaymentRequestDTO request, Long companyId) {
         try {
-            PaymentPeriod paymentPeriod = resolvePaymentPeriod(request.getPeriodNumber());
-            return calculatePaymentsForPeriod(paymentPeriod);
+            PaymentPeriod paymentPeriod = resolvePaymentPeriod(request.getPeriodNumber(),companyId);
+            return calculatePaymentsForPeriod(paymentPeriod,companyId);
         } catch (InvalidPaymentPeriodException e) {
             log.error("Invalid payment period in request: {}", e.getMessage());
             throw e;
@@ -87,11 +89,11 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     }
 
 
-    private PaymentPeriod resolvePaymentPeriod(Integer paymentPeriodNumber) {
+    private PaymentPeriod resolvePaymentPeriod(Integer paymentPeriodNumber, Long companyId) {
         if (paymentPeriodNumber == null || paymentPeriodNumber <= 0) {
-            return paymentPeriodService.getCurrentPaymentPeriod();
+            return paymentPeriodService.getCurrentPaymentPeriod(companyId);
         } else {
-            return paymentPeriodService.getPaymentPeriodByNumber(paymentPeriodNumber);
+            return paymentPeriodService.getPaymentPeriodByNumber(paymentPeriodNumber,companyId);
         }
     }
 

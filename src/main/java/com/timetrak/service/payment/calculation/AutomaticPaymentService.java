@@ -95,7 +95,7 @@ public class AutomaticPaymentService {
             PaymentPeriod currentPeriod = paymentPeriodService.getCurrentPaymentPeriod(companyId);
 
             // Get all active employees for this company
-            List<Long> activeEmployeeIds = employeeService.getAllActiveEmployeeIdsForCompany();
+            List<Long> activeEmployeeIds = employeeService.getAllActiveEmployeeIdsForCompany(companyId);
 
             if (activeEmployeeIds.isEmpty()) {
                 log.warn("No active employees found for company {}", companyId);
@@ -103,7 +103,7 @@ public class AutomaticPaymentService {
             }
 
             // Calculate payments
-            PaymentResponseDTO response = calculationService.calculatePaymentsForPeriod(currentPeriod);
+            PaymentResponseDTO response = calculationService.calculatePaymentsForPeriod(currentPeriod,companyId);
 
             log.info("Automatic payment calculation completed for company {}: {} successful, {} failed",
                     companyId, response.getSuccessCount(), response.getFailureCount());
