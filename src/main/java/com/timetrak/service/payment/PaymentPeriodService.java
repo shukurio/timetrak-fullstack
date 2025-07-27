@@ -21,7 +21,6 @@ import java.util.List;
 public class PaymentPeriodService {
 
     private final CompanyPaymentSettingsRepository companyPaymentSettingsRepository;
-    private final AuthContextService authContextService;
 
     public PaymentPeriod getCurrentPaymentPeriod(Long companyId) {
         LocalDate today = LocalDate.now();

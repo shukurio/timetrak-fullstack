@@ -16,10 +16,5 @@ public class PaymentRequestDTO {
     @NotNull(message = "Payment period number is required")
     private Integer periodNumber;
 
-    @NotNull(message="CompanyId is required")
-    private Long companyId;
-
-
-
 
 }
