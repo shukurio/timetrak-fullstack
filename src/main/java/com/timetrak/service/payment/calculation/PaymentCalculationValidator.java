@@ -6,16 +6,13 @@ import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.PaymentStatus;
 import com.timetrak.exception.UnauthorizedAccessException;
-import com.timetrak.exception.payment.DuplicatePaymentException;
 import com.timetrak.exception.payment.InvalidPaymentRequestException;
 import com.timetrak.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,22 +53,6 @@ public class PaymentCalculationValidator {
         if (shifts.isEmpty()) {
             log.info("No shifts found for payment period - no employees worked");
         }
-    }
-
-    public void validateShiftDataQuality(Long employeeId, List<ShiftResponseDTO> shifts) {
-            if (employeeId == null || employeeId <= 0) {
-                throw new InvalidPaymentRequestException("Invalid employee ID in shifts data: " + employeeId);
-            }
-
-            if (shifts == null || shifts.isEmpty()) {
-                throw new InvalidPaymentRequestException("Employee " + employeeId + " has null or empty shifts list");
-            }
-
-            for (ShiftResponseDTO shift : shifts) {
-                if (shift.getTotalHours() == null || shift.getTotalHours().compareTo(BigDecimal.ZERO) < 0) {
-                    throw new InvalidPaymentRequestException("Invalid shift hours for employee " + employeeId);
-                }
-            }
     }
 
     public void validateEmployees(List<Long> expectedEmployeeIds, List<Employee> employees, Long companyId) {
@@ -134,16 +115,6 @@ public class PaymentCalculationValidator {
         log.debug("Shifts-employee consistency validated: {} employees have shift data", employeeIds.size());
     }
 
-
-    public void validateNoDuplicatePayment(Long employeeId,Long companyId,PaymentPeriod period) {
-        LocalDate periodStart = period.getStartDate();
-        LocalDate periodEnd = period.getEndDate();
-
-        if (paymentRepository.existsByEmployeeIdAndDateRangeAndCompanyIdAndStatusNot(
-                employeeId, periodStart, periodEnd, companyId, PaymentStatus.VOIDED)) {
-            throw new DuplicatePaymentException(employeeId, periodStart, periodEnd);
-        }
-    }
 
     public void validatePaymentEarningsAndHours(PaymentTotals totals) {
         validateEarnings(totals);
@@ -242,4 +213,21 @@ public class PaymentCalculationValidator {
             }
         }
     }
+
+    public List<Long> filterEmployeesWithoutDuplicates(List<Long> employeeIds, PaymentPeriod period, Long companyId) {
+        if (employeeIds.isEmpty()) return employeeIds;
+
+        List<Long> employeesWithPayments = paymentRepository.findEmployeeIdsWithExistingPayments(
+                employeeIds, period.getStartDate(), period.getEndDate(), companyId, PaymentStatus.VOIDED);
+
+        if (!employeesWithPayments.isEmpty()) {
+            log.warn("Found existing payments for {} employees in period {}: {}",
+                    employeesWithPayments.size(), period.getFormattedPeriod(), employeesWithPayments);
+        }
+
+        return employeeIds.stream()
+                .filter(id -> !employeesWithPayments.contains(id))
+                .toList();
+    }
+
 }

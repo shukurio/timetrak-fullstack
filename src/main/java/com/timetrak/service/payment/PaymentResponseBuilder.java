@@ -54,6 +54,18 @@ public class PaymentResponseBuilder {
                     .errorCode(errorCode)
                     .build();
         }
+
+    }
+
+    public List<PaymentFailureResponse> createDuplicateFailures(List<Long> duplicateEmployeeIds, PaymentPeriod period) {
+        return duplicateEmployeeIds.stream()
+                .map(employeeId -> PaymentFailureResponse.builder()
+                        .employeeId(employeeId)
+                        .period(period.getFormattedPeriod())
+                        .errorMessage("Payment already exists for employee " + employeeId + " for period " + period.getFormattedPeriod())
+                        .errorCode("DUPLICATE_PAYMENT")
+                        .build())
+                .toList();
     }
 
 }

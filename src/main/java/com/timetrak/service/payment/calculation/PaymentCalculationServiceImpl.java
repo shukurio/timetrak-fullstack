@@ -42,7 +42,6 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     @Override
     @Transactional
     public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId) {
-
         try {
             validator.validateRequest(paymentPeriod,companyId);
 
@@ -53,17 +52,24 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
             validator.validateShifts(shifts);
 
             List<Long> employeeIds = new ArrayList<>(shifts.keySet());
-            List<Employee> employees = employeeService.getByIds(employeeIds,companyId);
-            validator.validateEmployees(employeeIds,employees,companyId);
-            validator.validateShiftsEmployeeConsistency(shifts,employeeIds);
+            List<Long> validIds = validator.filterEmployeesWithoutDuplicates(employeeIds,paymentPeriod,companyId);
+            shifts.keySet().retainAll(validIds);
+
+            List<Long> duplicatePayments = employeeIds.stream()
+                    .filter(id -> !validIds.contains(id))
+                    .toList();
+
+            List<Employee> employees = employeeService.getByIds(validIds,companyId);
+            validator.validateEmployees(validIds,employees,companyId);
+            validator.validateShiftsEmployeeConsistency(shifts,validIds);
 
             PaymentCalculationResult calculationResult = paymentCalculator
                     .calculateAllPaymentsForCompany(employees, shifts, paymentPeriod,
                             companyId);
 
             List<PaymentDetailsDTO> successful = savePayments(calculationResult.getSuccessful());
-
-            List<PaymentFailureResponse> failed = calculationResult.getErrors();
+            List<PaymentFailureResponse> failed = new ArrayList<>(paymentResponseBuilder.createDuplicateFailures(duplicatePayments,paymentPeriod));
+            failed.addAll(calculationResult.getErrors());
 
             log.info("Payment calculation completed: {} successful, {} failed",
                     successful.size(), failed.size());
@@ -117,4 +123,6 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
             throw new PaymentProcessingException("Failed to save payments: " + e.getMessage(), e);
         }
     }
+
+
 }

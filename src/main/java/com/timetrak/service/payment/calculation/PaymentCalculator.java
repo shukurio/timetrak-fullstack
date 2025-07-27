@@ -5,12 +5,10 @@ import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Payment;
 import com.timetrak.enums.PaymentStatus;
-
 import com.timetrak.exception.payment.PaymentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,9 +60,6 @@ public class PaymentCalculator {
 
         log.debug("Calculating payment for employee {} in period {}",
                 employee.getId(), period.getFormattedPeriod());
-
-        validator.validateNoDuplicatePayment(employee.getId(),companyId, period);
-        validator.validateShiftDataQuality(employee.getId(),shifts);
 
         PaymentTotals totals = calculateShiftTotals(shifts);
         validator.validatePaymentEarningsAndHours(totals);
