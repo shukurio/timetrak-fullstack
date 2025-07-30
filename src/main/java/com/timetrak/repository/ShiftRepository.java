@@ -44,9 +44,7 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
     @Query("SELECT COUNT(s) FROM Shift s WHERE s.status = :status AND s.employeeId = :employeeId")
     long countActiveShiftsByEmployeeId(@Param("status") ShiftStatus status, @Param("employeeId") Long employeeId);
     
-    // Get active shifts as List
-    List<Shift> findByStatus(ShiftStatus status);
-    
+
     // Find specific active shift for employee (for clock out)
     @Query("SELECT s FROM Shift s WHERE s.status = 'ACTIVE' AND s.employeeId = :employeeId")
     Optional<Shift> findActiveShiftByEmployeeId(@Param("employeeId") Long employeeId);
@@ -59,10 +57,10 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
 
     @Query("SELECT s FROM Shift s" +
             " WHERE s.employeeId = :employeeId " +
-            "AND s.clockIn >= :startDate AND s.clockIn <= :endDate")
+            "AND s.clockIn >= :startDateTime AND s.clockIn <= :endDateTime")
     List<Shift> findByEmployeeIdAndDateRange(@Param("employeeId") Long employeeId,
-                                             @Param("startDateTime") LocalDate startDate,
-                                             @Param("endDateTime") LocalDate endDate);
+                                             @Param("startDateTime") LocalDateTime startDate,
+                                             @Param("endDateTime") LocalDateTime endDate);
 
     @Query("SELECT s FROM Shift s " +
             "WHERE DATE(s.clockIn) BETWEEN :startDate AND :endDate " +
@@ -75,5 +73,4 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
             @Param("endDate") LocalDate endDate,
             @Param("companyId") Long companyId);
 
-    //TODO implement optional for all cases when result might be empty
 }

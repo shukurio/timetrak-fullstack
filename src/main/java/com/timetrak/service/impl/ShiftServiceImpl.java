@@ -299,7 +299,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public List<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId, LocalDate startDate, LocalDate endDate) {
-       return shiftRepository.findByEmployeeIdAndDateRange(employeeId, startDate, endDate)
+       return shiftRepository.findByEmployeeIdAndDateRange(employeeId, startDate.atStartOfDay(), endDate.atTime(23, 59, 59))
                .stream().map(shiftMapper::toDTO).collect(Collectors.toList());
     }
 
