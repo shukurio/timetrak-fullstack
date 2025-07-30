@@ -15,51 +15,19 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    // Core business queries only
-    Page<Payment> findByEmployeeIdOrderByPeriodEndDesc(Long employeeId, Pageable pageable);
+
+    @Query("SELECT p FROM Payment p WHERE p.id = :paymentId " +
+            "AND p.employee.id = :employeeId AND p.companyId = :companyId")
+    Optional<Payment> findByIdAndEmployeeIdAndCompanyId(
+            @Param("paymentId") Long paymentId,
+            @Param("employeeId") Long employeeId,
+            @Param("companyId") Long companyId);
 
     @Query("SELECT p FROM Payment p WHERE p.employee.company.id = :companyId ORDER BY p.periodEnd DESC")
     Page<Payment> findByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 
-    List<Payment> findByStatusOrderByCalculatedAtDesc(PaymentStatus status);
-
-    @Query("SELECT p FROM Payment p WHERE p.employee.id = :employeeId " +
-            "AND p.periodStart = :periodStart AND p.periodEnd = :periodEnd")
-    Optional<Payment> findByEmployeeAndPeriod(@Param("employeeId") Long employeeId,
-                                              @Param("periodStart") LocalDate periodStart,
-                                              @Param("periodEnd") LocalDate periodEnd);
-
-    @Query("SELECT COUNT(p) > 0 FROM Payment p " +
-            "WHERE p.employee.id = :employeeId " +
-            "AND p.periodStart = :startDate " +
-            "AND p.periodEnd = :endDate " +
-            "AND p.companyId = :companyId " +
-            "AND p.status != :status")
-    boolean existsByEmployeeIdAndDateRangeAndCompanyIdAndStatusNot(
-            @Param("employeeId") Long employeeId,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("companyId") Long companyId,
-            @Param("status") PaymentStatus status);
-
-    boolean existsByIdAndCompanyId(Long paymentId, Long CompanyId);
-
-    boolean existsByIdAndEmployeeId(Long paymentId, Long employeeId);
-
     boolean existsByCompanyIdAndPeriodStartAndPeriodEnd(Long companyId, LocalDate periodStart, LocalDate periodEnd);
 
-    @Query("SELECT DISTINCT p.employee.id FROM Payment p " +
-            "WHERE p.employee.id IN :employeeIds " +
-            "AND p.periodStart = :periodStart " +
-            "AND p.periodEnd = :periodEnd " +
-            "AND p.status != :excludedStatus")
-    List<Long> findEmployeesWithExistingPaymentsInPeriod(
-            @Param("employeeIds") List<Long> employeeIds,
-            @Param("periodStart") LocalDate periodStart,
-            @Param("periodEnd") LocalDate periodEnd,
-            @Param("excludedStatus") PaymentStatus excludedStatus);
-
-    // ✅ In PaymentRepository
     @Query("SELECT DISTINCT p.employee.id FROM Payment p " +
             "WHERE p.employee.id IN :employeeIds " +
             "AND p.periodStart = :startDate " +
@@ -71,4 +39,16 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("companyId") Long companyId,
-            @Param("excludeStatus") PaymentStatus excludeStatus);}
+            @Param("excludeStatus") PaymentStatus excludeStatus);
+
+    Page<Payment> findByEmployeeIdAndCompanyId(Long employeeId,
+                                                         Long companyId,
+                                                         Pageable pageable);
+
+    @Query("SELECT p FROM Payment p where p.companyId =:companyId AND p.status =:status")
+    Page<Payment> findByCompanyIdAndStatus(
+            @Param("companyId")Long companyId,
+            @Param("status")PaymentStatus status,
+            Pageable pageable);
+
+}
