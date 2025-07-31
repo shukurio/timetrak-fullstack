@@ -12,25 +12,14 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
 
-    @Mapping(target = "employeeId", source = "payment.employee.id")
-    @Mapping(target = "employeeName", source = "payment.employee.fullName")
-    @Mapping(target = "employeeUsername", source = "payment.employee.username")
-    @Mapping(target = "jobDetails", source = "jobDetails")
-    @Mapping(target = "jobsCount", expression = "java(getJobsCount(jobDetails))")
-    @Mapping(target = "calculatedByName", ignore = true)
-    @Mapping(target = "checkNumber", ignore = true)
-    @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
-    PaymentDetailsDTO toResponseDTO(Payment payment, List<JobDetailsDTO> jobDetails);
-
     @Mapping(target = "employeeId", source = "employee.id")
     @Mapping(target = "employeeName", source = "employee.fullName")
     @Mapping(target = "employeeUsername", source = "employee.username")
     @Mapping(target = "jobDetails", ignore = true)
     @Mapping(target = "jobsCount", constant = "0")
-    @Mapping(target = "calculatedByName", ignore = true)
-    @Mapping(target = "checkNumber", ignore = true)
+    @Mapping(target = "modifiedBy", source="payment.modifiedBy")
     @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
-    PaymentDetailsDTO toSimpleResponseDTO(Payment payment);
+    PaymentDetailsDTO toDTO(Payment payment);
 
     default Integer getJobsCount(List<JobDetailsDTO> jobDetails) {
         return jobDetails != null ? jobDetails.size() : 0;

@@ -4,6 +4,7 @@ package com.timetrak.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.timetrak.enums.PaymentStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -28,28 +29,35 @@ public class Payment extends BaseEntity {
     private Employee employee;
 
     @Column(name = "company_id", nullable = false)
+    @NotNull
     private Long companyId;
 
     // PAYMENT PERIOD
     @Column(name = "period_start", nullable = false)
+    @NotNull
     private LocalDate periodStart;
 
     @Column(name = "period_end", nullable = false)
+    @NotNull
     private LocalDate periodEnd;
 
     // WORK & PAY DETAILS
     @Column(name = "total_hours", nullable = false, precision = 10, scale = 2)
+    @NotNull
     private BigDecimal totalHours = BigDecimal.ZERO;
 
     @Column(name = "total_earnings", nullable = false, precision = 12, scale = 2)
+    @NotNull
     private BigDecimal totalEarnings = BigDecimal.ZERO;
 
     @Column(name = "shifts_count", nullable = false)
-    private Integer shiftsCount = 0;
+    @NotNull
+    private Integer shiftsCount;
 
     // STATUS
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @NotNull
     private PaymentStatus status = PaymentStatus.CALCULATED;
 
     // MANUAL CHECK PROCESS
@@ -58,14 +66,18 @@ public class Payment extends BaseEntity {
     @Column(name = "calculated_at")
     private LocalDateTime calculatedAt;
 
+    @Column(name = "voided_at")
+    private LocalDateTime voidedAt;
+
     @Column(name = "issued_at")
-    private LocalDate issuedAt;
+    private LocalDateTime issuedAt;
 
     @Column(name = "completed_at")
-    private LocalDate completedAt;
+    private LocalDateTime completedAt;
 
-    @Column(name = "calculated_by")
-    private Long calculatedBy;
+    @Column(name = "modified_by")
+    @NotNull
+    private Long modifiedBy;
 
     // NOTES
     @Column(name = "notes", length = 500)
@@ -81,10 +93,6 @@ public class Payment extends BaseEntity {
     // BUSINESS METHODS
 
 
-    public boolean isReadyForCheckWriting() {
-        return status == PaymentStatus.CALCULATED &&
-                totalEarnings.compareTo(BigDecimal.ZERO) > 0;
-    }
 
 
     public boolean isCompleted() {
@@ -96,12 +104,12 @@ public class Payment extends BaseEntity {
     }
 
 
-    public void markCheckIssued(LocalDate date) {
+    public void markCheckIssued(LocalDateTime date) {
         this.status = PaymentStatus.ISSUED;
         this.issuedAt = date;
     }
 
-    public void markCompleted(LocalDate date) {
+    public void markCompleted(LocalDateTime date) {
         this.status = PaymentStatus.COMPLETED;
         this.completedAt = date;
     }

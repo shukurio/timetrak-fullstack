@@ -75,11 +75,8 @@ public class PaymentDetailsDTO {
     private LocalDate completedAt;
 
     // =============== TRACKING ===============
-    private Long calculatedBy;
-    private String calculatedByName;
-
-    // =============== CHECK INFORMATION ===============
-    private String checkNumber;
+    private Long modifiedBy;
+    private String modifiedByName;
 
     // =============== NOTES ===============
     @Size(max = 500, message = "Notes cannot exceed 500 characters")
