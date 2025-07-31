@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments")
-public class PaymentController {
+@RequestMapping("/api/admin/payments")
+public class PaymentCalculationController {
     private final PaymentCalculationService calculationService;
     private final AutomaticPaymentService automaticPaymentService;
     private final AuthContextService authContextService;
@@ -23,7 +23,8 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseDTO> calculatePaymentsForPeriod(
             @RequestBody PaymentRequestDTO request) {
         Long companyId = authContextService.getCurrentCompanyId();
-        PaymentResponseDTO response = calculationService.calculatePayments(request,companyId);
+        Long initiatorId=authContextService.getCurrentEmployeeId();
+        PaymentResponseDTO response = calculationService.calculatePayments(request,companyId,initiatorId);
         return ResponseEntity.ok(response);
     }
 
@@ -34,4 +35,5 @@ public class PaymentController {
         automaticPaymentService.processScheduledPayments();
         return ResponseEntity.ok("Automatic payment processing triggered successfully");
     }
+
 }
