@@ -26,7 +26,7 @@ public class PaymentServiceImpl  implements PaymentService{
     public PaymentDetailsDTO getPaymentById(Long paymentId,Long employeeId, Long companyId) {
         Payment payment = paymentRepository.findByIdAndEmployeeIdAndCompanyId(paymentId, employeeId,companyId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
-        return paymentMapper.toSimpleResponseDTO(payment);
+        return paymentMapper.toDTO(payment);
     }
 
 
@@ -43,20 +43,20 @@ public class PaymentServiceImpl  implements PaymentService{
     @Override
     public Page<PaymentDetailsDTO> getAllPaymentsForCompany(Long companyId, Pageable pageable) {
         Page<Payment> payments = paymentRepository.findByCompanyId(companyId,pageable);
-        return payments.map(paymentMapper::toSimpleResponseDTO);
+        return payments.map(paymentMapper::toDTO);
     }
 
     @Override
     public Page<PaymentDetailsDTO> getPaymentsByStatus(Long companyId, PaymentStatus status, Pageable pageable) {
      Page<Payment> payments = paymentRepository.findByCompanyIdAndStatus(companyId,status,pageable);
-     return payments.map(paymentMapper::toSimpleResponseDTO);
+     return payments.map(paymentMapper::toDTO);
     }
 
 
     @Override
     public Page<PaymentDetailsDTO> getAllPaymentsForEmployee(Long employeeId,Long companyId, Pageable pageable) {
         Page<Payment> payments =paymentRepository.findByEmployeeIdAndCompanyId(employeeId,companyId,pageable);
-        return payments.map(paymentMapper::toSimpleResponseDTO);
+        return payments.map(paymentMapper::toDTO);
     }
 
 
