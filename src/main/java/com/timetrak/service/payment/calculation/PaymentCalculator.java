@@ -22,17 +22,18 @@ public class PaymentCalculator {
     private final PaymentCalculationValidator validator;
 
 
+
     public PaymentCalculationResult calculateAllPaymentsForCompany(List<Employee> employees,
                                                                    Map<Long, List<ShiftResponseDTO>> shiftsMap,
                                                                    PaymentPeriod paymentPeriod,
-                                                                   Long companyId) {
+                                                                   Long initiatorId) {
         List<Payment> successful = new ArrayList<>();
         List<PaymentFailureResponse> errors = new ArrayList<>();
 
         for (Employee employee : employees) {
             try {
                 List<ShiftResponseDTO> shifts = shiftsMap.getOrDefault(employee.getId(), new ArrayList<>());
-                Payment payment = calculateSingleEmployeePayment(employee, shifts, paymentPeriod, companyId);
+                Payment payment = calculateSingleEmployeePayment(employee, shifts, paymentPeriod, initiatorId);
                 successful.add(payment);
             } catch (Exception e) {
                 String errorCode = (e instanceof PaymentException)
@@ -56,7 +57,7 @@ public class PaymentCalculator {
             Employee employee,
             List<ShiftResponseDTO> shifts,
             PaymentPeriod period,
-            Long companyId) {
+            Long initiatorId) {
 
         log.debug("Calculating payment for employee {} in period {}",
                 employee.getId(), period.getFormattedPeriod());
@@ -73,7 +74,7 @@ public class PaymentCalculator {
                 .totalEarnings(totals.getTotalEarnings())
                 .shiftsCount(totals.getShiftsCount())
                 .status(PaymentStatus.CALCULATED)
-                .calculatedBy(companyId)
+                .modifiedBy(initiatorId)
                 .calculatedAt(LocalDateTime.now())
                 .build();
 

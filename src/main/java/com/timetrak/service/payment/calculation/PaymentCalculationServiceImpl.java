@@ -41,7 +41,7 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
     @Override
     @Transactional
-    public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId) {
+    public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId,Long initiatorId) {
         try {
             validator.validateRequest(paymentPeriod,companyId);
 
@@ -65,7 +65,7 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
             PaymentCalculationResult calculationResult = paymentCalculator
                     .calculateAllPaymentsForCompany(employees, shifts, paymentPeriod,
-                            companyId);
+                             initiatorId);
 
             List<PaymentDetailsDTO> successful = savePayments(calculationResult.getSuccessful());
             List<PaymentFailureResponse> failed = new ArrayList<>(paymentResponseBuilder.createDuplicateFailures(duplicatePayments,paymentPeriod));
@@ -87,10 +87,10 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
     @Override
     @Transactional
-    public PaymentResponseDTO calculatePayments(PaymentRequestDTO request, Long companyId) {
+    public PaymentResponseDTO calculatePayments(PaymentRequestDTO request, Long companyId,Long initiatorId) {
         try {
             PaymentPeriod paymentPeriod = resolvePaymentPeriod(request.getPeriodNumber(),companyId);
-            return calculatePaymentsForPeriod(paymentPeriod,companyId);
+            return calculatePaymentsForPeriod(paymentPeriod,companyId,initiatorId);
         } catch (InvalidPaymentPeriodException e) {
             log.error("Invalid payment period in request: {}", e.getMessage());
             throw e;

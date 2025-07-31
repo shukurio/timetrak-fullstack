@@ -5,6 +5,6 @@ import com.timetrak.dto.payment.PaymentRequestDTO;
 import com.timetrak.dto.payment.PaymentResponseDTO;
 
 public interface PaymentCalculationService {
-    PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod,Long companyId);
-    PaymentResponseDTO calculatePayments(PaymentRequestDTO request,Long companyId);
+    PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod,Long companyId, Long initiatorId);
+    PaymentResponseDTO calculatePayments(PaymentRequestDTO request,Long companyId,Long initiatorId);
 }

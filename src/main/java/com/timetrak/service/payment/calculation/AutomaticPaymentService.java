@@ -9,6 +9,7 @@ import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.payment.PaymentPeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AutomaticPaymentService {
+
+    @Value("${systemId}")
+    private Long systemId;
 
     //TODO need to implement Validation
 
@@ -103,7 +107,7 @@ public class AutomaticPaymentService {
             }
 
             // Calculate payments
-            PaymentResponseDTO response = calculationService.calculatePaymentsForPeriod(currentPeriod,companyId);
+            PaymentResponseDTO response = calculationService.calculatePaymentsForPeriod(currentPeriod,companyId,systemId);
 
             log.info("Automatic payment calculation completed for company {}: {} successful, {} failed",
                     companyId, response.getSuccessCount(), response.getFailureCount());
