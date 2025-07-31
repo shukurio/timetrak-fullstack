@@ -51,4 +51,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("status")PaymentStatus status,
             Pageable pageable);
 
+
+    @Query("SELECT p FROM Payment p WHERE p.id IN :paymentIds AND p.companyId = :companyId")
+    List<Payment> findAllByIdsAndCompanyId(@Param("paymentIds") List<Long> paymentIds,
+                                          @Param("companyId") Long companyId);
+
 }

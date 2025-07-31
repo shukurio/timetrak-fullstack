@@ -23,7 +23,7 @@ public class StatusUpdateResponse {
     private List<StatusUpdateSuccess> successful;
     private List<StatusUpdateFailure> failed;
 
-    public static BatchStatus setBatchStatus(int successCount, int failureCount) {
+    public BatchStatus getBatchStatus() {
         if (failureCount == 0) return BatchStatus.SUCCESS;
         if (successCount == 0) return BatchStatus.FAILURE;
         return BatchStatus.MIXED_RESULT;
