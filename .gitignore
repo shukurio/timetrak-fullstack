@@ -15,6 +15,7 @@ target/
 
 # Application config (do not commit secrets)
 src/main/resources/application.properties
+logs
 
 ### IntelliJ IDEA ###
 .idea

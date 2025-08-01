@@ -4,6 +4,7 @@ import com.timetrak.dto.payment.status.StatusUpdateFailure;
 import com.timetrak.dto.payment.status.StatusUpdateRequest;
 import com.timetrak.dto.payment.status.StatusUpdateResponse;
 import com.timetrak.dto.payment.status.StatusUpdateSuccess;
+import com.timetrak.entity.Employee;
 import com.timetrak.entity.Payment;
 import com.timetrak.enums.PaymentStatus;
 import com.timetrak.exception.payment.InvalidPaymentRequestException;
@@ -13,7 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -117,8 +119,4 @@ public class PaymentManagementServiceImpl implements PaymentManagementService {
         return status != null ? status.name() : "UNKNOWN";
     }
 
-    @Override
-    public byte[] exportPayments(Long companyId, LocalDate startDate, LocalDate endDate, String format) {
-        return new byte[0]; // Not implemented yet
-    }
 }

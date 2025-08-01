@@ -11,12 +11,4 @@ public interface PaymentManagementService {
 
     StatusUpdateResponse updatePaymentStatus(StatusUpdateRequest request, Long companyId, Long modifierId);
 
-
-    byte[] exportPayments(Long companyId,
-                          LocalDate startDate,
-                          LocalDate endDate,
-                          String format); // CSV, PDF, etc.
-
-
-
 }

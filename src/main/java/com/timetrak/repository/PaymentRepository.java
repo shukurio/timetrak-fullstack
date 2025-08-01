@@ -56,4 +56,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findAllByIdsAndCompanyId(@Param("paymentIds") List<Long> paymentIds,
                                           @Param("companyId") Long companyId);
 
+    @Query("SELECT p FROM Payment p WHERE p.companyId = :companyId AND p.periodStart BETWEEN :startDate AND :endDate")
+    List<Payment> findByCompanyIdAndDateRange(@Param("companyId") Long companyId,
+                                              @Param("startDate") LocalDate startDate,
+                                              @Param("endDate") LocalDate endDate);
+
+
+
 }
