@@ -70,15 +70,17 @@ public class PaymentPeriod {
         if (startDate.getYear() == endDate.getYear()) {
             if (startDate.getMonth() == endDate.getMonth()) {
                 // Same month: "Jan 15 - 28"
-                return String.format("%s %d - %d",
+                return String.format("%s %d - %d, %s",
                         startDate.format(DateTimeFormatter.ofPattern("MMM")),
                         startDate.getDayOfMonth(),
-                        endDate.getDayOfMonth());
+                        endDate.getDayOfMonth(),
+                        endDate.getYear());
             } else {
                 // Different months, same year: "Jan 30 - Feb 5"
-                return String.format("%s - %s",
+                return String.format("%s - %s, %s",
                         startDate.format(formatter),
-                        endDate.format(formatter));
+                        endDate.format(formatter),
+                        endDate.getYear());
             }
         } else {
             // Different years: "Dec 30, 2023 - Jan 5, 2024"
