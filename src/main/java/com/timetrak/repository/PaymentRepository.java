@@ -23,6 +23,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("employeeId") Long employeeId,
             @Param("companyId") Long companyId);
 
+    Optional<Payment> findByIdAndCompanyId(Long id, Long companyId);
+
     @Query("SELECT p FROM Payment p WHERE p.employee.company.id = :companyId ORDER BY p.periodEnd DESC")
     Page<Payment> findByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 

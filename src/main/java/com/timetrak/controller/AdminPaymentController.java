@@ -33,9 +33,11 @@ public class AdminPaymentController {
     private final PaymentExporterService exporter;
 
     @GetMapping("/{paymentId}")
-    public ResponseEntity<PaymentDetailsDTO> getUserPaymentDetails(@PathVariable Long paymentId) {
-        return ResponseEntity.ok(paymentService.getPaymentById(paymentId,
-                authContext.getCurrentEmployeeId(),
+    public ResponseEntity<PaymentDetailsDTO> getPaymentDetails(
+            @PathVariable @Min(value = 1, message = "Payment Id can not be null or zero")
+                                                                       Long paymentId) {
+        return ResponseEntity.ok(paymentService.getPaymentByIdForAdmin(
+                paymentId,
                 authContext.getCurrentCompanyId()));
     }
 
@@ -46,16 +48,22 @@ public class AdminPaymentController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<Page<PaymentDetailsDTO>> getPaymentsByStatus(@PathVariable PaymentStatus status, Pageable pageable) {
+    public ResponseEntity<Page<PaymentDetailsDTO>> getPaymentsByStatus(
+            @PathVariable  PaymentStatus status, Pageable pageable) {
         Long companyId = authContext.getCurrentCompanyId();
         Page<PaymentDetailsDTO> payments = paymentService.getPaymentsByStatus(companyId,status,pageable);
         return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/employee/{empId}/payments/{paymentId}")
-    public ResponseEntity<PaymentDetailsDTO> getPaymentWithDetails(@PathVariable Long empId,@PathVariable Long paymentId) {
+    @GetMapping("/employee/{employeeId}/payments/{paymentId}")
+    public ResponseEntity<PaymentDetailsDTO> getPaymentWithDetails(
+            @PathVariable @Min(value = 1, message = "Employee Id can not be null or zero") Long employeeId,
+            @PathVariable @Min(value = 1, message = "Payment Id can not be null or zero") Long paymentId) {
 
-        PaymentDetailsDTO payment = paymentService.getPaymentWithDetails(paymentId,empId,authContext.getCurrentCompanyId());
+        PaymentDetailsDTO payment = paymentService.getPaymentWithDetails(
+                paymentId,
+                employeeId,
+                authContext.getCurrentCompanyId());
 
         return ResponseEntity.ok(payment);
     }
@@ -70,7 +78,7 @@ public class AdminPaymentController {
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportPayments(
-            @RequestParam @Min(value = 1, message = "Period number must be 1 or higher")
+            @RequestParam @Min(value = 1, message = "Period number can not be null or zero")
                                                      Integer periodNumber) {
 
         Long companyId = authContext.getCurrentCompanyId();

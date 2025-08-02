@@ -39,5 +39,7 @@ public interface PaymentService {
 
     // =============== PAYMENT DETAILS ===============
 
+    PaymentDetailsDTO getPaymentByIdForAdmin(Long paymentId, Long companyId);
+
     PaymentDetailsDTO getPaymentWithDetails(Long paymentId, Long employeeId, Long companyId);
 }

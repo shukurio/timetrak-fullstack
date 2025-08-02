@@ -29,6 +29,13 @@ public class PaymentServiceImpl  implements PaymentService{
         return paymentMapper.toDTO(payment);
     }
 
+    @Override
+    public PaymentDetailsDTO getPaymentByIdForAdmin(Long paymentId, Long companyId) {
+        Payment payment = paymentRepository.findByIdAndCompanyId(paymentId,companyId)
+                .orElseThrow(() -> new PaymentNotFoundException(paymentId));
+        return paymentMapper.toDTO(payment);
+    }
+
 
     @Override
     public PaymentDetailsDTO getPaymentWithDetails(Long paymentId, Long employeeId, Long companyId) {
