@@ -76,7 +76,7 @@ public class AdminPaymentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/export")
+    @GetMapping("/download")
     public ResponseEntity<byte[]> exportPayments(
             @RequestParam @Min(value = 1, message = "Period number can not be null or zero")
                                                      Integer periodNumber) {
@@ -90,6 +90,13 @@ public class AdminPaymentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.parseMediaType("application/pdf"))
                 .body(pdfData);
+    }
+
+    @GetMapping("/employee/{employeeId}")
+    public ResponseEntity<Page<PaymentDetailsDTO>> getPaymentsByEmployee(
+            @PathVariable Long employeeId, Pageable pageable) {
+        Long companyId = authContext.getCurrentCompanyId();
+        return ResponseEntity.ok(paymentService.getAllPaymentsForEmployee(employeeId, companyId, pageable));
     }
 
 }
