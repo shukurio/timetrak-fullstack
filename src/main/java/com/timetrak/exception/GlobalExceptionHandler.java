@@ -1,7 +1,7 @@
 package com.timetrak.exception;
 
 import com.timetrak.dto.response.ErrorResponse;
-import com.timetrak.exception.payment.InvalidPaymentRequestException;
+import com.timetrak.exception.payment.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -13,9 +13,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -24,14 +25,30 @@ public class GlobalExceptionHandler {
 
     // === 400 BAD REQUEST ===
 
-    @ExceptionHandler(InvalidPaymentRequestException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPaymentRequest(
-            InvalidPaymentRequestException ex, HttpServletRequest request) {
-        log.warn("Invalid payment request: {}", ex.getMessage());
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleEnumConversionError(
+            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+
+        String message;
+        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
+            // Get valid enum values
+            Object[] enumConstants = ex.getRequiredType().getEnumConstants();
+            String validValues = Arrays.stream(enumConstants)
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+
+            message = String.format("Invalid %s: '%s'. Valid values are: %s",
+                    ex.getName(), ex.getValue(), validValues);
+        } else {
+            message = String.format("Invalid value '%s' for parameter '%s'",
+                    ex.getValue(), ex.getName());
+        }
+
+        log.warn("Type mismatch error: {}", message);
 
         ErrorResponse error = ErrorResponse.builder()
-                .error("Bad Request")
-                .message(ex.getMessage())
+                .error("Invalid Parameter")
+                .message(message)
                 .status(400)
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
@@ -82,24 +99,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatch(
-            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            NoResourceFoundException ex, HttpServletRequest request) {
 
-        String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
-                ex.getValue(), ex.getName(), Objects.requireNonNull(ex.getRequiredType()).getSimpleName());
+        // Check if this looks like an API endpoint
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/")) {
+            String message = String.format("API endpoint not found: %s", path);
+            log.warn("API endpoint not found: {}", message);
 
-        log.warn("Type mismatch: {}", message);
+            ErrorResponse error = ErrorResponse.builder()
+                    .error("API Endpoint Not Found")
+                    .message(message)
+                    .status(404)
+                    .timestamp(LocalDateTime.now())
+                    .path(path)
+                    .build();
 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        // For actual static resources, return generic message
+        String message = "Resource not found";
         ErrorResponse error = ErrorResponse.builder()
-                .error("Invalid Parameter")
+                .error("Not Found")
                 .message(message)
-                .status(400)
+                .status(404)
                 .timestamp(LocalDateTime.now())
-                .path(request.getRequestURI())
+                .path(path)
                 .build();
 
-        return ResponseEntity.badRequest().body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -168,6 +199,47 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
+    }
+
+    // Add this to your GlobalExceptionHandler:
+    @ExceptionHandler(PaymentException.class)  // Add the parent class
+    public ResponseEntity<ErrorResponse> handlePaymentException(
+            PaymentException ex, HttpServletRequest request) {
+
+        log.warn("Payment exception: {}", ex.getMessage());
+
+        // Determine status based on exception type
+        HttpStatus status = determinePaymentExceptionStatus(ex);
+
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Payment Error")
+                .message(ex.getMessage())
+                .status(status.value())
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    private HttpStatus determinePaymentExceptionStatus(PaymentException ex) {
+        if (ex instanceof InvalidPaymentRequestException ||
+                ex instanceof InvalidPaymentStatusException ||
+                ex instanceof InvalidPaymentPeriodException) {
+            return HttpStatus.BAD_REQUEST;
+        } else if (ex instanceof PaymentNotFoundException) {
+            return HttpStatus.NOT_FOUND;
+        } else if (ex instanceof DuplicatePaymentException) {
+            return HttpStatus.CONFLICT;
+        } else if (ex instanceof PaymentCalculationException ||
+                ex instanceof InsufficientPaymentDataException) {
+            return HttpStatus.UNPROCESSABLE_ENTITY;
+        } else if (ex instanceof PaymentProcessingException) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        } else if (ex instanceof PaymentSettingsConfigurationException) {
+            return HttpStatus.BAD_REQUEST;
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
     // === 500 INTERNAL ERROR ===
