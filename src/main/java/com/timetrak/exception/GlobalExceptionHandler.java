@@ -120,7 +120,6 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
-        // For actual static resources, return generic message
         String message = "Resource not found";
         ErrorResponse error = ErrorResponse.builder()
                 .error("Not Found")
@@ -201,14 +200,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
     }
 
-    // Add this to your GlobalExceptionHandler:
     @ExceptionHandler(PaymentException.class)  // Add the parent class
     public ResponseEntity<ErrorResponse> handlePaymentException(
             PaymentException ex, HttpServletRequest request) {
 
         log.warn("Payment exception: {}", ex.getMessage());
 
-        // Determine status based on exception type
         HttpStatus status = determinePaymentExceptionStatus(ex);
 
         ErrorResponse error = ErrorResponse.builder()
@@ -247,10 +244,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralError(
             Exception ex, HttpServletRequest request) {
         log.error("Internal server error: {}", ex.getMessage(), ex);
+        String message = ex.getMessage();
 
         ErrorResponse error = ErrorResponse.builder()
                 .error("Internal Server Error")
-                .message("Something went wrong. Please try again later.")
+                .message(message)
                 .status(500)
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
