@@ -290,7 +290,7 @@ public class ShiftController {
         log.debug("Get shifts by employee {} and date range {} to {} - page: {}, size: {}", 
                 employeeId, startDate, endDate, page, size);
         
-        Page<ShiftResponseDTO> response = shiftService.getShiftsByEmployeeAndDateRange(
+        Page<ShiftResponseDTO> response = shiftService.getShiftsByEmployeeIdAndDateRange(
                 employeeId, startDate, endDate, pageable);
         
         return ResponseEntity.ok(response);

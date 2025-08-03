@@ -1,4 +1,4 @@
-package com.timetrak.service;
+package com.timetrak.service.auth;
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.security.auth.dto.AuthRequest;

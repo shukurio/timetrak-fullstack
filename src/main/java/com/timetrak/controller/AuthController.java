@@ -4,7 +4,7 @@ import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.security.auth.JwtService;
 import com.timetrak.security.auth.dto.AuthRequest;
 import com.timetrak.security.auth.dto.AuthResponse;
-import com.timetrak.service.AuthService;
+import com.timetrak.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

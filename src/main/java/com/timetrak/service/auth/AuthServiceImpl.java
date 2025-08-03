@@ -1,8 +1,9 @@
-package com.timetrak.service.impl;
+package com.timetrak.service.auth;
 
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
 
+import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
@@ -10,6 +11,7 @@ import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.exception.TokenExpiredException;
+import com.timetrak.exception.employee.InvalidEmployeeException;
 import com.timetrak.mapper.EmployeeMapper;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
@@ -17,7 +19,6 @@ import com.timetrak.security.auth.CustomUserDetails;
 import com.timetrak.security.auth.JwtService;
 import com.timetrak.security.auth.dto.AuthRequest;
 import com.timetrak.security.auth.dto.AuthResponse;
-import com.timetrak.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +106,14 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + request.getDepartmentId()));
         }
 
+        Company company;
+        if (department != null) {
+            company = department.getCompany(); // Get company from department
+        } else {
+            // If no department provided, you need to handle this case
+            // Either require departmentId or provide a default company
+            throw new InvalidEmployeeException("Department is required for registration");
+        }
         // Create new employee
         Employee employee = Employee.builder()
                 .firstName(request.getFirstName())
@@ -116,6 +125,7 @@ public class AuthServiceImpl implements AuthService {
                 .status(EmployeeStatus.PENDING)
                 .role(request.getRole())
                 .department(department)
+                .company(company)
                 .build();
 
         employee = employeeRepository.save(employee);

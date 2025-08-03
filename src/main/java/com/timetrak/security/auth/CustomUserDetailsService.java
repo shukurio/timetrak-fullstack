@@ -1,6 +1,7 @@
 package com.timetrak.security.auth;
 
 import com.timetrak.entity.Employee;
+import com.timetrak.exception.employee.EmployeeNotFoundException;
 import com.timetrak.repository.EmployeeRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Employee employee = employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Employee not found with username: " + username));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with username: " + username));
         return new CustomUserDetails(employee);
     }
 }
