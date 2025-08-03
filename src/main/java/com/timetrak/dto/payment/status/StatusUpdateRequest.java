@@ -1,10 +1,7 @@
 package com.timetrak.dto.payment.status;
 
 import com.timetrak.enums.PaymentStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class StatusUpdateRequest {
 
     @NotEmpty(message = "Payment IDs cannot be empty")
