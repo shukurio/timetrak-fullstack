@@ -1,6 +1,5 @@
 package com.timetrak.dto.request;
 
-import com.timetrak.enums.Role;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -29,8 +28,6 @@ public class EmployeeRequestDTO {
     @Size(max = 100, message = "Email cannot exceed 100 characters")
     private String email;
 
-    @NotNull(message = "Role is required")
-    private Role role;
 
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$",
             message = "Phone number must be in valid international format (e.g., +1234567890)")

@@ -22,6 +22,7 @@ public class ShiftResponseDTO {
     private Long id;
     private LocalDateTime clockIn;
     private LocalDateTime clockOut;
+    private double hours;
     private String notes;
     private ShiftStatus status;
 
@@ -38,7 +39,6 @@ public class ShiftResponseDTO {
     public boolean isActive() {
         return status == ShiftStatus.ACTIVE;
     }
-
 
 
     public BigDecimal getTotalHours() {
