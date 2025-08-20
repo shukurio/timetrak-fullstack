@@ -28,27 +28,30 @@ public interface ShiftService {
 
 
     Page<ShiftResponseDTO> getShiftsByDepartment(Long departmentId,Long companyId,Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Long companyId, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId,Long companyId, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle,Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(ShiftStatus status,Long employeeId,
+                                                         Long companyId,
+                                                         Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status,Long companyId, Pageable pageable);
 
     //Internal Use
     List<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate);
 
 
-    Page<ShiftResponseDTO> getTodaysShifts(Pageable pageable);
-    Page<ShiftResponseDTO> getThisWeekShifts(Pageable pageable);
-    Page<ShiftResponseDTO> getThisMonthShifts(Pageable pageable);
+    Page<ShiftResponseDTO> getTodaysShifts(Long companyId,Pageable pageable);
+    Page<ShiftResponseDTO> getThisWeekShifts(Long companyId, Pageable pageable);
+    Page<ShiftResponseDTO> getThisMonthShifts(Long companyId,Pageable pageable);
 
     /**
      * Generates comprehensive shift analytics including hours worked and earnings.
      */
-    ShiftSummaryDTO getShiftSummary(Long employeeId, LocalDate startDate, LocalDate endDate);
+    ShiftSummaryDTO getShiftSummaryForEmployee(Long employeeId, LocalDate startDate, LocalDate endDate);
 
-    Shift getActiveShift(@NotNull Long employeeId);
+    ///For CLock out operations only/ no companyId required
+    Shift getActiveShift(Long employeeId);
 
 
     Page<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId,

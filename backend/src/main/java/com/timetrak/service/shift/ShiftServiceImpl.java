@@ -55,14 +55,14 @@ public class ShiftServiceImpl implements ShiftService {
 
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId, Pageable pageable) {
-        return shiftRepository.findByEmployeeId(employeeId, pageable).map(shiftMapper::toDTO);
+    public Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId,Long companyId,  Pageable pageable) {
+        return shiftRepository.findByEmployeeId(employeeId,companyId, pageable).map(shiftMapper::toDTO);
     }
 
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle, Pageable pageable) {
-        return shiftRepository.findByJobTitle(jobTitle, pageable).map(shiftMapper::toDTO);
+    public Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle,Long companyId, Pageable pageable) {
+        return shiftRepository.findByJobTitle(jobTitle, companyId, pageable).map(shiftMapper::toDTO);
     }
 
     @Override
@@ -91,14 +91,16 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable) {
-        return shiftRepository.findByStatusAndEmployeeId(
-                status, employeeId, pageable).map(shiftMapper::toDTO);
+    public Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(ShiftStatus status,Long employeeId,
+                                                                Long companyId,
+                                                                Pageable pageable) {
+        return shiftRepository.findByStatusAndEmployeeIdAndCompanyId(
+                status, employeeId,companyId, pageable).map(shiftMapper::toDTO);
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status,Pageable pageable) {
-        return shiftRepository.findAllByStatus(status, pageable).map(shiftMapper::toDTO);
+    public Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status,Long companyId,Pageable pageable) {
+        return shiftRepository.findAllByStatusAndCompanyId(status,companyId, pageable).map(shiftMapper::toDTO);
     }
 
     @Override
@@ -110,30 +112,30 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Pageable pageable) {
+    public Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate,Long companyId, Pageable pageable) {
         LocalDateTime startDateTime = toStartOfDay(startDate);
-        return shiftRepository.findByDateFrom(startDateTime, pageable).map(shiftMapper::toDTO);
+        return shiftRepository.findByDateFrom(startDateTime,companyId, pageable).map(shiftMapper::toDTO);
     }
 
     @Override
-    public Page<ShiftResponseDTO> getTodaysShifts(Pageable pageable) {
-        return getShiftsFromDate(LocalDate.now(), pageable);
+    public Page<ShiftResponseDTO> getTodaysShifts(Long companyId, Pageable pageable) {
+        return getShiftsFromDate(LocalDate.now(),companyId, pageable);
     }
 
     @Override
-    public Page<ShiftResponseDTO> getThisWeekShifts(Pageable pageable) {
-        return getShiftsFromDate(LocalDate.now().with(DayOfWeek.MONDAY), pageable);
+    public Page<ShiftResponseDTO> getThisWeekShifts(Long companyId,Pageable pageable) {
+        return getShiftsFromDate(LocalDate.now().with(DayOfWeek.MONDAY),companyId, pageable);
     }
 
     @Override
-    public Page<ShiftResponseDTO> getThisMonthShifts(Pageable pageable) {
-        return getShiftsFromDate(LocalDate.now().withDayOfMonth(1), pageable);
+    public Page<ShiftResponseDTO> getThisMonthShifts(Long companyId,Pageable pageable) {
+        return getShiftsFromDate(LocalDate.now().withDayOfMonth(1),companyId, pageable);
     }
 
 
 
     @Override
-    public ShiftSummaryDTO getShiftSummary(Long employeeId, LocalDate startDate, LocalDate endDate) {
+    public ShiftSummaryDTO getShiftSummaryForEmployee(Long employeeId, LocalDate startDate, LocalDate endDate) {
         Page<Shift> shifts = shiftRepository.findByEmployeeIdAndDateRange(
                 employeeId,
                 toStartOfDay(startDate),
@@ -176,6 +178,7 @@ public class ShiftServiceImpl implements ShiftService {
                 .build();
     }
 
+    ///For CLock out operations only/ no companyId required
     @Override
     public Shift getActiveShift(Long employeeId) {
         return shiftRepository.findActiveShiftByEmployeeId(employeeId)
