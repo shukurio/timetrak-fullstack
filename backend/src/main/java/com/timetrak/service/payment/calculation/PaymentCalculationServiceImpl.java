@@ -10,7 +10,7 @@ import com.timetrak.exception.payment.PaymentException;
 import com.timetrak.exception.payment.PaymentProcessingException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
-import com.timetrak.service.ShiftService;
+import com.timetrak.service.shift.ShiftService;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.payment.PaymentPeriodService;
 import com.timetrak.service.payment.PaymentResponseBuilder;
@@ -32,7 +32,6 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     private final PaymentResponseBuilder paymentResponseBuilder;
     private final PaymentCalculator paymentCalculator;
     private final ShiftService shiftService;
-    private final EmployeeService employeeService;
     private final PaymentPeriodService paymentPeriodService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
@@ -45,26 +44,33 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
         try {
             validator.validateRequest(paymentPeriod,companyId);
 
-            Map<Long, List<ShiftResponseDTO>> shifts =
+            Map<Employee, List<ShiftResponseDTO>> shifts =
                     shiftService.getAllShiftsByDateRange(paymentPeriod.getStartDate(),
                             paymentPeriod.getEndDate(),
                             companyId);
             validator.validateShifts(shifts);
 
-            List<Long> employeeIds = new ArrayList<>(shifts.keySet());
-            List<Long> validIds = validator.filterEmployeesWithoutDuplicates(employeeIds,paymentPeriod,companyId);
-            shifts.keySet().retainAll(validIds);
+            List<Employee> employees = new ArrayList<>(shifts.keySet());
+            List<Long> employeeIds = employees.stream().map(Employee::getId).toList();
+
+            List<Long> validIds = validator.filterEmployeesWithoutDuplicates(
+                    employees.stream().map(Employee::getId).toList(),
+                    paymentPeriod,
+                    companyId
+            );
+
+            shifts.entrySet().removeIf(entry -> !validIds.contains(entry.getKey().getId()));
+            List<Employee> validEmployees = shifts.keySet().stream().toList();
 
             List<Long> duplicatePayments = employeeIds.stream()
                     .filter(id -> !validIds.contains(id))
                     .toList();
 
-            List<Employee> employees = employeeService.getByIds(validIds,companyId);
-            validator.validateEmployees(validIds,employees,companyId);
-            validator.validateShiftsEmployeeConsistency(shifts,validIds);
+            validator.validateEmployees(validIds,validEmployees,companyId);
+            validator.validateShiftsEmployeeConsistency(shifts,validEmployees);
 
             PaymentCalculationResult calculationResult = paymentCalculator
-                    .calculateAllPaymentsForCompany(employees, shifts, paymentPeriod,
+                    .calculateAllPaymentsForCompany(validEmployees, shifts, paymentPeriod,
                              initiatorId);
 
             List<PaymentDetailsDTO> successful = savePayments(calculationResult.getSuccessful());

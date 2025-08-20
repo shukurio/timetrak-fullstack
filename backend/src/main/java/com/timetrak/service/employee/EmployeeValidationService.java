@@ -2,16 +2,12 @@ package com.timetrak.service.employee;
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.entity.Employee;
-import com.timetrak.enums.Role;
-import com.timetrak.enums.ShiftStatus;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeValidationException;
 import com.timetrak.exception.employee.InvalidEmployeeException;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.repository.ShiftRepository;
-import com.timetrak.service.DepartmentService;
-import com.timetrak.service.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +29,9 @@ public class EmployeeValidationService {
     }
 
     public void validateBusinessRules(EmployeeRequestDTO dto) {
-        // Admin username rule
-        if ((dto.getRole() == Role.ADMIN) && !dto.getUsername().toLowerCase().contains("admin")) {
-            throw new EmployeeValidationException("Admin users must have 'admin' in their username");
-        }
 
         // Non-admin username rule
-        if (dto.getRole() != Role.ADMIN && dto.getUsername().toLowerCase().contains("admin")) {
+        if (dto.getUsername().toLowerCase().contains("admin")) {
             throw new EmployeeValidationException("Only admin users can have 'admin' in their username");
         }
 

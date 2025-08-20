@@ -4,7 +4,7 @@ import com.timetrak.dto.payment.JobDetailsDTO;
 import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.enums.JobTitle;
-import com.timetrak.service.ShiftService;
+import com.timetrak.service.shift.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

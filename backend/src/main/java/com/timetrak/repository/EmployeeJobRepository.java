@@ -37,4 +37,8 @@ public interface EmployeeJobRepository extends JpaRepository<EmployeeJob, Long> 
            "AND e.deletedAt IS NULL")
     Optional<List<EmployeeJobInfoDTO>> findByIdsWithEmployeeInfo(@Param("employeeJobIds") List<Long> employeeJobIds);
 
+
+    List<EmployeeJob> findByEmployeeId(Long employeeId);
+
+    List<EmployeeJob> findByEmployeeUsername(String username);
 }

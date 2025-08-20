@@ -18,7 +18,7 @@ public interface EmployeeService {
     List<Employee> getByIds(List<Long> ids, Long companyId);
     Page<EmployeeResponseDTO> getAllActiveForCompany(Long companyId,Pageable pageable);
 
-    Employee getByUsername(String username);
+    EmployeeResponseDTO getByUsername(String username);
     Employee getByEmail(String email);
     Page<EmployeeResponseDTO> getAllEmployeesForCompany(Long compnyId,Pageable pageable);
     List<Long> getAllActiveEmployeeIdsForCompany(Long companyId);
@@ -30,7 +30,7 @@ public interface EmployeeService {
     void activateEmployee(Long id);
     void deactivateEmployee(Long id);
     Page<EmployeeResponseDTO> searchEmployees(String query,Long companyId, Pageable pageable);
-    Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId, Pageable pageable);
+    Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId, Long companyId, Pageable pageable);
     void approveEmployee(Long id);
     void rejectEmployee(Long id);
     void requestReactivation(Long id);
