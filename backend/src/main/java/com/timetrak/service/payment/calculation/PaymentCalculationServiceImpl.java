@@ -11,7 +11,6 @@ import com.timetrak.exception.payment.PaymentProcessingException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.shift.ShiftService;
-import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.payment.PaymentPeriodService;
 import com.timetrak.service.payment.PaymentResponseBuilder;
 import jakarta.transaction.Transactional;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.admin;
 
 import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.dto.payment.status.StatusUpdateRequest;
@@ -7,7 +7,7 @@ import com.timetrak.enums.PaymentStatus;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.payment.PaymentService;
 import com.timetrak.service.payment.paymentManagement.PaymentManagementService;
-import com.timetrak.service.payment.report.PaymentExporterService;
+import com.timetrak.service.report.PaymentExporterService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

@@ -10,8 +10,6 @@ import com.timetrak.exception.employee.InvalidEmployeeException;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.repository.ShiftRepository;
-import com.timetrak.service.DepartmentService;
-import com.timetrak.service.ShiftService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,7 +41,6 @@ class EmployeeValidationServiceTest {
                 .firstName("John").lastName("Doe")
                 .username("johndoe")
                 .email("john@example.com").password("Password123!")
-                .role(Role.EMPLOYEE).companyId(1L).departmentId(1L)
                 .build();
 
         employee = Employee.builder()
@@ -61,7 +58,6 @@ class EmployeeValidationServiceTest {
         @Test
         @DisplayName("Admin must have 'admin' in username")
         void adminMustHaveAdminInUsername() {
-            validDto.setRole(Role.ADMIN);
             validDto.setUsername("regularuser");
 
             assertThrows(EmployeeValidationException.class,

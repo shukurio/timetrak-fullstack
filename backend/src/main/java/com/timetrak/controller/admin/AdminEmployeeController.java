@@ -1,5 +1,5 @@
 
-package com.timetrak.controller;
+package com.timetrak.controller.admin;
 
 
 import com.timetrak.dto.response.EmployeeResponseDTO;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/employees")
+@RequestMapping("/api/admin/employees")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminEmployeeController {
 
@@ -87,7 +87,8 @@ public class AdminEmployeeController {
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<Page<EmployeeResponseDTO>> getEmployeesByDepartment
             (@PathVariable Long departmentId, Pageable pageable) {
-        Page<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId, pageable);
+        Long companyId = authContextService.getCurrentCompanyId();
+        Page<EmployeeResponseDTO> employees = employeeService.getEmployeesByDepartment(departmentId,companyId, pageable);
         return ResponseEntity.ok(employees);
     }
 
