@@ -1,13 +1,11 @@
-package com.timetrak.service;
+package com.timetrak.service.shift;
 
-import com.timetrak.dto.request.*;
-import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.dto.response.ShiftSummaryDTO;
+import com.timetrak.entity.Employee;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,28 +23,20 @@ import java.util.Map;
 @Validated
 public interface ShiftService {
 
-    ShiftResponseDTO createShift(@Valid @NotNull ShiftRequestDTO request);
-    ShiftResponseDTO updateShift(@NotNull Long shiftId, @Valid @NotNull ShiftRequestDTO request);
-    Shift getShiftById(@NotNull Long shiftId);
-    void deleteShift(@NotNull Long shiftId);
+    ShiftResponseDTO getShiftById(@NotNull Long shiftId);
 
 
-    /**
-     * Bulk clock operations for administrative use.
-     */
-    ClockResponseDTO clockIn(@Valid @NotNull ClockInRequestDTO request);
-    ClockResponseDTO clockOut(@Valid @NotNull ClockOutRequestDTO request);
 
-    boolean canEmployeeClockIn(Long employeeId);
-    boolean canEmployeeClockOut(Long employeeId);
-
-    Page<ShiftResponseDTO> getAllShifts(Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByDepartment(Long departmentId,Long companyId,Pageable pageable);
     Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(Long employeeId, ShiftStatus status, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status, Pageable pageable);
+
+    //Internal Use
+    List<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate);
 
 
     Page<ShiftResponseDTO> getTodaysShifts(Pageable pageable);
@@ -70,6 +60,6 @@ public interface ShiftService {
                                                              LocalDate startDate,
                                                              LocalDate endDate);
 
-    Map<Long, List<ShiftResponseDTO>> getAllShiftsByDateRange(LocalDate startDate, LocalDate endDate, Long companyId);
+    Map<Employee, List<ShiftResponseDTO>> getAllShiftsByDateRange(LocalDate startDate, LocalDate endDate, Long companyId);
 }
 
