@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.user;
 
 import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.service.auth.AuthContextService;

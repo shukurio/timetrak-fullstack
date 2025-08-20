@@ -7,6 +7,8 @@ import com.timetrak.security.auth.dto.AuthResponse;
 import com.timetrak.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,8 @@ import java.util.Map;
 @Tag(name = "Authentication", description = "Authentication management endpoints")
 public class AuthController {
     private final JwtService jwtService;
+    private final AuthService authService;
+
 
     @GetMapping("/me/role")
     public ResponseEntity<String> getRoleFromToken(@RequestHeader("Authorization") String authHeader) {
@@ -42,47 +46,96 @@ public class AuthController {
     }
 
 
-
-    private final AuthService authService;
-
-    @Operation(summary = "Login user", description = "Authenticate user and return JWT token")
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
-        log.info("Login attempt for username: {}", request.getUsername());
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
-    }
-
     @Operation(summary = "Register new employee", description = "Register a new employee account")
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody EmployeeRequestDTO request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody EmployeeRequestDTO request,
+                                                 HttpServletResponse response) {
         log.info("Registration attempt for username: {}", request.getUsername());
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        AuthResponse authResponse = authService.register(request);
+
+        Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
+        log.debug(authResponse.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setAttribute("SameSite", "Strict");
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+        response.addCookie(refreshCookie);
+
+        //no refresh token in response body
+        authResponse.setRefreshToken(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
 
-    @Operation(summary = "Refresh JWT token", description = "Get new access token using refresh token")
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request,
+                                              HttpServletResponse response) {
+        AuthResponse authResponse = authService.login(request);
+
+        //refresh token stored in HTTP-only cookie
+        Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
+        log.debug(authResponse.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setAttribute("SameSite", "Strict");
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(24 * 60 * 60);
+        response.addCookie(refreshCookie);
+
+        //no refresh token in response body
+        authResponse.setRefreshToken(null);
+
+        return ResponseEntity.ok(authResponse);
+    }
+
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
+    public ResponseEntity<AuthResponse> refreshToken(@CookieValue("refreshToken") String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         AuthResponse response = authService.refreshToken(refreshToken);
+        // Again, don't expose refresh token in response
+        response.setRefreshToken(null);
         return ResponseEntity.ok(response);
     }
+
+
+//
+//    @Operation(summary = "Refresh JWT token", description = "Get new access token using refresh token")
+//    @PostMapping("/refresh")
+//    public ResponseEntity<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
+//        String refreshToken = request.get("refreshToken");
+//        if (refreshToken == null || refreshToken.isEmpty()) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        AuthResponse response = authService.refreshToken(refreshToken);
+//        return ResponseEntity.ok(response);
+//    }
 
     @Operation(summary = "Logout user", description = "Logout user and invalidate token")
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
             @RequestHeader("Authorization") String authHeader,
-            Authentication authentication) {
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            Authentication authentication,
+            HttpServletResponse response) {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             authService.logout(token);
         }
+
+        // Clear the refresh token cookie
+        Cookie refreshCookie = new Cookie("refreshToken", "");
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setAttribute("SameSite", "Strict");
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0); // immediately expires the cookie
+        response.addCookie(refreshCookie);
 
         log.info("User {} logged out", authentication != null ? authentication.getName() : "unknown");
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));

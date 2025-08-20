@@ -4,7 +4,6 @@ import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.dto.response.ShiftSummaryDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Shift;
-import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,7 @@ public interface ShiftService {
     Page<ShiftResponseDTO> getShiftsByDepartment(Long departmentId,Long companyId,Pageable pageable);
     Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId,Long companyId, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle,Long companyId, Pageable pageable);
+    Page<ShiftResponseDTO> getShiftsByJobTitle(String jobTitle,Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(ShiftStatus status,Long employeeId,
                                                          Long companyId,

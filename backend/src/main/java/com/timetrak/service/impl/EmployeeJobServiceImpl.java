@@ -1,15 +1,14 @@
 package com.timetrak.service.impl;
 
 import com.timetrak.dto.response.EmployeeJobInfoDTO;
-import com.timetrak.dto.response.EmployeeJobResponseDTO;
+import com.timetrak.dto.job.EmployeeJobResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.repository.EmployeeJobRepository;
-import com.timetrak.service.EmployeeJobService;
+import com.timetrak.service.job.EmployeeJobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +48,8 @@ public class EmployeeJobServiceImpl implements EmployeeJobService {
             EmployeeJobResponseDTO employeeJobResponseDTO =
                     EmployeeJobResponseDTO.builder()
                             .employeeJobId(employeeJob.getId())
-                            .jobTitle(employeeJob.getJob().getJobTitle().name())
-                            .hourlyWage(BigDecimal.valueOf(employeeJob.getJob().getHourlyWage()))
+                            .jobTitle(employeeJob.getJob().getJobTitle())
+                            .hourlyWage(employeeJob.getJob().getHourlyWage())
                             .build();
             dtoList.add(employeeJobResponseDTO);
         }

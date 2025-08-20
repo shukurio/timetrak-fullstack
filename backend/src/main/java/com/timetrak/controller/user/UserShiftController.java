@@ -4,7 +4,6 @@ package com.timetrak.controller.user;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.dto.response.ShiftSummaryDTO;
 import com.timetrak.entity.Shift;
-import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.service.auth.AuthContextService;
@@ -74,7 +73,7 @@ public class UserShiftController {
      */
     @GetMapping("/job-title/{jobTitle}")
     public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByJobTitle(
-            @PathVariable JobTitle jobTitle,
+            @PathVariable String jobTitle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "clockIn") String sortBy,

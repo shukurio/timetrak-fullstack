@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.admin;
 
 import com.timetrak.dto.request.CompanyRequestDTO;
 import com.timetrak.dto.request.DepartmentRequestDTO;

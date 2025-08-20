@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.admin;
 
 import com.timetrak.dto.payment.PaymentRequestDTO;
 import com.timetrak.dto.payment.PaymentResponseDTO;

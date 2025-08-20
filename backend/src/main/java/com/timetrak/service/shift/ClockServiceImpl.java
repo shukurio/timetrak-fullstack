@@ -13,7 +13,7 @@ import com.timetrak.enums.ClockOperationType;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
-import com.timetrak.service.EmployeeJobService;
+import com.timetrak.service.job.EmployeeJobService;
 import com.timetrak.service.employee.EmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,6 @@ import com.timetrak.dto.response.*;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ClockErrorCode;
-import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
@@ -61,7 +60,7 @@ public class ShiftServiceImpl implements ShiftService {
 
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByJobTitle(JobTitle jobTitle,Long companyId, Pageable pageable) {
+    public Page<ShiftResponseDTO> getShiftsByJobTitle(String jobTitle,Long companyId, Pageable pageable) {
         return shiftRepository.findByJobTitle(jobTitle, companyId, pageable).map(shiftMapper::toDTO);
     }
 
