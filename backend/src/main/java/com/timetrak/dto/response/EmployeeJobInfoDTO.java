@@ -1,6 +1,5 @@
 package com.timetrak.dto.response;
 
-import com.timetrak.enums.JobTitle;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +41,7 @@ public class EmployeeJobInfoDTO {
     /**
      * Job title enum
      */
-    private JobTitle jobTitle;
+    private String jobTitle;
     
     /**
      * Hourly wage for this job

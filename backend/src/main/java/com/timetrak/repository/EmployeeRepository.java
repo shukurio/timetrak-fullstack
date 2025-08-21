@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     // Basic lookups
+    Optional<Employee> findActiveByUsername(String username);
     Optional<Employee> findByUsername(String username);
     Optional<Employee> findByEmail(String email);
 
@@ -30,8 +31,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 
     // Department-based
-    @Query("SELECT e FROM Employee e WHERE e.department.id = :departmentId AND e.deletedAt IS NULL")
-    Page<Employee> findByDepartmentIdActive(@Param("departmentId") Long departmentId, Pageable pageable);
+    @Query("SELECT e FROM Employee e WHERE e.company.id =:companyId AND e.department.id = :departmentId AND e.deletedAt IS NULL")
+    Page<Employee> findByDepartmentIdActive(@Param("departmentId") Long departmentId,
+                                            @Param("companyId") Long companyId,
+                                            Pageable pageable);
 
 
 

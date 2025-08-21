@@ -1,6 +1,7 @@
 package com.timetrak.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.timetrak.enums.ShiftStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -23,8 +24,11 @@ public class Shift extends BaseEntity{
     @JoinColumn(name="employee_job_id")
     private EmployeeJob employeeJob;
 
-    @Column(name = "employee_id", nullable = false)
-    private Long employeeId;
+    @ManyToOne
+    @JoinColumn(name = "employee")
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    private Employee employee;
+
 
     @Column(name = "company_id", nullable = false)
     private Long companyId;

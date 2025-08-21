@@ -1,23 +1,23 @@
-package com.timetrak.service.payment.report;
+package com.timetrak.service.report;
 
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.timetrak.dto.payment.PaymentPeriod;
-import com.timetrak.entity.Payment;
-import com.timetrak.repository.PaymentRepository;
+import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.service.payment.PaymentPeriodService;
+import com.timetrak.service.shift.ShiftService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.Document;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,21 +27,23 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentExporterService {
-    private final PaymentRepository paymentRepository;
-    private final PaymentPeriodService paymentPeriodService;
+public class ShiftReportService {
+    private final ShiftService shiftService;
+    private final PaymentPeriodService periodService;
 
-    public byte[] exportPayments(int periodNumber,Long companyId) {
+    public byte[] exportShifts(int periodNumber,Long companyId) {
 
         PaymentPeriod period = resolvePaymentPeriod(periodNumber,companyId);
-        log.info("Exporting payments for company {} from {} to {} in PDF format",
+        log.info("Exporting shifts for company {} from {} to {} in PDF format",
                 companyId, period.getStartDate(), period.getEndDate());
 
 
-        List<Payment> payments = paymentRepository.findByCompanyIdAndDateRange(companyId, period.getStartDate(), period.getEndDate());
+        List<ShiftResponseDTO> shifts = shiftService.getShiftsByDateRange(companyId,
+                period.getStartDate(),
+                period.getEndDate());
 
-        if (payments.isEmpty()) {
-            log.warn("No payments found for company {} in date range {} to {}", companyId, period.getStartDate(), period.getEndDate());
+        if (shifts.isEmpty()) {
+            log.warn("No shifts found for company {} in date range {} to {}", companyId, period.getStartDate(), period.getEndDate());
         }
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -50,17 +52,17 @@ public class PaymentExporterService {
             Document document = new Document(pdf, PageSize.A4.rotate());
 
             //title
-            createPdfHeader(document, period.getShortDescription(), payments.size());
+            createPdfHeader(document, period.getShortDescription(), shifts.size());
 
             //add table
-            Table table = createPaymentTable(payments);
+            Table table = createShiftTable(shifts);
             document.add(table);
 
             //add summary
-            createPdfSummary(document, payments);
+            createPdfSummary(document, shifts);
 
             document.close();
-            log.info("Generated PDF file with {} payments", payments.size());
+            log.info("Generated PDF file with {} shifts", shifts.size());
             return out.toByteArray();
 
         } catch (Exception e) {
@@ -71,18 +73,18 @@ public class PaymentExporterService {
 
     private PaymentPeriod resolvePaymentPeriod(Integer periodNumber, Long companyId) {
         if (periodNumber == null || periodNumber <= 0) {
-            log.info("No period number provided, using current payment period for company {}", companyId);
-            return paymentPeriodService.getCurrentPaymentPeriod(companyId);
+            log.info("No period number provided, using current period for company {}", companyId);
+            return periodService.getCurrentPaymentPeriod(companyId);
         } else {
-            log.info("Using payment period {} for company {}", periodNumber, companyId);
-            return paymentPeriodService.getPaymentPeriodByNumber(periodNumber, companyId);
+            log.info("Using period {} for company {}", periodNumber, companyId);
+            return periodService.getPaymentPeriodByNumber(periodNumber, companyId);
         }
     }
 
 
-    private void createPdfHeader(Document document,String formattedPeriod, int paymentCount) {
+    private void createPdfHeader(Document document,String formattedPeriod, int shiftCount) {
         //Main title
-        Paragraph title = new Paragraph("Payment Report")
+        Paragraph title = new Paragraph("Shift Report")
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(24)
                 .setBold()
@@ -96,24 +98,24 @@ public class PaymentExporterService {
                 .setMarginBottom(5);
         document.add(dateRange);
 
-        //Payment count
-        Paragraph count = new Paragraph(String.format("Total Payments: %d", paymentCount))
+        //Shift count
+        Paragraph count = new Paragraph(String.format("Total Shifts: %d", shiftCount))
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(12)
                 .setMarginBottom(20);
         document.add(count);
     }
 
-    private Table createPaymentTable(List<Payment> payments) {
+    private Table createShiftTable(List<ShiftResponseDTO> shifts) {
         //create table with 6 columns
 
         //cdd headers
         String[] headers = {
-                "Payment ID",
                 "Employee ID",
                 "Employee Name",
+                "Clock In",
+                "Clock Out",
                 "Total Hours",
-                "Total Earnings",
                 "Status"
         };
         Table table = new Table(headers.length);
@@ -129,45 +131,44 @@ public class PaymentExporterService {
         }
 
         //add data rows
-        for (Payment payment : payments) {
-            addPaymentRowToPdf(table, payment);
+        for (ShiftResponseDTO shift : shifts) {
+            addShiftRowToPdf(table, shift);
         }
 
         return table;
     }
 
-    private void addPaymentRowToPdf(Table table, Payment payment) {
-        // Payment ID
-        table.addCell(new Cell().add(new Paragraph(payment.getId().toString()))
-                .setTextAlignment(TextAlignment.CENTER));
-
+    private void addShiftRowToPdf(Table table, ShiftResponseDTO shift) {
         // Employee ID
-        table.addCell(new Cell().add(new Paragraph(payment.getEmployee().getId().toString()))
+        table.addCell(new Cell().add(new Paragraph(String.valueOf(shift.getEmployeeId())))
                 .setTextAlignment(TextAlignment.CENTER));
 
         // Employee Name
-        table.addCell(new Cell().add(new Paragraph(payment.getEmployee().getFullName())));
+        table.addCell(new Cell().add(new Paragraph(shift.getFullName()))
+                .setTextAlignment(TextAlignment.CENTER));
 
-        // Total Hours
-        table.addCell(new Cell().add(new Paragraph(payment.getTotalHours().toString()))
+        // Clock In
+        table.addCell(new Cell().add(new Paragraph(shift.getClockIn().toString())));
+
+        // Clock Out
+        table.addCell(new Cell().add(new Paragraph(shift.getClockOut().toString()))
                 .setTextAlignment(TextAlignment.RIGHT));
 
-        // Total Earnings (formatted as currency)
-        table.addCell(new Cell().add(new Paragraph("$" + payment.getTotalEarnings().toString()))
+        // Total Hours
+        table.addCell(new Cell().add(new Paragraph("$" + shift.getTotalHours().toString()))
                 .setTextAlignment(TextAlignment.RIGHT));
 
         // Status
-        table.addCell(new Cell().add(new Paragraph(payment.getStatus().toString()))
+        table.addCell(new Cell().add(new Paragraph(shift.getStatus().toString()))
                 .setTextAlignment(TextAlignment.CENTER));
 
     }
 
-    private void createPdfSummary(Document document, List<Payment> payments) {
-        // Calculate totals
-        BigDecimal totalEarnings = payments.stream()
-                .map(Payment::getTotalEarnings)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    private void createPdfSummary(Document document, List<ShiftResponseDTO> shifts) {
 
+        BigDecimal totalHours = shifts.stream()
+                .map(ShiftResponseDTO::getTotalHours)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Add summary section
         document.add(new Paragraph(" ").setMarginTop(20)); // Space
@@ -179,8 +180,8 @@ public class PaymentExporterService {
         document.add(summaryTitle);
 
         Paragraph summaryText = new Paragraph(String.format(
-                "Total Payments: %d \nTotal Earnings: $%s",
-                payments.size(), totalEarnings))
+                "Total Shifts: %d \nTotal Earnings: $%s",
+                shifts.size(), totalHours))
                 .setFontSize(12);
         document.add(summaryText);
 
@@ -192,5 +193,4 @@ public class PaymentExporterService {
                 .setMarginTop(20);
         document.add(timestamp);
     }
-
 }

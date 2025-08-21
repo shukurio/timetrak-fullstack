@@ -24,7 +24,7 @@ public class PaymentCalculator {
 
 
     public PaymentCalculationResult calculateAllPaymentsForCompany(List<Employee> employees,
-                                                                   Map<Long, List<ShiftResponseDTO>> shiftsMap,
+                                                                   Map<Employee, List<ShiftResponseDTO>> shiftsMap,
                                                                    PaymentPeriod paymentPeriod,
                                                                    Long initiatorId) {
         List<Payment> successful = new ArrayList<>();
@@ -32,7 +32,7 @@ public class PaymentCalculator {
 
         for (Employee employee : employees) {
             try {
-                List<ShiftResponseDTO> shifts = shiftsMap.getOrDefault(employee.getId(), new ArrayList<>());
+                List<ShiftResponseDTO> shifts = shiftsMap.getOrDefault(employee, new ArrayList<>());
                 Payment payment = calculateSingleEmployeePayment(employee, shifts, paymentPeriod, initiatorId);
                 successful.add(payment);
             } catch (Exception e) {

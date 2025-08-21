@@ -5,7 +5,6 @@ import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
-import com.timetrak.enums.Role;
 import com.timetrak.service.CompanyService;
 import com.timetrak.service.DepartmentService;
 import org.mapstruct.*;
@@ -27,7 +26,6 @@ public interface EmployeeMapper {
     @Mapping(target = "company", source = "dto", qualifiedByName = "mapCompany")
     @Mapping(target = "department", source = "dto", qualifiedByName = "mapDepartment")
     @Mapping(target = "password", source = "dto", qualifiedByName = "encodePassword")
-    @Mapping(target = "role", source = "dto", qualifiedByName = "setDefaultRole")
     @Mapping(target = "status", constant = "PENDING")
     Employee toEntity(EmployeeRequestDTO dto,
                       @Context CompanyService companyService,
@@ -50,8 +48,4 @@ public interface EmployeeMapper {
         return dto.getPassword() != null ? passwordEncoder.encode(dto.getPassword()) : null;
     }
 
-    @Named("setDefaultRole")
-    default Role setDefaultRole(EmployeeRequestDTO dto) {
-        return dto.getRole() != null ? dto.getRole() : Role.EMPLOYEE;
-    }
 }

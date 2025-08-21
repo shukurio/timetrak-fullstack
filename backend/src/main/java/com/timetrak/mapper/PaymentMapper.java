@@ -13,11 +13,13 @@ import java.util.List;
 public interface PaymentMapper {
 
     @Mapping(target = "employeeId", source = "employee.id")
-    @Mapping(target = "employeeName", source = "employee.fullName")
+    @Mapping(target = "employeeName", expression = "java(payment.getEmployee().getFullName())")
     @Mapping(target = "employeeUsername", source = "employee.username")
     @Mapping(target = "jobDetails", ignore = true)
     @Mapping(target = "jobsCount", constant = "0")
     @Mapping(target = "modifiedBy", source="payment.modifiedBy")
+    @Mapping(target = "modifiedByName", ignore = true)
+
     @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
     PaymentDetailsDTO toDTO(Payment payment);
 

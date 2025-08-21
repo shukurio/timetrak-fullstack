@@ -45,7 +45,7 @@ public class PaymentCalculationValidator {
         }
     }
 
-    public void validateShifts(Map<Long, List<ShiftResponseDTO>> shifts) {
+    public void validateShifts(Map<Employee, List<ShiftResponseDTO>> shifts) {
         if (shifts == null) {
             throw new InvalidPaymentRequestException("Shifts map cannot be null");
         }
@@ -87,10 +87,15 @@ public class PaymentCalculationValidator {
         }
     }
 
-    public void validateShiftsEmployeeConsistency(Map<Long, List<ShiftResponseDTO>> shifts, List<Long> employeeIds) {
+    public void validateShiftsEmployeeConsistency(Map<Employee, List<ShiftResponseDTO>> shifts, List<Employee> employees) {
 
-        Set<Long> shiftEmployeeIds = shifts.keySet();
-        Set<Long> expectedEmployeeIds = new HashSet<>(employeeIds);
+        Set<Long> shiftEmployeeIds = shifts.keySet().stream()
+                .map(Employee::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> expectedEmployeeIds = employees.stream()
+                .map(Employee::getId)
+                .collect(Collectors.toSet());
 
         if (!shiftEmployeeIds.equals(expectedEmployeeIds)) {
             Set<Long> extraInShifts = new HashSet<>(shiftEmployeeIds);
@@ -112,7 +117,7 @@ public class PaymentCalculationValidator {
             throw new InvalidPaymentRequestException(error.toString());
         }
 
-        log.debug("Shifts-employee consistency validated: {} employees have shift data", employeeIds.size());
+        log.debug("Shifts-employee consistency validated: {} employees have shift data", employees.size());
     }
 
 

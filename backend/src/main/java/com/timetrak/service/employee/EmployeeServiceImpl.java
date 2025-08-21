@@ -63,9 +63,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
     @Override
-    public Employee getByUsername(String username) {
-        return employeeRepository.findByUsername(username)
+    public EmployeeResponseDTO getByUsername(String username) {
+        Employee employee = employeeRepository.findActiveByUsername(username)
                 .orElseThrow(() -> new EmployeeNotFoundException(username));
+        return employeeMapper.toDTO(employee);
     }
 
     @Override
@@ -195,11 +196,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId, Pageable pageable) {
+    public Page<EmployeeResponseDTO> getEmployeesByDepartment(Long departmentId, Long companyId, Pageable pageable) {
+        log.debug("Getting employees for department ID: {}", departmentId);
+        
+        // Validate department exists
         validationService.validateDepartmentExists(departmentId);
 
-        return employeeRepository.findByDepartmentIdActive(departmentId, pageable)
-                .map(employeeMapper::toDTO);
+        Page<Employee> employees = employeeRepository.findByDepartmentIdActive(departmentId, companyId, pageable);
+        log.debug("Found {} employees for department ID: {}", employees.getTotalElements(), departmentId);
+        
+        return employees.map(employeeMapper::toDTO);
     }
 
     @Transactional

@@ -7,6 +7,7 @@ import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
+import com.timetrak.enums.Role;
 import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.ResourceNotFoundException;
@@ -123,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .status(EmployeeStatus.PENDING)
-                .role(request.getRole())
+                .role(Role.EMPLOYEE)
                 .department(department)
                 .company(company)
                 .build();

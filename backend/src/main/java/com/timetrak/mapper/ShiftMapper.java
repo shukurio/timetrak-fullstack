@@ -23,7 +23,7 @@ public interface ShiftMapper {
                 .clockOut(shift.getClockOut())
                 .notes(shift.getNotes())
                 .status(shift.getStatus())
-                .employeeId(shift.getEmployeeJob().getEmployee().getId())
+                .employeeId(shift.getEmployee().getId())
                 .employeeJobId(shift.getEmployeeJob().getId())
                 .username(shift.getEmployeeJob().getEmployee().getUsername())
                 .fullName(shift.getEmployeeJob().getEmployee().getFirstName() + " " +

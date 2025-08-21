@@ -1,12 +1,11 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.job;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class EmployeeJobResponseDTO {
-    private Long employeeJobId;
+public class JobUpdateDTO {
     private String jobTitle;
     private BigDecimal hourlyWage;
 }
