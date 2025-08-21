@@ -1,4 +1,4 @@
-package com.timetrak.service.job;
+package com.timetrak.service.employeeJob;
 
 import com.timetrak.dto.response.EmployeeJobInfoDTO;
 import com.timetrak.dto.job.EmployeeJobResponseDTO;

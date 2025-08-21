@@ -1,11 +1,10 @@
-package com.timetrak.service.impl;
+package com.timetrak.service.employeeJob;
 
 import com.timetrak.dto.response.EmployeeJobInfoDTO;
 import com.timetrak.dto.job.EmployeeJobResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.repository.EmployeeJobRepository;
-import com.timetrak.service.job.EmployeeJobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -6,7 +6,7 @@ import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.job.EmployeeJobResponseDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.exception.InvalidOperationException;
-import com.timetrak.service.job.EmployeeJobService;
+import com.timetrak.service.employeeJob.EmployeeJobService;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.shift.ClockService;
 import jakarta.validation.Valid;
