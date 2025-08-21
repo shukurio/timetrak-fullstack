@@ -1,5 +1,6 @@
 package com.timetrak.service.employeeJob;
 
+import com.timetrak.dto.employeeJob.EmployeeJobRequestDTO;
 import com.timetrak.dto.response.EmployeeJobInfoDTO;
 import com.timetrak.dto.job.EmployeeJobResponseDTO;
 import com.timetrak.entity.EmployeeJob;
@@ -17,17 +18,17 @@ public class EmployeeJobServiceImpl implements EmployeeJobService {
     private final EmployeeJobRepository employeeJobRepository;
 
     @Override
+    public EmployeeJobResponseDTO createEmployeeJob(EmployeeJobRequestDTO request) {
+        return null;
+    }
+
+    @Override
     public List<EmployeeJobResponseDTO> getEmployeeJobs(Long employeeId) {
         List<EmployeeJob> employeeJobs = employeeJobRepository.findByEmployeeId(employeeId);
         return mapToDTO(employeeJobs);
 
     }
 
-    @Override
-    public List<EmployeeJobResponseDTO> getEmployeeJobs(String username) {
-        List<EmployeeJob> employeeJobs = employeeJobRepository.findByEmployeeUsername(username);
-        return mapToDTO(employeeJobs);
-    }
 
     @Override
     public EmployeeJob getEmpJobById(Long id) {

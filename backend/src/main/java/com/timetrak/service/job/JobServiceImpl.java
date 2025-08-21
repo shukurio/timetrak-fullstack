@@ -9,6 +9,7 @@ import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.JobMapper;
 import com.timetrak.repository.JobRepository;
 import com.timetrak.service.CompanyService;
+import com.timetrak.service.DepartmentService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,39 +19,37 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class JobServiceImpl implements JobService {
     private final JobMapper jobMapper;
-    private final CompanyService companyService;
     private final JobRepository jobRepo;
+    private final DepartmentService depService;
 
     @Override
     @Transactional(readOnly = true)
-    public JobResponseDTO getById(Long jobId,Long companyId) {
-        Job job = getByIdEntity(jobId,companyId);
+    public JobResponseDTO getById(Long jobId, Long companyId) {
+        Job job = getByIdEntity(jobId, companyId);
         return jobMapper.toDTO(job);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Job getByIdEntity(Long jobId,Long companyId) {
+    public Job getByIdEntity(Long jobId, Long companyId) {
         return jobRepo.findByIdAndCompanyIdAndDeletedAtIsNull(jobId, companyId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Job with ID " + jobId + " not found for company " + companyId
                 ));
     }
 
-
     @Override
     @Transactional
     public JobResponseDTO createJob(JobRequestDTO request, Long companyId) {
-        validateJobTitle(request.getJobTitle(), companyId);
+        validateJobTitle(request.getJobTitle(), request.getDepartmentId(), companyId);
 
-        Job job =jobMapper.toEntity(request);
-        job.setCompany(companyService.getCompanyById(companyId));
+        Job job = jobMapper.toEntity(request);
+        job.setDepartment(depService.getDepartmentById(request.getDepartmentId(),companyId));
         Job savedJob = jobRepo.save(job);
 
         return jobMapper.toDTO(savedJob);
@@ -64,23 +63,20 @@ public class JobServiceImpl implements JobService {
         jobRepo.save(job);
     }
 
-
     @Override
     @Transactional
-    public JobResponseDTO updateJob(Long jobId,JobUpdateDTO request, Long companyId) {
-
-        Job job = getByIdEntity(jobId,companyId);
+    public JobResponseDTO updateJob(Long jobId, JobUpdateDTO request, Long companyId) {
+        Job job = getByIdEntity(jobId, companyId);
 
         if (request.getJobTitle() != null) {
             String upperTitle = request.getJobTitle().toUpperCase();
 
             if (!upperTitle.equalsIgnoreCase(job.getJobTitle())) {
-                validateJobTitle(upperTitle, companyId);
+                validateJobTitle(upperTitle, job.getDepartment().getId(), companyId);
             }
         }
 
-        Job updated =jobMapper.updateJobFromDto(request, job);
-
+        Job updated = jobMapper.updateJobFromDto(request, job);
         return jobMapper.toDTO(jobRepo.save(updated));
     }
 
@@ -94,7 +90,7 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional(readOnly = true)
     public Page<JobResponseDTO> getAllJobsPaged(Long companyId, Pageable pageable) {
-        Page<Job> jobs = jobRepo.findByCompanyIdAndDeletedAtIsNull(companyId,pageable);
+        Page<Job> jobs = jobRepo.findByCompanyIdAndDeletedAtIsNull(companyId, pageable);
         return jobs.map(jobMapper::toDTO);
     }
 
@@ -109,11 +105,25 @@ public class JobServiceImpl implements JobService {
         return jobMapper.toDTOList(jobs);
     }
 
-    private void validateJobTitle(String jobTitle, Long companyId) {
-        if (jobTitle == null) return;
+    @Override
+    @Transactional(readOnly = true)
+    public List<JobResponseDTO> getJobsByDepartment(Long departmentId, Long companyId) {
+        List<Job> jobs = jobRepo.findByDepartmentIdAndCompanyIdAndDeletedAtIsNull(departmentId, companyId);
+        return jobMapper.toDTOList(jobs);
+    }
 
-        if (jobRepo.existsByJobTitleAndCompanyIdAndDeletedAtIsNull(jobTitle, companyId)) {
-            throw new DuplicateResourceException("Job title '" + jobTitle + "' already exists");
+    @Override
+    @Transactional(readOnly = true)
+    public Page<JobResponseDTO> getJobsByDepartmentPaged(Long departmentId, Long companyId, Pageable pageable) {
+        Page<Job> jobs = jobRepo.findByDepartmentIdAndCompanyIdAndDeletedAtIsNull(departmentId, companyId, pageable);
+        return jobs.map(jobMapper::toDTO);
+    }
+
+    private void validateJobTitle(String jobTitle, Long departmentId, Long companyId) {
+        if (jobTitle == null) return;
+        String upperTitle = jobTitle.toUpperCase();
+        if (jobRepo.existsByJobTitleAndDepartmentIdAndCompanyIdAndDeletedAtIsNull(upperTitle, departmentId, companyId)) {
+            throw new DuplicateResourceException("Job title '" + upperTitle + "' already exists in this department");
         }
     }
 }

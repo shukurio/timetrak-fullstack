@@ -8,15 +8,16 @@ import com.timetrak.service.job.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -26,6 +27,7 @@ import java.util.List;
 @RequestMapping("/api/admin/jobs")
 @Validated
 public class AdminJobController {
+
     private final AuthContextService authContextService;
     private final JobService jobService;
 
@@ -35,12 +37,10 @@ public class AdminJobController {
         return ResponseEntity.status(HttpStatus.CREATED).body(job);
     }
 
-    @PutMapping("/update/{jobId}")
-    public ResponseEntity<JobResponseDTO> updateJob(
-            @PathVariable Long jobId,
-            @Valid @RequestBody JobUpdateDTO dto) {
+    @PutMapping("update/{jobId}")
+    public ResponseEntity<JobResponseDTO> updateJob(@PathVariable Long jobId,
+                                                    @Valid @RequestBody JobUpdateDTO dto) {
         JobResponseDTO updated = jobService.updateJob(jobId, dto, currentCompanyId());
-        log.debug("Updated successfully: {}", updated.getJobTitle());
         return ResponseEntity.ok(updated);
     }
 
@@ -61,16 +61,31 @@ public class AdminJobController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "jobTitle") String sortBy) {
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<JobResponseDTO> jobs = jobService.getAllJobsPaged(currentCompanyId(), pageable);
         return ResponseEntity.ok(jobs);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<JobResponseDTO>> searchJobs(
-            @RequestParam String query) {
+    public ResponseEntity<List<JobResponseDTO>> searchJobs(@RequestParam String query) {
         List<JobResponseDTO> jobs = jobService.searchJobs(query, currentCompanyId());
+        return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping("/department/{departmentId}")
+    public ResponseEntity<List<JobResponseDTO>> getJobsByDepartment(@PathVariable Long departmentId) {
+        List<JobResponseDTO> jobs = jobService.getJobsByDepartment(departmentId, currentCompanyId());
+        return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping("/department/{departmentId}/paged")
+    public ResponseEntity<Page<JobResponseDTO>> getJobsByDepartmentPaged(
+            @PathVariable Long departmentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "jobTitle") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<JobResponseDTO> jobs = jobService.getJobsByDepartmentPaged(departmentId, currentCompanyId(), pageable);
         return ResponseEntity.ok(jobs);
     }
 

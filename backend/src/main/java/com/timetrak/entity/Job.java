@@ -18,9 +18,10 @@ import java.util.List;
 @Table(name = "job")
 public class Job extends BaseEntity {
 
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
     @NotBlank(message = "Job Title should not be empty")
     @Size(min = 2, max = 50, message = "Job Title must be between 2 and 50 characters")
@@ -30,7 +31,14 @@ public class Job extends BaseEntity {
     @Column(name = "hourly_wage")
     private BigDecimal hourlyWage;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EmployeeJob> employeeJobs;
 
+    public Company getCompany() {
+        return department != null ? department.getCompany() : null;
+    }
+
+    public Long getCompanyId() {
+        return department != null ? department.getCompany().getId() : null;
+    }
 }

@@ -11,31 +11,30 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface JobMapper {
 
-    @Mapping(target = "companyId", source = "company.id")
+    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
     JobResponseDTO toDTO(Job job);
 
     List<JobResponseDTO> toDTOList(List<Job> jobs);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "company", ignore = true)
+    @Mapping(target = "department", ignore = true)
     @Mapping(target = "employeeJobs", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "jobTitle", expression =
-            "java(requestDTO.getJobTitle() != null ? requestDTO.getJobTitle().toUpperCase() : null)")
+    @Mapping(target = "jobTitle", expression = "java(requestDTO.getJobTitle().toUpperCase())")
     Job toEntity(JobRequestDTO requestDTO);
 
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "company", ignore = true)  // Don't change company
+    @Mapping(target = "department", ignore = true)
     @Mapping(target = "employeeJobs", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "jobTitle", expression = "java(requestDTO.getJobTitle() != null ? requestDTO.getJobTitle().toUpperCase() : null)")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "jobTitle", expression =
-            "java(requestDTO.getJobTitle() != null ? requestDTO.getJobTitle().toUpperCase() : null)")
     Job updateJobFromDto(JobUpdateDTO requestDTO, @MappingTarget Job job);
 
 }
