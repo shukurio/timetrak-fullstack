@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.job;
 
 import lombok.Builder;
 import lombok.Data;

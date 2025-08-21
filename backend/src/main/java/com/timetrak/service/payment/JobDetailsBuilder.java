@@ -3,7 +3,6 @@ package com.timetrak.service.payment;
 import com.timetrak.dto.payment.JobDetailsDTO;
 import com.timetrak.dto.payment.PaymentDetailsDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
-import com.timetrak.enums.JobTitle;
 import com.timetrak.service.shift.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -30,14 +29,14 @@ public class JobDetailsBuilder {
         );
 
         // Group shifts by job title and calculate totals
-        Map<JobTitle, List<ShiftResponseDTO>> shiftsByJob = shifts.stream()
+        Map<String, List<ShiftResponseDTO>> shiftsByJob = shifts.stream()
                 .filter(shift -> shift.getJobTitle() != null)
                 .collect(Collectors.groupingBy(ShiftResponseDTO::getJobTitle));
 
         List<JobDetailsDTO> jobDetails = new ArrayList<>();
 
-        for (Map.Entry<JobTitle, List<ShiftResponseDTO>> entry : shiftsByJob.entrySet()) {
-            JobTitle jobTitle = entry.getKey();
+        for (Map.Entry<String, List<ShiftResponseDTO>> entry : shiftsByJob.entrySet()) {
+            String jobTitle = entry.getKey();
             List<ShiftResponseDTO> jobShifts = entry.getValue();
 
             // Calculate totals for this job
@@ -63,7 +62,7 @@ public class JobDetailsBuilder {
             BigDecimal percentageOfTotalPay = calculatePercentage(totalEarnings, payment.getTotalEarnings());
 
             JobDetailsDTO jobDetail = JobDetailsDTO.builder()
-                    .jobTitle(jobTitle.name())
+                    .jobTitle(jobTitle)
                     .totalHours(totalHours)
                     .hourlyRate(hourlyRate)
                     .totalEarnings(totalEarnings)

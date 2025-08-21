@@ -1,7 +1,7 @@
-package com.timetrak.service;
+package com.timetrak.service.job;
 
 import com.timetrak.dto.response.EmployeeJobInfoDTO;
-import com.timetrak.dto.response.EmployeeJobResponseDTO;
+import com.timetrak.dto.job.EmployeeJobResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import org.springframework.stereotype.Service;
 

@@ -18,6 +18,8 @@ public interface PaymentMapper {
     @Mapping(target = "jobDetails", ignore = true)
     @Mapping(target = "jobsCount", constant = "0")
     @Mapping(target = "modifiedBy", source="payment.modifiedBy")
+    @Mapping(target = "modifiedByName", ignore = true)
+
     @Mapping(target = "averageHourlyRate", expression = "java(calculateAverageRate(payment))")
     PaymentDetailsDTO toDTO(Payment payment);
 

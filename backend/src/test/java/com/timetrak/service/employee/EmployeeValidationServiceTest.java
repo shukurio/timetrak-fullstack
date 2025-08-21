@@ -47,7 +47,8 @@ class EmployeeValidationServiceTest {
                 .id(1L)
                 .username("johndoe")
                 .email("john@example.com")
-                .status(EmployeeStatus.ACTIVE).role(Role.EMPLOYEE)
+                .status(EmployeeStatus.ACTIVE)
+                .role(Role.EMPLOYEE)
                 .build();
     }
 

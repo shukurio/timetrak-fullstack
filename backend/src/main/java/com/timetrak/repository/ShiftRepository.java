@@ -1,7 +1,6 @@
 package com.timetrak.repository;
 
 import com.timetrak.entity.Shift;
-import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,7 +88,7 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
             @Param("companyId")Long companyId, Pageable pageable);
 
     @Query("SELECT s FROM Shift s WHERE s.employeeJob.job.jobTitle = :jobTitle AND s.companyId = :companyId")
-    Page<Shift> findByJobTitle(@Param("jobTitle") JobTitle jobTitle, @Param("companyId") Long companyId, Pageable pageable);
+    Page<Shift> findByJobTitle(@Param("jobTitle") String jobTitle, @Param("companyId") Long companyId, Pageable pageable);
 
 
 }

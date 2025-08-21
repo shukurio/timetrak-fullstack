@@ -1,6 +1,5 @@
 package com.timetrak.dto.response;
 
-import com.timetrak.enums.JobTitle;
 import com.timetrak.enums.ShiftStatus;
 
 import lombok.AllArgsConstructor;
@@ -31,7 +30,7 @@ public class ShiftResponseDTO {
     private String username;
     private String fullName;
 
-    private JobTitle jobTitle;
+    private String jobTitle;
     private BigDecimal hourlyWage;
     private BigDecimal totalHours;
     private BigDecimal shiftEarnings;

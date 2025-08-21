@@ -1,6 +1,5 @@
 package com.timetrak.dto.response;
 
-import com.timetrak.enums.JobTitle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,7 +34,7 @@ public class ClockFailureResponse {
     /**
      * Job title they were trying to clock in/out for
      */
-    private JobTitle jobTitle;
+    private String jobTitle;
 
     /**
      * Error message explaining why it failed
