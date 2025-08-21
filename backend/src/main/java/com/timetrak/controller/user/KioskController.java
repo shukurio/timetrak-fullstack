@@ -1,13 +1,11 @@
 package com.timetrak.controller.user;
 
-import com.timetrak.dto.request.ClockInRequestDTO;
-import com.timetrak.dto.request.ClockOutRequestDTO;
-import com.timetrak.dto.response.ClockResponseDTO;
-import com.timetrak.dto.job.EmployeeJobResponseDTO;
+import com.timetrak.dto.clock.EmployeeClockRequestDTO;
+import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
-import com.timetrak.exception.InvalidOperationException;
-import com.timetrak.service.employeeJob.EmployeeJobService;
+import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.service.employee.EmployeeService;
+import com.timetrak.service.employeeJob.EmployeeJobQueryService;
 import com.timetrak.service.shift.ClockService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -23,10 +21,10 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/kiosk")
-public class UserClockController {
+public class KioskController {
     private final ClockService clockService;
-    private final EmployeeJobService employeeJobService;
     private final EmployeeService employeeService;
+    private final EmployeeJobQueryService empJobService;
 
 
     @GetMapping("/{username}")
@@ -50,8 +48,8 @@ public class UserClockController {
             log.info("Employee {} should CLOCK IN", employeeId);
             return "ClockIn";
         } else {
-            log.warn("Cannot determine action for employee {}: canClockIn={}, canClockOut={}", 
-                    employeeId, canClockIn, canClockOut);
+            log.warn("Cannot determine action for employee {}",
+                    employeeId);
             return "Can't determine action";
         }
     }
@@ -62,36 +60,26 @@ public class UserClockController {
     @GetMapping("/jobs/{username}")
     public List<EmployeeJobResponseDTO> getAllJobs(@PathVariable String username) {
         EmployeeResponseDTO employee = employeeService.getByUsername(username);
-        return employeeJobService.getEmployeeJobs(employee.getId());
+        return empJobService.getEmployeeJobs(employee.getId(),
+                // only for kiosk just to go around it
+                employee.getCompanyId());
     }
 
     @PostMapping("/clock-in")
-    public ResponseEntity<ClockResponseDTO> clockIn(@Valid @NotNull @RequestBody ClockInRequestDTO request) {
-
-        if (request.getEmployeeJobIds().size() != 1) {
-            throw new InvalidOperationException("Kiosk mode supports exactly one employee per clock-in request.");
-        }
-
-        log.info("Group clock-in request received for {} employees", request.getEmployeeJobIds().size());
+    public ResponseEntity<ShiftResponseDTO> clockIn(@Valid @NotNull @RequestBody EmployeeClockRequestDTO request) {
 
 
-        ClockResponseDTO response = clockService.clockIn(request);
+        ShiftResponseDTO response = clockService.kioskClockIn(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/clock-out")
-    public ResponseEntity<ClockResponseDTO> clockOut(@Valid @NotNull @RequestBody ClockOutRequestDTO request) {
+    public ResponseEntity<ShiftResponseDTO> clockOut(@Valid @NotNull @RequestBody EmployeeClockRequestDTO request) {
 
-        if (request.getEmployeeIds().size() != 1) {
-            throw new InvalidOperationException("Kiosk mode supports exactly one employee per clock-out request.");
-        }
-        log.info("Kiosk clock-out request received for {} employees", request.getEmployeeIds().size());
 
-        ClockResponseDTO response = clockService.clockOut(request);
+        ShiftResponseDTO response = clockService.kioskClockOut(request);
 
-        log.info("Kiosk clock-out completed: {} successful, {} failed",
-                response.getSuccessCount(), response.getFailureCount());
 
         return ResponseEntity.ok(response);
     }

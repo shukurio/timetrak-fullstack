@@ -50,7 +50,9 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
 
     @Query("SELECT COUNT(s) FROM Shift s WHERE s.status = :status AND s.employee.id = :employeeId")
     long countActiveShiftsByEmployeeId(@Param("status") ShiftStatus status, @Param("employeeId") Long employeeId);
-    
+    //TODO questioning if i need companyScoped findActiveShiftsByEmployeeId
+
+
 
     // Find specific active shift for employee (for clock out)
     @Query("SELECT s FROM Shift s WHERE s.status = 'ACTIVE' AND s.employee.id = :employeeId")
@@ -59,6 +61,7 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
 
     @Query("SELECT CASE WHEN EXISTS(SELECT 1 FROM Shift s WHERE s.status = com.timetrak.enums.ShiftStatus.ACTIVE AND s.employee.id = :employeeId) THEN true ELSE false END")
     boolean hasActiveShifts(@Param("employeeId") Long employeeId);
+
 
     @Query("SELECT s FROM Shift s" +
             " WHERE s.employee.id = :employeeId " +

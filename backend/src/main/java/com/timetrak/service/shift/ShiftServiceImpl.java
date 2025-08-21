@@ -179,11 +179,19 @@ public class ShiftServiceImpl implements ShiftService {
 
     ///For CLock out operations only/ no companyId required
     @Override
-    public Shift getActiveShift(Long employeeId) {
+    public Shift getActiveShiftSelf(Long employeeId) {
         return shiftRepository.findActiveShiftByEmployeeId(employeeId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(ClockErrorCode.NO_ACTIVE_SHIFT.getDefaultMessage() + " for employee ID: " + employeeId));
+                        new ResourceNotFoundException(ClockErrorCode.NO_ACTIVE_SHIFT.getDefaultMessage()
+                                + " for employee ID: " + employeeId));
     }
+
+    @Override
+    public Shift getActiveShift(Long employeeId, Long companyId) {
+        return shiftRepository.findActiveShiftByEmployeeId(employeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(ClockErrorCode.NO_ACTIVE_SHIFT.getDefaultMessage()
+                                + " for employee ID: " + employeeId));    }
 
     @Override
     public Map<Employee, List<ShiftResponseDTO>> getAllShiftsByDateRange(

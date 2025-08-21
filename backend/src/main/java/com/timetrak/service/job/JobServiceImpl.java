@@ -8,7 +8,6 @@ import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.JobMapper;
 import com.timetrak.repository.JobRepository;
-import com.timetrak.service.CompanyService;
 import com.timetrak.service.DepartmentService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

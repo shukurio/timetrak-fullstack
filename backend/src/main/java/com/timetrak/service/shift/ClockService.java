@@ -1,14 +1,20 @@
 package com.timetrak.service.shift;
 
-import com.timetrak.dto.request.ClockInRequestDTO;
-import com.timetrak.dto.request.ClockOutRequestDTO;
+import com.timetrak.dto.clock.AdminClockRequestDTO;
+import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.response.ClockResponseDTO;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import com.timetrak.dto.response.ShiftResponseDTO;
 
 public interface ClockService {
-    ClockResponseDTO clockIn(@Valid @NotNull ClockInRequestDTO request);
-    ClockResponseDTO clockOut(@Valid @NotNull ClockOutRequestDTO request);
+    ClockResponseDTO adminClockIn(AdminClockRequestDTO request);
+    ClockResponseDTO adminClockOut(AdminClockRequestDTO request);
+    ShiftResponseDTO employeeClockIn(EmployeeClockRequestDTO request, Long companyId);
+    ShiftResponseDTO employeeClockOut(EmployeeClockRequestDTO request, Long companyId);
+
+    ShiftResponseDTO kioskClockIn(EmployeeClockRequestDTO request);
+    ShiftResponseDTO kioskClockOut(EmployeeClockRequestDTO request);
+
+
 
     boolean canEmployeeClockIn(Long employeeId);
     boolean canEmployeeClockOut(Long employeeId);

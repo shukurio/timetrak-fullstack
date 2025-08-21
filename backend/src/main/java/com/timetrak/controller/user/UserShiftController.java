@@ -50,7 +50,7 @@ public class UserShiftController {
     public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByEmployee(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
@@ -76,7 +76,7 @@ public class UserShiftController {
             @PathVariable String jobTitle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
@@ -98,7 +98,7 @@ public class UserShiftController {
             @PathVariable ShiftStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
@@ -124,7 +124,7 @@ public class UserShiftController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
@@ -152,7 +152,7 @@ public class UserShiftController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? 
@@ -198,7 +198,7 @@ public class UserShiftController {
 
         log.debug("Get active shift for employee {}", currentEmployeeId());
         
-        Shift shift = shiftService.getActiveShift(currentEmployeeId());
+        Shift shift = shiftService.getActiveShiftSelf(currentEmployeeId());
         ShiftResponseDTO response = shiftMapper.toDTO(shift);
         
         return ResponseEntity.ok(response);

@@ -63,14 +63,14 @@ public class AdminEmployeeController {
     @Operation(summary = "Deactivate employee", description = "Deactivate an employee account")
     @PutMapping("/{id}/deactivate")
     public ResponseEntity<Map<String, String>> deactivateEmployee(@PathVariable Long id) {
-        employeeService.deactivateEmployee(id);
+        employeeService.deactivateEmployee(id, getCompanyId());
         return ResponseEntity.ok(Map.of("message", "Employee deactivated successfully"));
     }
 
     @Operation(summary = "Activate employee", description = "Activate an employee account")
     @PutMapping("/{id}/activate")
     public ResponseEntity<Map<String, String>> activateEmployee(@PathVariable Long id) {
-        employeeService.activateEmployee(id);
+        employeeService.activateEmployee(id, getCompanyId());
         return ResponseEntity.ok(Map.of("message", "Employee activated successfully"));
     }
 
@@ -101,28 +101,28 @@ public class AdminEmployeeController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
+        employeeService.deleteEmployee(id, getCompanyId());
         return ResponseEntity.noContent().build();  // 204
     }
 
     @Operation(summary = "Approve pending employee", description = "Approve a pending employee application")
     @PutMapping("/{id}/approve")
     public ResponseEntity<Map<String, String>> approveEmployee(@PathVariable Long id) {
-        employeeService.approveEmployee(id);
+        employeeService.approveEmployee(id, getCompanyId());
         return ResponseEntity.ok(Map.of("message", "Employee approved successfully"));
     }
 
     @Operation(summary = "Reject pending employee", description = "Reject a pending employee application")
     @PutMapping("/{id}/reject")
     public ResponseEntity<Map<String, String>> rejectEmployee(@PathVariable Long id) {
-        employeeService.rejectEmployee(id);
+        employeeService.rejectEmployee(id, getCompanyId());
         return ResponseEntity.ok(Map.of("message", "Employee rejected successfully"));
     }
 
     @Operation(summary = "Request reactivation", description = "Request reactivation for rejected/deactivated employee")
     @PutMapping("/{id}/reactivate")
     public ResponseEntity<Map<String, String>> requestReactivation(@PathVariable Long id) {
-        employeeService.requestReactivation(id);
+        employeeService.requestReactivation(id, getCompanyId());
         return ResponseEntity.ok(Map.of("message", "Reactivation requested successfully"));
     }
 
@@ -146,7 +146,7 @@ public class AdminEmployeeController {
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable Long id,
             @Valid @RequestBody EmployeeRequestDTO request) {
-        EmployeeResponseDTO employee = employeeService.updateEmployee(id, request);
+        EmployeeResponseDTO employee = employeeService.updateEmployee(id, request, getCompanyId());
         return ResponseEntity.ok(employee);
     }
 }

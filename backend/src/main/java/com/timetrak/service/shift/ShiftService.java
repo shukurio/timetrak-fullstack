@@ -50,7 +50,10 @@ public interface ShiftService {
     ShiftSummaryDTO getShiftSummaryForEmployee(Long employeeId, LocalDate startDate, LocalDate endDate);
 
     ///For CLock out operations only/ no companyId required
-    Shift getActiveShift(Long employeeId);
+    Shift getActiveShiftSelf(Long employeeId);
+
+    Shift getActiveShift(Long employeeId,Long companyId);
+
 
 
     Page<ShiftResponseDTO> getShiftsByEmployeeIdAndDateRange(Long employeeId,

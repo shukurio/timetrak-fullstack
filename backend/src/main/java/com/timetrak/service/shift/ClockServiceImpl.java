@@ -1,19 +1,20 @@
 package com.timetrak.service.shift;
 
-import com.timetrak.dto.request.ClockInRequestDTO;
-import com.timetrak.dto.request.ClockOutRequestDTO;
+import com.timetrak.dto.clock.AdminClockRequestDTO;
+import com.timetrak.dto.clock.EmployeeClockRequestDTO;
+import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
 import com.timetrak.dto.response.ClockFailureResponse;
 import com.timetrak.dto.response.ClockResponseDTO;
-import com.timetrak.dto.response.EmployeeJobInfoDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ClockErrorCode;
 import com.timetrak.enums.ClockOperationType;
 import com.timetrak.enums.ShiftStatus;
+import com.timetrak.exception.InvalidOperationException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
-import com.timetrak.service.employeeJob.EmployeeJobService;
+import com.timetrak.service.employeeJob.EmployeeJobQueryService;
 import com.timetrak.service.employee.EmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,38 +29,37 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClockServiceImpl implements ClockService {
 
-    // Clock-in validation messages
 
     private final ShiftRepository shiftRepository;
     private final ShiftMapper shiftMapper;
-    private final EmployeeJobService employeeJobService;
+    private final EmployeeJobQueryService employeeJobQueryService;
     private final ShiftService shiftService;
     private final ClockValidator validator;
     private final EmployeeService employeeService;
 
     @Override
     @Transactional
-    public ClockResponseDTO clockIn(ClockInRequestDTO request) {
+    public ClockResponseDTO adminClockIn(AdminClockRequestDTO request) {
         validator.validateClockInRequest(request);
 
-        log.info("Processing group clock-in for {} employees", request.getEmployeeJobIds().size());
+        log.info("Processing group clock-in for {} employees", request.getIds().size());
 
-        List<EmployeeJobInfoDTO> employeeJobs = employeeJobService.getEmpJobsInfoByIds(request.getEmployeeJobIds());
+        List<EmployeeJobResponseDTO> employeeJobs = employeeJobQueryService.getEmployeeJobsInfoByIds(request.getIds());
         List<ClockFailureResponse> failed = new ArrayList<>();
         List<Shift> shiftsToSave = new ArrayList<>();
 
-        for (EmployeeJobInfoDTO empJob : employeeJobs) {
+        for (EmployeeJobResponseDTO empJob : employeeJobs) {
             try {
                 if (!canEmployeeClockIn(empJob.getEmployeeId())) {
                     failed.add(buildClockFailure(empJob, ClockErrorCode.ALREADY_CLOCKED_IN.getDefaultMessage(), ClockErrorCode.ALREADY_CLOCKED_IN));
                     continue;
                 }
 
-                EmployeeJob employeeJob = employeeJobService.getEmpJobById(empJob.getEmployeeJobId());
+                EmployeeJob employeeJob = employeeJobQueryService.getEmployeeJobById(empJob.getEmployeeJobId(), empJob.getCompanyId());
                 validator.validateEmployeeJobActive(employeeJob);
 
                 Shift shift = Shift.builder()
-                        .clockIn(request.getClockInTime() != null ? request.getClockInTime() : LocalDateTime.now())
+                        .clockIn(request.getTime() != null ? request.getTime() : LocalDateTime.now())
                         .employeeJob(employeeJob)
                         .employee(employeeJob.getEmployee())
                         .companyId(empJob.getCompanyId())
@@ -75,7 +75,7 @@ public class ClockServiceImpl implements ClockService {
                         shift.getClockIn());
 
             } catch (Exception e) {
-                log.error("Failed to clock in employee: {} - {}", empJob.getFullName(), e.getMessage(), e);
+                log.error("Failed to clock in employee: {} - {}", empJob.getEmployeeName(), e.getMessage(), e);
                 failed.add(buildClockFailure(empJob, e.getMessage(), ClockErrorCode.CLOCK_IN_ERROR));
             }
         }
@@ -109,16 +109,16 @@ public class ClockServiceImpl implements ClockService {
 
     @Override
     @Transactional
-    public ClockResponseDTO clockOut(ClockOutRequestDTO request) {
+    public ClockResponseDTO adminClockOut(AdminClockRequestDTO request) {
         validator.validateClockOutRequest(request);
 
-        log.info("Processing group clock-out for {} employees", request.getEmployeeIds().size());
+        log.info("Processing group clock-out for {} employees", request.getIds().size());
 
         List<ClockFailureResponse> failed = new ArrayList<>();
 
         List<Shift> shiftsToSave = new ArrayList<>();
 
-        for (Long employeeId : request.getEmployeeIds()) {
+        for (Long employeeId : request.getIds()) {
             try {
                 if (!canEmployeeClockOut(employeeId)) {
                     String employeeName = getEmployeeNameSafely(employeeId);
@@ -127,19 +127,14 @@ public class ClockServiceImpl implements ClockService {
                 }
 
 
-                Shift shift = shiftService.getActiveShift(employeeId);
-                LocalDateTime clockOutTime = request.getClockOutTime() != null ? request.getClockOutTime() : LocalDateTime.now();
+                Shift shift = shiftService.getActiveShiftSelf(employeeId);
+                LocalDateTime clockOutTime = request.getTime() != null ? request.getTime() : LocalDateTime.now();
 
                 validator.validateClockOutTime(shift.getClockIn(), clockOutTime);
 
                 shift.setClockOut(clockOutTime);
+                handleNotes(request.getNotes(),shift);
 
-                String newNotes = validator.sanitizeNotes(request.getNotes());
-                if (newNotes != null && !newNotes.trim().isEmpty()) {
-                    String existingNotes = shift.getNotes() != null ? shift.getNotes() : "";
-                    String combinedNotes = existingNotes.isEmpty() ? newNotes : existingNotes + "\n" + newNotes;
-                    shift.setNotes(validator.truncateNotes(combinedNotes));
-                }
 
                 shift.setStatus(ShiftStatus.COMPLETED);
 
@@ -156,7 +151,7 @@ public class ClockServiceImpl implements ClockService {
         log.info("Group clock-out completed: {} successful, {} failed", successful.size(), failed.size());
 
         ClockResponseDTO response = ClockResponseDTO.builder()
-                .totalProcessed(request.getEmployeeIds().size())
+                .totalProcessed(request.getIds().size())
                 .successCount(successful.size())
                 .failureCount(failed.size())
                 .operationTime(LocalDateTime.now())
@@ -177,6 +172,178 @@ public class ClockServiceImpl implements ClockService {
         }
 
         return response;
+    }
+
+    @Override
+    public ShiftResponseDTO employeeClockIn(EmployeeClockRequestDTO request, Long companyId) {
+        try {
+            log.info("Processing employee clock-in for employeeJob ID: {} in company: {}", request.getId(), companyId);
+
+            EmployeeJob employeeJob = employeeJobQueryService.getEmployeeJobById(request.getId(), companyId);
+
+            if (!canEmployeeClockIn(employeeJob.getEmployee().getId())) {
+                throw new InvalidOperationException("Employee is already clocked in. Must clock out first.");
+            }
+
+            validator.validateEmployeeJobActive(employeeJob);
+
+            Shift shift = Shift.builder()
+                    .clockIn(LocalDateTime.now()) // System always uses current time
+                    .employeeJob(employeeJob)
+                    .employee(employeeJob.getEmployee())
+                    .companyId(companyId)
+                    .status(ShiftStatus.ACTIVE)
+                    .notes(validator.sanitizeNotes(request.getNotes()))
+                    .build();
+
+            Shift savedShift = shiftRepository.save(shift);
+
+            log.info("Employee clock-in successful for employee {} at job {} at {}",
+                    employeeJob.getEmployee().getUsername(),
+                    employeeJob.getJob().getJobTitle(),
+                    savedShift.getClockIn());
+
+            return shiftMapper.toDTO(savedShift);
+
+        } catch (InvalidOperationException e) {
+            log.warn("Employee clock-in failed for employeeJob ID {}: {}", request.getId(), e.getMessage());
+            throw e; // Re-throw for proper error handling
+        } catch (Exception e) {
+            log.error("Unexpected error during employee clock-in for employeeJob ID {}: {}", request.getId(), e.getMessage(), e);
+            throw new InvalidOperationException("Clock-in failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ShiftResponseDTO employeeClockOut(EmployeeClockRequestDTO request, Long companyId) {
+        try {
+            log.info("Processing employee clock-out for employee ID: {} in company: {}", request.getId(), companyId);
+
+            Long employeeId = request.getId();
+
+            if (!canEmployeeClockOut(employeeId)) {
+                throw new InvalidOperationException("Employee is not clocked in. Must clock in first.");
+            }
+
+            Shift activeShift = shiftService.getActiveShiftSelf(employeeId);
+
+            if (!activeShift.getCompanyId().equals(companyId)) {
+                throw new InvalidOperationException("Access denied: Shift belongs to different company");
+            }
+
+            LocalDateTime clockOutTime = LocalDateTime.now();
+
+            validator.validateClockOutTime(activeShift.getClockIn(), clockOutTime);
+
+            activeShift.setClockOut(clockOutTime);
+
+            handleNotes(request.getNotes(),activeShift);
+
+
+            activeShift.setStatus(ShiftStatus.COMPLETED);
+
+            Shift savedShift = shiftRepository.save(activeShift);
+
+            log.info("Employee clock-out successful for employee {} from job {} at {} (worked {} minutes)",
+                    activeShift.getEmployee().getUsername(),
+                    activeShift.getEmployeeJob().getJob().getJobTitle(),
+                    savedShift.getClockOut(),
+                    java.time.Duration.between(savedShift.getClockIn(), savedShift.getClockOut()).toMinutes());
+
+            return shiftMapper.toDTO(savedShift);
+
+        } catch (InvalidOperationException e) {
+            log.warn("Employee clock-out failed for employee ID {}: {}", request.getId(), e.getMessage());
+            throw e; // Re-throw for proper error handling
+        } catch (Exception e) {
+            log.error("Unexpected error during employee clock-out for employee ID {}: {}", request.getId(), e.getMessage(), e);
+            throw new InvalidOperationException("Clock-out failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ShiftResponseDTO kioskClockIn(EmployeeClockRequestDTO request) {
+        try {
+            log.info("Processing kiosk clock-in for employeeJob ID: {}", request.getId());
+
+            EmployeeJobResponseDTO empJob = employeeJobQueryService.getEmployeeJobKiosk(request.getId());
+
+            if (!canEmployeeClockIn(empJob.getEmployeeId())) {
+                throw new InvalidOperationException("Employee is already clocked in. Must clock out first.");
+            }
+
+            EmployeeJob employeeJob = employeeJobQueryService.getEmployeeJobById(empJob.getEmployeeJobId(), empJob.getCompanyId());
+
+            validator.validateEmployeeJobActive(employeeJob);
+
+            Shift shift = Shift.builder()
+                    .clockIn(LocalDateTime.now()) // Kiosk always uses current time
+                    .employeeJob(employeeJob)
+                    .employee(employeeJob.getEmployee())
+                    .companyId(empJob.getCompanyId())
+                    .status(ShiftStatus.ACTIVE)
+                    .notes(validator.sanitizeNotes(request.getNotes()))
+                    .build();
+
+            Shift savedShift = shiftRepository.save(shift);
+
+            log.info("Kiosk clock-in successful for employee {} at job {} at {}",
+                    employeeJob.getEmployee().getUsername(),
+                    employeeJob.getJob().getJobTitle(),
+                    savedShift.getClockIn());
+
+            return shiftMapper.toDTO(savedShift);
+
+        } catch (InvalidOperationException e) {
+            log.warn("Kiosk clock-in failed for employeeJob ID {}: {}", request.getId(), e.getMessage());
+            throw e; // Re-throw for proper error handling
+        } catch (Exception e) {
+            log.error("Unexpected error during kiosk clock-in for employeeJob ID {}: {}", request.getId(), e.getMessage(), e);
+            throw new InvalidOperationException("Clock-in failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ShiftResponseDTO kioskClockOut(EmployeeClockRequestDTO request) {
+        try {
+            log.info("Processing kiosk clock-out for employee ID: {}", request.getId());
+
+            Long employeeId = request.getId();
+
+            if (!canEmployeeClockOut(employeeId)) {
+                throw new InvalidOperationException("Employee is not clocked in. Must clock in first.");
+            }
+
+            Shift activeShift = shiftService.getActiveShiftSelf(employeeId);
+
+            LocalDateTime clockOutTime = LocalDateTime.now();
+
+            validator.validateClockOutTime(activeShift.getClockIn(), clockOutTime);
+
+            activeShift.setClockOut(clockOutTime);
+
+            handleNotes(request.getNotes(),activeShift);
+
+
+            activeShift.setStatus(ShiftStatus.COMPLETED);
+
+            Shift savedShift = shiftRepository.save(activeShift);
+
+            log.info("Kiosk clock-out successful for employee {} from job {} at {} (worked {} minutes)",
+                    activeShift.getEmployee().getUsername(),
+                    activeShift.getEmployeeJob().getJob().getJobTitle(),
+                    savedShift.getClockOut(),
+                    java.time.Duration.between(savedShift.getClockIn(), savedShift.getClockOut()).toMinutes());
+
+            return shiftMapper.toDTO(savedShift);
+
+        } catch (InvalidOperationException e) {
+            log.warn("Kiosk clock-out failed for employee ID {}: {}", request.getId(), e.getMessage());
+            throw e; // Re-throw for proper error handling
+        } catch (Exception e) {
+            log.error("Unexpected error during kiosk clock-out for employee ID {}: {}", request.getId(), e.getMessage(), e);
+            throw new InvalidOperationException("Clock-out failed: " + e.getMessage());
+        }
     }
 
     @Override
@@ -214,16 +381,25 @@ public class ClockServiceImpl implements ClockService {
     }
 
     private ClockFailureResponse buildClockFailure(
-            EmployeeJobInfoDTO empJobInfo, String errorMessage, ClockErrorCode errorCode) {
+            EmployeeJobResponseDTO empJobResponse, String errorMessage, ClockErrorCode errorCode) {
         return ClockFailureResponse.builder()
-                .employeeId(empJobInfo.getEmployeeId())
-                .employeeJobId(empJobInfo.getEmployeeJobId())
-                .username(empJobInfo.getUsername())
-                .fullName(empJobInfo.getFullName())
-                .jobTitle(empJobInfo.getJobTitle())
+                .employeeId(empJobResponse.getEmployeeId())
+                .employeeJobId(empJobResponse.getEmployeeJobId())
+                .jobTitle(empJobResponse.getJobTitle())
                 .errorMessage(errorMessage)
                 .errorCode(errorCode.name())
                 .build();
+    }
+
+    private void handleNotes(String notes, Shift shift){
+        String sanitizedNotes = validator.sanitizeNotes(notes);
+        if (sanitizedNotes != null && !sanitizedNotes.trim().isEmpty()) {
+            String existingNotes = shift.getNotes() != null ? shift.getNotes() : "";
+            String combinedNotes = existingNotes.isEmpty() ?
+                    "Clock-out: " + sanitizedNotes :
+                    existingNotes + "\nClock-out: " + sanitizedNotes;
+            shift.setNotes(validator.truncateNotes(combinedNotes));
+        }
     }
 
 }

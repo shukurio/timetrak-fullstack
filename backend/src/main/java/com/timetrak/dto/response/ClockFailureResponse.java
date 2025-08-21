@@ -21,10 +21,6 @@ public class ClockFailureResponse {
      */
     private Long employeeJobId;
 
-    /**
-     * Employee username (for display)
-     */
-    private String username;
 
     /**
      * Employee full name (for better UX)

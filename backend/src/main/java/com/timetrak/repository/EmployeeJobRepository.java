@@ -1,6 +1,5 @@
 package com.timetrak.repository;
 
-import com.timetrak.dto.response.EmployeeJobInfoDTO;
 import com.timetrak.entity.EmployeeJob;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,32 +12,33 @@ import java.util.Optional;
 @Repository
 public interface EmployeeJobRepository extends JpaRepository<EmployeeJob, Long> {
 
-    /**
-     * Efficient batch query to get all employee and job information needed for group operations.
-     * Avoids N+1 query problem by fetching everything in a single JOIN query.
-     * 
-     * @param employeeJobIds List of EmployeeJob IDs to fetch
-     * @return List of EmployeeJobInfoDTO with all necessary information
-     */
-    @Query("SELECT new com.timetrak.dto.response.EmployeeJobInfoDTO(" +
-           "ej.id, " +
-           "e.id, " +
-           "e.username, " +
-           "e.firstName, " +
-           "e.lastName, " +
-           "j.jobTitle, " +
-           "ej.hourlyWage, " +
-           "e.company.id) " +
-           "FROM EmployeeJob ej " +
-           "JOIN ej.employee e " +
-           "JOIN ej.job j " +
-           "WHERE ej.id IN :employeeJobIds " +
-           "AND ej.deletedAt IS NULL " +
-           "AND e.deletedAt IS NULL")
-    Optional<List<EmployeeJobInfoDTO>> findByIdsWithEmployeeInfo(@Param("employeeJobIds") List<Long> employeeJobIds);
+    @Query("SELECT ej FROM EmployeeJob ej " +
+            "WHERE ej.id IN :employeeJobIds " +
+            "AND ej.deletedAt IS NULL ")
+    List<EmployeeJob> findByIdsWithEmployeeInfo(@Param("employeeJobIds") List<Long> employeeJobIds);
 
+    @Query("SELECT ej FROM EmployeeJob ej WHERE ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    List<EmployeeJob> findByCompanyIdAndDeletedAtIsNull(@Param("companyId") Long companyId);
 
-    List<EmployeeJob> findByEmployeeId(Long employeeId);
+    @Query("SELECT ej FROM EmployeeJob ej WHERE ej.employee.id = :employeeId AND ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    List<EmployeeJob> findByEmployeeIdAndCompanyId(@Param("employeeId") Long employeeId, @Param("companyId") Long companyId);
+
+    @Query("SELECT ej FROM EmployeeJob ej WHERE ej.job.id = :jobId AND ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    List<EmployeeJob> findByJobIdAndCompanyId(@Param("jobId") Long jobId, @Param("companyId") Long companyId);
+
+    @Query("SELECT ej FROM EmployeeJob ej WHERE ej.job.department.id = :departmentId AND ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    List<EmployeeJob> findByJobDepartmentIdAndCompanyId(@Param("departmentId") Long departmentId, @Param("companyId") Long companyId);
+
+    @Query("SELECT ej FROM EmployeeJob ej WHERE ej.id = :employeeJobId AND ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    Optional<EmployeeJob> findByIdAndCompanyId(@Param("employeeJobId") Long employeeJobId, @Param("companyId") Long companyId);
+
+    @Query("SELECT CASE WHEN COUNT(ej) > 0 THEN true ELSE false END FROM EmployeeJob ej WHERE ej.employee.id = :employeeId AND ej.job.id = :jobId AND ej.employee.company.id = :companyId AND ej.deletedAt IS NULL")
+    boolean existsByEmployeeIdAndJobIdAndCompanyId(@Param("employeeId") Long employeeId, @Param("jobId") Long jobId, @Param("companyId") Long companyId);
+
+    @Query("SELECT ej FROM EmployeeJob ej JOIN ej.employee e WHERE e.username = :username AND e.company.id = :companyId AND ej.deletedAt IS NULL")
+    List<EmployeeJob> findByEmployeeUsernameAndCompanyId(@Param("username") String username, @Param("companyId") Long companyId);
 
     List<EmployeeJob> findByEmployeeUsername(String username);
+
+    Optional<EmployeeJob> findByIdAndDeletedAtIsNull(Long empJobId);
 }
