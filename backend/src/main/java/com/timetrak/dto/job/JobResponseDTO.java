@@ -16,5 +16,6 @@ public class JobResponseDTO {
     private Long id;
     private String jobTitle;
     private BigDecimal hourlyWage;
-    private Long companyId;
+    private Long departmentId;
+    private String departmentName;
 }

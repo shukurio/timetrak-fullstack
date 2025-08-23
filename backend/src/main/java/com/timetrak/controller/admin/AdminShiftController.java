@@ -1,7 +1,6 @@
 package com.timetrak.controller.admin;
 
-import com.timetrak.dto.request.ClockInRequestDTO;
-import com.timetrak.dto.request.ClockOutRequestDTO;
+import com.timetrak.dto.clock.AdminClockRequestDTO;
 import com.timetrak.dto.request.ShiftRequestDTO;
 import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
@@ -68,10 +67,10 @@ public class AdminShiftController {
      * Clock in multiple employees simultaneously (Admin operation)
      */
     @PostMapping("/clock-in")
-    public ResponseEntity<ClockResponseDTO> clockIn(@Valid @NotNull @RequestBody ClockInRequestDTO request) {
-        log.info("Group clock-in request received for {} employees", request.getEmployeeJobIds().size());
+    public ResponseEntity<ClockResponseDTO> clockIn(@Valid @NotNull @RequestBody AdminClockRequestDTO request) {
+        log.info("Group clock-in request received for {} employees", request.getIds().size());
 
-        ClockResponseDTO response = clockService.clockIn(request);
+        ClockResponseDTO response = clockService.adminClockIn(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -80,10 +79,10 @@ public class AdminShiftController {
      * Clock out multiple employees simultaneously (Admin operation)
      */
     @PostMapping("/clock-out")
-    public ResponseEntity<ClockResponseDTO> clockOut(@Valid @NotNull @RequestBody ClockOutRequestDTO request) {
-        log.info("Group clock-out request received for {} employees", request.getEmployeeIds().size());
+    public ResponseEntity<ClockResponseDTO> clockOut(@Valid @NotNull @RequestBody AdminClockRequestDTO request) {
+        log.info("Group clock-out request received for {} employees", request.getIds().size());
 
-        ClockResponseDTO response = clockService.clockOut(request);
+        ClockResponseDTO response = clockService.adminClockOut(request);
 
         log.info("Group clock-out completed: {} successful, {} failed",
                 response.getSuccessCount(), response.getFailureCount());
@@ -138,7 +137,7 @@ public class AdminShiftController {
     public ResponseEntity<Page<ShiftResponseDTO>> getThisMonthShifts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?
@@ -158,7 +157,7 @@ public class AdminShiftController {
     public ResponseEntity<Page<ShiftResponseDTO>> getThisWeekShifts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?
@@ -182,7 +181,7 @@ public class AdminShiftController {
             @PathVariable ShiftStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?

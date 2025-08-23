@@ -19,4 +19,6 @@ public class JobRequestDTO {
     @Digits(integer = 3, fraction = 2, message = "Invalid wage precision")
     private BigDecimal hourlyWage;
 
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
 }

@@ -36,6 +36,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeValidationService validationService;
 
     @Override
+    public EmployeeResponseDTO getEmployeeDTOById(Long id, Long companyId) {
+        Employee employee = employeeRepository.findByIdAndCompanyIdAndDeletedAtIsNull(id, companyId)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        return employeeMapper.toDTO(employee);
+    }
+    
+    // Legacy method (keeping for backward compatibility - NO company scope)
+    @Override
     public EmployeeResponseDTO getEmployeeDTOById(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -43,9 +51,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee getById(Long id) {
-        return employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+    public Employee getById(Long employeeId, Long companyId) {
+        return employeeRepository.findByIdAndCompanyIdAndDeletedAtIsNull(employeeId, companyId)
+                .orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+    }
+
+    @Override
+    public Employee getActiveById(Long employeeId, Long companyId) {
+        return employeeRepository.findActiveByIdAndCompanyId(employeeId, companyId)
+                .orElseThrow(() -> new EmployeeNotFoundException("Active employee not found with id: " + employeeId));
     }
 
     @Override
@@ -63,12 +77,27 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
     @Override
+    public EmployeeResponseDTO getByUsername(String username, Long companyId) {
+        Employee employee = employeeRepository.findByUsernameAndCompanyId(username, companyId)
+                .orElseThrow(() -> new EmployeeNotFoundException(username));
+        return employeeMapper.toDTO(employee);
+    }
+    
+    // Legacy method (keeping for backward compatibility - NO company scope)
+    @Override
     public EmployeeResponseDTO getByUsername(String username) {
         Employee employee = employeeRepository.findActiveByUsername(username)
                 .orElseThrow(() -> new EmployeeNotFoundException(username));
         return employeeMapper.toDTO(employee);
     }
 
+    @Override
+    public Employee getByEmail(String email, Long companyId) {
+        return employeeRepository.findByEmailAndCompanyId(email, companyId)
+                .orElseThrow(() -> new EmployeeNotFoundException(email));
+    }
+    
+    // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
     public Employee getByEmail(String email) {
         return employeeRepository.findByEmail(email)
@@ -87,12 +116,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto) {
-        Employee employee = getById(id);
+    public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto, Long companyId) {
+        Employee employee = getById(id, companyId);
 
-
-        validationService.validateUpdate(employee,
-                dto);
+        validationService.validateUpdate(employee, dto);
 
         try {
             updateEmployeeFields(employee, dto);
@@ -110,9 +137,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public void deleteEmployee(Long id) {
-        Employee employee = getById(id);
-
+    public void deleteEmployee(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
 
         validationService.validateDeletion(employee);
 
@@ -125,8 +151,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public void activateEmployee(Long id) {
-        Employee  employee = getById(id);
+    public void activateEmployee(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
 
         validationService.validateActivation(employee);
 
@@ -135,10 +161,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         log.info("Activated employee: {} (ID: {})", employee.getUsername(), employee.getId());
     }
+    
     @Transactional
     @Override
-    public void deactivateEmployee(Long id) {
-        Employee  employee = getById(id);
+    public void deactivateEmployee(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
         validationService.validateDeactivation(employee);
         employee.setStatus(EmployeeStatus.DEACTIVATED);
         employeeRepository.save(employee);
@@ -148,8 +175,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional
-    public void approveEmployee(Long id) {
-        Employee  employee = getById(id);
+    public void approveEmployee(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
         validationService.validateApproval(employee);
 
         employee.setStatus(EmployeeStatus.ACTIVE);
@@ -159,8 +186,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional
-    public void rejectEmployee(Long id) {
-        Employee  employee = getById(id);
+    public void rejectEmployee(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
         validationService.validateRejection(employee);
 
         employee.setStatus(EmployeeStatus.REJECTED);
@@ -170,8 +197,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional
-    public void requestReactivation(Long id) {
-        Employee  employee = getById(id);
+    public void requestReactivation(Long id, Long companyId) {
+        Employee employee = getById(id, companyId);
 
         validationService.validateReactivation(employee);
 
@@ -227,6 +254,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+    @Override
+    public String getEmployeeNameById(Long id, Long companyId) {
+        return employeeRepository.findFullNameByIdAndCompanyId(id, companyId)
+                .orElse("Employee " + id);
+    }
+    
+    // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
     public String getEmployeeNameById(Long id) {
         return employeeRepository.findFullNameById(id)
