@@ -28,6 +28,21 @@ public class EmployeeValidationService {
         validateDepartmentExists(dto.getDepartmentId());
     }
 
+    public void validateAdminRegistration(EmployeeRequestDTO dto) {
+        dto.normalize();
+        validateAdminUsernamePassword(dto);
+        validateUniqueness(dto.getUsername(), dto.getEmail());
+    }
+
+    public void validateAdminUsernamePassword(EmployeeRequestDTO dto){
+        if (!dto.getUsername().toLowerCase().contains("admin")) {
+            throw new EmployeeValidationException("Admin users must have 'admin' in their username");
+        }
+        if (dto.getPassword().toLowerCase().contains(dto.getUsername().toLowerCase())) {
+            throw new EmployeeValidationException("Password cannot contain username");
+        }
+    }
+
     public void validateBusinessRules(EmployeeRequestDTO dto) {
 
         // Non-admin username rule
@@ -229,7 +244,6 @@ public class EmployeeValidationService {
         }
     }
 
-    //fixed department validation
     public void validateDepartmentExists(Long departmentId) {
         if (departmentId == null || departmentId <= 0 || !departmentRepository.existsById(departmentId)) {
             throw new EmployeeValidationException("Invalid department ID: " + departmentId);

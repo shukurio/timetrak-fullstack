@@ -1,10 +1,10 @@
 package com.timetrak.controller.admin;
 
-import com.timetrak.dto.request.CompanyRequestDTO;
+import com.timetrak.dto.company.CompanyRequestDTO;
 import com.timetrak.dto.request.DepartmentRequestDTO;
-import com.timetrak.dto.response.CompanyResponseDTO;
+import com.timetrak.dto.company.CompanyResponseDTO;
 import com.timetrak.dto.response.DepartmentResponseDTO;
-import com.timetrak.service.CompanyService;
+import com.timetrak.service.company.CompanyService;
 import com.timetrak.service.DepartmentService;
 import com.timetrak.service.auth.AuthContextService;
 import io.swagger.v3.oas.annotations.Operation;

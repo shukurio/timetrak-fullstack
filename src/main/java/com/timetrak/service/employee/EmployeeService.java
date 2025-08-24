@@ -3,6 +3,7 @@ package com.timetrak.service.employee;
 
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.entity.Company;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,9 @@ public interface EmployeeService {
     Page<EmployeeResponseDTO> getByStatus(Long companyId,EmployeeStatus status, Pageable pageable);
 
     // Legacy methods (keeping for backward compatibility)
-    EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto);
+    EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto);
+
+    EmployeeResponseDTO createAdmin(EmployeeRequestDTO adminRequest, Company company);
 
     String getEmployeeNameById(Long employeeId, Long companyId);
     
