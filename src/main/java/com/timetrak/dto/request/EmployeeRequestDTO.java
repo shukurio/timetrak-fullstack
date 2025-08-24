@@ -43,7 +43,6 @@ public class EmployeeRequestDTO {
     @Positive(message = "Company ID must be a positive number")
     private Long companyId;
 
-    @NotNull(message = "Department ID is required")
     @Positive(message = "Department ID must be a positive number")
     private Long departmentId;
 

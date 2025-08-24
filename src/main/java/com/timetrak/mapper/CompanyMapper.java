@@ -1,8 +1,8 @@
 package com.timetrak.mapper;
 
 
-import com.timetrak.dto.request.CompanyRequestDTO;
-import com.timetrak.dto.response.CompanyResponseDTO;
+import com.timetrak.dto.company.CompanyRequestDTO;
+import com.timetrak.dto.company.CompanyResponseDTO;
 import com.timetrak.entity.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
