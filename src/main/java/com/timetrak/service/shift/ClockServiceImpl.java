@@ -208,9 +208,6 @@ public class ClockServiceImpl implements ClockService {
         } catch (InvalidOperationException e) {
             log.warn("Employee clock-in failed for employeeJob ID {}: {}", request.getId(), e.getMessage());
             throw e; // Re-throw for proper error handling
-        } catch (Exception e) {
-            log.error("Unexpected error during employee clock-in for employeeJob ID {}: {}", request.getId(), e.getMessage(), e);
-            throw new InvalidOperationException("Clock-in failed: " + e.getMessage());
         }
     }
 
@@ -257,7 +254,7 @@ public class ClockServiceImpl implements ClockService {
             throw e; // Re-throw for proper error handling
         } catch (Exception e) {
             log.error("Unexpected error during employee clock-out for employee ID {}: {}", request.getId(), e.getMessage(), e);
-            throw new InvalidOperationException("Clock-out failed: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -299,7 +296,7 @@ public class ClockServiceImpl implements ClockService {
             throw e; // Re-throw for proper error handling
         } catch (Exception e) {
             log.error("Unexpected error during kiosk clock-in for employeeJob ID {}: {}", request.getId(), e.getMessage(), e);
-            throw new InvalidOperationException("Clock-in failed: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -342,7 +339,7 @@ public class ClockServiceImpl implements ClockService {
             throw e; // Re-throw for proper error handling
         } catch (Exception e) {
             log.error("Unexpected error during kiosk clock-out for employee ID {}: {}", request.getId(), e.getMessage(), e);
-            throw new InvalidOperationException("Clock-out failed: " + e.getMessage());
+            throw e;
         }
     }
 

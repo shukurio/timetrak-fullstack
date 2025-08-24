@@ -28,7 +28,19 @@ public interface ShiftService {
 
     Page<ShiftResponseDTO> getShiftsByDepartment(Long departmentId,Long companyId,Pageable pageable);
     Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate, Long companyId, Pageable pageable);
-    Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId,Long companyId, Pageable pageable);
+
+    List<ShiftResponseDTO> getShiftsByDepartmentByDateRange(Long departmentId,
+                                                            Long companyId,
+                                                            LocalDate startDate,
+                                                            LocalDate endDate);
+
+    Map<Long, List<ShiftResponseDTO>> getShiftsByDepartmentsGrouped(
+            List<Long> departmentIds,
+            Long companyId,
+            LocalDate startDate,
+            LocalDate endDate);
+
+    Page<ShiftResponseDTO> getShiftsByEmployeeId(Long employeeId, Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByJobTitle(String jobTitle,Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(ShiftStatus status,Long employeeId,

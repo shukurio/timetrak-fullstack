@@ -6,6 +6,8 @@ import com.timetrak.entity.Department;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface DepartmentService {
     Page<DepartmentResponseDTO> getAllByCompanyId(Long companyId, Pageable pageable);
 
@@ -22,4 +24,6 @@ public interface DepartmentService {
     DepartmentResponseDTO getDepartmentByCode(String code, Long companyId);
 
     boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId);
+
+    List<Long> getAllDepartmentIdsForCompany(Long companyId);
 }

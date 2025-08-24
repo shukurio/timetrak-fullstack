@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +30,7 @@ public class EmployeeJobQueryServiceImpl implements EmployeeJobQueryService {
 
     @Override
     public EmployeeJobResponseDTO getEmployeeJobKiosk(Long empJobId) {
-        Optional<EmployeeJob> emp = employeeJobRepository.findById(7L);
-        if(emp.isPresent()){
-            System.out.println("DeletedAt:----------------------------------------------------------------------------- "
-                    + emp.get().getDeletedAt()); // See if it's null or has a value
-            System.out.println(emp.get().getEmployee().getUsername());
-
-        }
-
+        
        EmployeeJob response =  employeeJobRepository.findByIdAndDeletedAtIsNull(empJobId)
                .orElseThrow(()-> new ResourceNotFoundException("EmployeeJob not found with id : "+ empJobId ));
        return employeeJobMapper.toDTO(response);

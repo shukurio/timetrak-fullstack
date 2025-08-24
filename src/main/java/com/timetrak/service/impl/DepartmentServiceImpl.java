@@ -16,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,7 +30,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Department getDepartmentById(Long id, Long companyId) {
-        Department department = departmentRepository.findById(id)
+        Department department = departmentRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
 
         if (!department.getCompany().getId().equals(companyId)) {
@@ -45,7 +48,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Page<DepartmentResponseDTO> getAllByCompanyId(Long companyId, Pageable pageable) {
-        return departmentRepository.findAllByCompanyId(companyId, pageable)
+        return departmentRepository.findActiveByCompanyId(companyId, pageable)
                 .map(departmentMapper::toDTO);
     }
 
@@ -69,6 +72,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void deleteDepartment(Long id, Long companyId) {
         Department department = getDepartmentById(id, companyId);
         department.markAsDeleted();
+        department.setIsActive(false);
         departmentRepository.save(department);
     }
 
@@ -97,5 +101,13 @@ public class DepartmentServiceImpl implements DepartmentService {
             return false;
         }
         return departmentRepository.existsByIdAndCompanyId(departmentId, companyId);
+    }
+
+    @Override
+    public List<Long> getAllDepartmentIdsForCompany(Long companyId) {
+        return departmentRepository.findAllByCompanyIdAndIsActiveTrue(companyId)
+                .stream()
+                .map(Department::getId)
+                .collect(Collectors.toList());
     }
 }

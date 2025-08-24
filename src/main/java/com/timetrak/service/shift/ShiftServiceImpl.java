@@ -42,6 +42,7 @@ public class ShiftServiceImpl implements ShiftService {
         Shift shift = shiftRepository.findById(shiftId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(ClockErrorCode.SHIFT_NOT_FOUND.getDefaultMessage() + " with id: " + shiftId));
+
         return shiftMapper.toDTO(shift);
     }
 
@@ -51,6 +52,45 @@ public class ShiftServiceImpl implements ShiftService {
         return shiftRepository.findByDepartmentIdAndCompanyId(departmentId,companyId,pageable)
                 .map(shiftMapper::toDTO);
     }
+
+    @Override
+    public List<ShiftResponseDTO> getShiftsByDepartmentByDateRange(Long departmentId,
+                                                                   Long companyId,
+                                                                   LocalDate startDate,
+                                                                   LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        return shiftRepository.findShiftsForDepartmentDateRange(departmentId,
+                        companyId,
+                        startDateTime,
+                        endDateTime)
+                .stream().map(shiftMapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, List<ShiftResponseDTO>> getShiftsByDepartmentsGrouped(
+            List<Long> departmentIds,
+            Long companyId,
+            LocalDate startDate,
+            LocalDate endDate) {
+
+
+
+        Map<Long, List<ShiftResponseDTO>> result = new LinkedHashMap<>();
+
+        for (Long departmentId : departmentIds) {
+            List<ShiftResponseDTO> shifts = getShiftsByDepartmentByDateRange(
+                    departmentId, companyId, startDate, endDate);
+
+            if (!shifts.isEmpty()) {
+                result.put(departmentId, shifts);
+            }
+        }
+
+        return result;
+    }
+
 
 
     @Override

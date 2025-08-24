@@ -17,6 +17,13 @@ public interface ShiftMapper {
             return null;
         }
 
+        Double hours = null;
+        if (shift.getClockIn() != null && shift.getClockOut() != null) {
+            long durationInSeconds = java.time.Duration.between(shift.getClockIn(), shift.getClockOut()).getSeconds();
+            double rawHours = durationInSeconds / 3600.0; // convert seconds to hours
+            hours = Math.round(rawHours * 100.0) / 100.0; // round to 2 decimal places
+        }
+
         return ShiftResponseDTO.builder()
                 .id(shift.getId())
                 .clockIn(shift.getClockIn())
@@ -30,8 +37,10 @@ public interface ShiftMapper {
                         shift.getEmployeeJob().getEmployee().getLastName())
                 .jobTitle(shift.getEmployeeJob().getJob().getJobTitle())
                 .hourlyWage(shift.getEmployeeJob().getHourlyWage())
+                .hours(hours)
                 .build();
     }
+
 
     void updateShiftFromDto(ShiftRequestDTO dto, @MappingTarget Shift shift);
 

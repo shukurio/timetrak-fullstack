@@ -1,6 +1,7 @@
 package com.timetrak.exception;
 
 import com.timetrak.dto.response.ErrorResponse;
+import com.timetrak.exception.employee.EmployeeNotFoundException;
 import com.timetrak.exception.payment.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -182,6 +183,23 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEmployeeNotFound(EmployeeNotFoundException ex,
+                                                                HttpServletRequest request) {
+        log.warn("Employee not found: {}", ex.getMessage());
+
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Not Found")
+                .message(ex.getMessage())
+                .status(404)
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
 
     // === 415 UNSUPPORTED FORMAT ===
     @ExceptionHandler(UnsupportedOperationException.class)

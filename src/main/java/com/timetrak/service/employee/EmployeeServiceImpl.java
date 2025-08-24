@@ -86,8 +86,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
     public EmployeeResponseDTO getByUsername(String username) {
-        Employee employee = employeeRepository.findActiveByUsername(username)
-                .orElseThrow(() -> new EmployeeNotFoundException(username));
+        Employee employee = employeeRepository.findActiveByUsername(username.toLowerCase())
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee is not active or doesnt exist {}"+username));
         return employeeMapper.toDTO(employee);
     }
 
@@ -106,7 +106,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployeesForCompany(Long companyId,Pageable pageable) {
-        return employeeRepository.findAllByCompanyId(companyId, pageable)
+        return employeeRepository.findAllByCompanyIdAndDeletedAtIsNull(companyId, pageable)
                 .map(employeeMapper::toDTO);
     }
 

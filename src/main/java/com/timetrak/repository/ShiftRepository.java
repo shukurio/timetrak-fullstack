@@ -94,4 +94,16 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
     Page<Shift> findByJobTitle(@Param("jobTitle") String jobTitle, @Param("companyId") Long companyId, Pageable pageable);
 
 
+    @Query("SELECT s FROM Shift s " +
+            "WHERE s.companyId = :companyId " +
+            "AND s.employee.department.id = :departmentId " +
+            "AND s.clockIn >= :startDate " +
+            "AND s.clockIn <= :endDate " +
+            "ORDER BY s.clockIn ASC")
+    List<Shift> findShiftsForDepartmentDateRange(
+            @Param("departmentId") Long departmentId,
+            @Param("companyId") Long companyId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
 }

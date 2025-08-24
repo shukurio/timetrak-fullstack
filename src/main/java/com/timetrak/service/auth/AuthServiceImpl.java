@@ -85,6 +85,10 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Failed login attempt for username: {}", request.getUsername());
             throw new InvalidCredentialsException("Invalid username or password");
         }
+        catch(Exception e){
+            log.error("Unexpected error during authentication: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
 
@@ -185,7 +189,7 @@ public class AuthServiceImpl implements AuthService {
             throw e;
 
         } catch (Exception e) {
-            throw new InvalidCredentialsException("Invalid refresh token.");
+            throw e;
         }
     }
 

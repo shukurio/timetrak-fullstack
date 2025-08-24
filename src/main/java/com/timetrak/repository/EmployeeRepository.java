@@ -97,7 +97,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT e.id FROM Employee e WHERE e.company.id = :companyId AND e.status = 'ACTIVE'")
     List<Long> findActiveEmployeeIdsByCompanyId(@Param("companyId") Long companyId);
 
-    Page<Employee> findAllByCompanyId(Long companyId, Pageable pageable);
+    Page<Employee> findAllByCompanyIdAndDeletedAtIsNull(Long companyId, Pageable pageable);
 
     @Query("SELECT e from Employee e where e.company.id = :companyId AND e.status='ACTIVE'")
     Page<Employee> findAllActiveByCompanyId(@Param("companyId")Long companyId, Pageable pageable);

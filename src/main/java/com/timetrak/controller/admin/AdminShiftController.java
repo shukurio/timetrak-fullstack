@@ -42,11 +42,35 @@ public class AdminShiftController {
     private final AuthContextService authContextService;
 
     @GetMapping("/department/{departmentId}")
-    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByDepartment(@PathVariable Long departmentId,
-                                                                        Pageable pageable){
+    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByDepartment(
+            @PathVariable Long departmentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir){
+
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
 
         Page<ShiftResponseDTO> shifts = shiftService.getShiftsByDepartment(departmentId,currentCompanyId(),pageable);
         return ResponseEntity.ok(shifts);
+
+    }
+
+    @GetMapping("/employee/{employeeId}")
+    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByEmployeeId(
+            @PathVariable Long employeeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir){
+
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
+
+
+        Page<ShiftResponseDTO> shifts = shiftService.getShiftsByEmployeeId(employeeId,currentCompanyId(),pageable);
+
+            log.debug("Get  shifts for employee - page: {}, size: {}", page, size);
+            return ResponseEntity.ok(shifts);
 
     }
 
@@ -137,12 +161,11 @@ public class AdminShiftController {
     public ResponseEntity<Page<ShiftResponseDTO>> getThisMonthShifts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
-        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?
-                Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
+
 
         log.debug("Get this month's shifts - page: {}, size: {}", page, size);
 
@@ -157,12 +180,11 @@ public class AdminShiftController {
     public ResponseEntity<Page<ShiftResponseDTO>> getThisWeekShifts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
-        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?
-                Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
+
 
         log.debug("Get this week's shifts - page: {}, size: {}", page, size);
 
@@ -177,20 +199,18 @@ public class AdminShiftController {
      * Get shifts by employee and status
      */
     @GetMapping("status/{status}")
-    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByEmployeeAndStatus(
+    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByStatus(
             @PathVariable ShiftStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "employeeClockIn") String sortBy,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
-        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ?
-                Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
 
 
-        Page<ShiftResponseDTO> response = shiftService.getShiftByStatusAndEmployeeId(status,
-                currentEmployeeId(),currentCompanyId(),pageable);
+        Page<ShiftResponseDTO> response = shiftService.getShiftsByStatus(status,
+                currentCompanyId(),pageable);
         log.debug("Get shifts by employee {} and status {} - page: {}, size: {}",
                 currentEmployeeId(), status, page, size);
 
@@ -204,4 +224,17 @@ public class AdminShiftController {
     private Long currentCompanyId(){
         return authContextService.getCurrentCompanyId();
     }
+
+
+    public static class PageableHelper {
+
+        public static Pageable buildPageable(int page, int size, String sortBy, String sortDir) {
+            Sort sort = Sort.by(
+                    sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                    sortBy
+            );
+            return PageRequest.of(page, size, sort);
+        }
+    }
+
 }

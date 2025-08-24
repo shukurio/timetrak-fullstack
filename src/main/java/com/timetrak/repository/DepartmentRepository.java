@@ -7,12 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
-
-    Page<Department> findAllByCompanyId(Long companyId, Pageable pageable);
 
     //TODO when JWT is implemneted, add another arg so that i can ceck current
     // users companyId and what user is trying to access, i ned them to match
@@ -32,4 +31,8 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     Page<Department> findActiveByCompanyId(Long companyId, Pageable pageable);
 
     boolean existsByIdAndCompanyId(Long departmentId, Long companyId);
+
+    Optional<Department> findByIdAndDeletedAtIsNull(Long id);
+
+    List<Department> findAllByCompanyIdAndIsActiveTrue(Long companyId);
 }
