@@ -1,6 +1,5 @@
 package com.timetrak.controller;
 
-import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.security.auth.JwtService;
 import com.timetrak.security.auth.dto.AuthRequest;
 import com.timetrak.security.auth.dto.AuthResponse;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,26 +45,6 @@ public class AuthController {
     }
 
 
-    @Operation(summary = "Register new employee", description = "Register a new employee account")
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody EmployeeRequestDTO request,
-                                                 HttpServletResponse response) {
-        log.info("Registration attempt for username: {}", request.getUsername());
-        AuthResponse authResponse = authService.register(request);
-
-        Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
-        log.debug(authResponse.getRefreshToken());
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setAttribute("SameSite", "Strict");
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-        response.addCookie(refreshCookie);
-
-        //no refresh token in response body
-        authResponse.setRefreshToken(null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
-    }
 
 
     @PostMapping("/login")
