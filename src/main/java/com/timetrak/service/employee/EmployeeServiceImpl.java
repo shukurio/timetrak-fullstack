@@ -1,6 +1,7 @@
 package com.timetrak.service.employee;
 
 
+import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
@@ -240,21 +241,51 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponseDTO createEmployee(EmployeeRequestDTO request) {
-        return createEmployeeWithRole(request);
+    public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
+        try {
+            validationService.validateUserRegistration(dto);
+
+            Employee employee = employeeMapper.toEntity(dto, passwordEncoder);
+
+            employee.setRole(Role.EMPLOYEE);
+
+            Company company = companyService.getCompanyById(dto.getCompanyId());
+            employee.setCompany(company);
+
+            if (dto.getDepartmentId() != null) {
+                Department department = departmentService.getDepartmentById(dto.getDepartmentId(), dto.getCompanyId());
+                employee.setDepartment(department);
+            }
+
+            employee = employeeRepository.save(employee);
+
+            log.info("Registered new employee: {} (ID: {})", employee.getUsername(), employee.getId());
+            return employeeMapper.toDTO(employee);
+
+        } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while registering employee: {}", e.getMessage());
+            handleDataIntegrityViolation(e, dto.getUsername(), dto.getEmail());
+            throw new EmployeeValidationException("Unexpected data integrity violation", e);
+        }
     }
 
     @Transactional
     @Override
-    public EmployeeResponseDTO createAdmin(EmployeeRequestDTO adminRequest, Company company) {
+    public EmployeeResponseDTO createAdmin(AdminRegRequestDTO adminRequest, Company company) {
         try {
             validationService.validateAdminRegistration(adminRequest);
+            EmployeeRequestDTO employeeRequest = EmployeeRequestDTO.builder()
+                    .firstName(adminRequest.getFirstName())
+                    .lastName(adminRequest.getLastName())
+                    .username(adminRequest.getUsername())
+                    .email(adminRequest.getEmail())
+                    .password(adminRequest.getPassword())
+                    .phoneNumber(adminRequest.getPhoneNumber())
+                    .build();
 
-            Employee employee = employeeMapper.toEntity(adminRequest, passwordEncoder);
-
+            Employee employee = employeeMapper.toEntity(employeeRequest, passwordEncoder);
             employee.setRole(Role.ADMIN);
             employee.setStatus(EmployeeStatus.ACTIVE);
-
             employee.setCompany(company);
 
             employee = employeeRepository.save(employee);
@@ -321,31 +352,4 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findActiveEmployeeIdsByCompanyId(companyId);
     }
 
-    private EmployeeResponseDTO createEmployeeWithRole(EmployeeRequestDTO dto) {
-        try {
-            validationService.validateBusinessRules(dto);
-
-            Employee employee = employeeMapper.toEntity(dto, passwordEncoder);
-
-            employee.setRole(Role.EMPLOYEE);
-
-            Company company = companyService.getCompanyById(dto.getCompanyId());
-            employee.setCompany(company);
-
-            if (dto.getDepartmentId() != null) {
-                Department department = departmentService.getDepartmentById(dto.getDepartmentId(), dto.getCompanyId());
-                employee.setDepartment(department);
-            }
-
-            employee = employeeRepository.save(employee);
-
-            log.info("Registered new employee: {} (ID: {})", employee.getUsername(), employee.getId());
-            return employeeMapper.toDTO(employee);
-
-        } catch (DataIntegrityViolationException e) {
-            log.error("Data integrity violation while registering employee: {}", e.getMessage());
-            handleDataIntegrityViolation(e, dto.getUsername(), dto.getEmail());
-            throw new EmployeeValidationException("Unexpected data integrity violation", e);
-        }
-    }
 }

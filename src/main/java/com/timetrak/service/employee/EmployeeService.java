@@ -1,6 +1,7 @@
 package com.timetrak.service.employee;
 
 
+import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
@@ -41,7 +42,7 @@ public interface EmployeeService {
     // Legacy methods (keeping for backward compatibility)
     EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto);
 
-    EmployeeResponseDTO createAdmin(EmployeeRequestDTO adminRequest, Company company);
+    EmployeeResponseDTO createAdmin(AdminRegRequestDTO adminRequest, Company company);
 
     String getEmployeeNameById(Long employeeId, Long companyId);
     

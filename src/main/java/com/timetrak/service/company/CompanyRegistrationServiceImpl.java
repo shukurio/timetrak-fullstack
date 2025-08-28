@@ -31,6 +31,7 @@ public class CompanyRegistrationServiceImpl implements CompanyRegistrationServic
         Company company = companyRepository.save(companyMapper.toEntity(request.getCompany()));
         CompanyResponseDTO companyDto = companyMapper.toDTO(company);
 
+
         EmployeeResponseDTO employee = employeeService.createAdmin(request.getAdmin(),company);
 
         return new CompanyRegistrationResponseDTO(companyDto,employee);

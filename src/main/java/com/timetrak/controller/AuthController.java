@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -97,24 +96,12 @@ public class AuthController {
         }
 
         AuthResponse response = authService.refreshToken(refreshToken);
-        // Again, don't expose refresh token in response
         response.setRefreshToken(null);
         return ResponseEntity.ok(response);
     }
 
 
-//
-//    @Operation(summary = "Refresh JWT token", description = "Get new access token using refresh token")
-//    @PostMapping("/refresh")
-//    public ResponseEntity<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
-//        String refreshToken = request.get("refreshToken");
-//        if (refreshToken == null || refreshToken.isEmpty()) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//
-//        AuthResponse response = authService.refreshToken(refreshToken);
-//        return ResponseEntity.ok(response);
-//    }
+
 
     @Operation(summary = "Logout user", description = "Logout user and invalidate token")
     @PostMapping("/logout")

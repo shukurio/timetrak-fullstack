@@ -1,5 +1,6 @@
 package com.timetrak.service.employee;
 
+import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
@@ -21,37 +22,23 @@ public class EmployeeValidationService {
 
     // ========== REGISTRATION VALIDATION ==========
 
-    public void validateRegistration(EmployeeRequestDTO dto) {
+    public void validateUserRegistration(EmployeeRequestDTO dto) {
         dto.normalize();
-        validateBusinessRules(dto);
+        validatePassword(dto.getUsername(),dto.getPassword());
         validateUniqueness(dto.getUsername(), dto.getEmail());
         validateDepartmentExists(dto.getDepartmentId());
     }
 
-    public void validateAdminRegistration(EmployeeRequestDTO dto) {
+    public void validateAdminRegistration(AdminRegRequestDTO dto) {
         dto.normalize();
-        validateAdminUsernamePassword(dto);
+        validatePassword(dto.getUsername(),dto.getPassword());
         validateUniqueness(dto.getUsername(), dto.getEmail());
     }
 
-    public void validateAdminUsernamePassword(EmployeeRequestDTO dto){
-        if (!dto.getUsername().toLowerCase().contains("admin")) {
-            throw new EmployeeValidationException("Admin users must have 'admin' in their username");
-        }
-        if (dto.getPassword().toLowerCase().contains(dto.getUsername().toLowerCase())) {
-            throw new EmployeeValidationException("Password cannot contain username");
-        }
-    }
 
-    public void validateBusinessRules(EmployeeRequestDTO dto) {
 
-        // Non-admin username rule
-        if (dto.getUsername().toLowerCase().contains("admin")) {
-            throw new EmployeeValidationException("Only admin users can have 'admin' in their username");
-        }
-
-        // Password security
-        if (dto.getPassword().toLowerCase().contains(dto.getUsername().toLowerCase())) {
+    public void validatePassword(String username, String password) {
+        if (password.toLowerCase().contains(username.toLowerCase())) {
             throw new EmployeeValidationException("Password cannot contain username");
         }
     }
