@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/companies/register").permitAll()
 
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/register").permitAll()
+                        .requestMatchers("/api/user/invites/**").permitAll()
 
                         // Kiosk routes (for employee self-service clock in/out)
                         .requestMatchers("/api/kiosk/**").permitAll()

@@ -1,18 +1,11 @@
 package com.timetrak.service.auth;
 
 
-import com.timetrak.dto.request.EmployeeRequestDTO;
-
-import com.timetrak.entity.Company;
-import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
-import com.timetrak.enums.Role;
-import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.exception.TokenExpiredException;
-import com.timetrak.exception.employee.InvalidEmployeeException;
 import com.timetrak.mapper.EmployeeMapper;
 import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
@@ -93,67 +86,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(EmployeeRequestDTO request) {
-        // Check if username already exists
-        if (employeeRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateResourceException("Username already exists: " + request.getUsername());
-        }
-
-        // Check if email already exists
-        if (employeeRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Email already exists: " + request.getEmail());
-        }
-
-        // Get department if provided
-        Department department = null;
-        if (request.getDepartmentId() != null) {
-            department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + request.getDepartmentId()));
-        }
-
-        Company company;
-        if (department != null) {
-            company = department.getCompany(); // Get company from department
-        } else {
-            // If no department provided, you need to handle this case
-            // Either require departmentId or provide a default company
-            throw new InvalidEmployeeException("Department is required for registration");
-        }
-        // Create new employee
-        Employee employee = Employee.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phoneNumber(request.getPhoneNumber())
-                .status(EmployeeStatus.PENDING)
-                .role(Role.EMPLOYEE)
-                .department(department)
-                .company(company)
-                .build();
-
-        employee = employeeRepository.save(employee);
-        UserDetails userDetails = new CustomUserDetails(employee);
-
-        // Generate tokens
-        String accessToken = jwtService.generateToken(userDetails);
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
-
-        log.info("New employee registered: {}", request.getUsername());
-
-        return AuthResponse.builder()
-                .token(accessToken)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .expiresIn(jwtService.getExpirationTime())
-                .user(employeeMapper.toDTO(employee))
-                .build();
-    }
-
-    @Override
     public void logout(String token) {
-        // In a production environment, you might want to blacklist the token
         // For now, we'll just log the logout
         String username = jwtService.extractUsername(token);
         log.info("User {} logged out", username);
