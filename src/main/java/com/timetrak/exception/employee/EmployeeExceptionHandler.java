@@ -140,7 +140,7 @@ public class EmployeeExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Validation Failed")
-                .message("Employee data validation failed")
+                .message(ex.getMessage())
                 .errorCode("VALIDATION_FAILED")
                 .fieldErrors(fieldErrors)
                 .globalErrors(globalErrors)

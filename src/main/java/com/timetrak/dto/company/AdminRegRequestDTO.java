@@ -1,4 +1,5 @@
-package com.timetrak.dto.request;
+package com.timetrak.dto.company;
+
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -7,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmployeeRequestDTO {
+public class AdminRegRequestDTO {
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
@@ -39,13 +40,6 @@ public class EmployeeRequestDTO {
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
 
-    @NotNull(message = "Company ID is required")
-    @Positive(message = "Company ID must be a positive number")
-    private Long companyId;
-
-    @NotNull
-    @Positive(message = "Department ID must be a positive number")
-    private Long departmentId;
 
     // ========== HELPER METHODS ==========
 

@@ -1,16 +1,20 @@
 package com.timetrak.service.employee;
 
 
+import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.request.EmployeeRequestDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.entity.Company;
+import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
+import com.timetrak.enums.Role;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeNotFoundException;
 import com.timetrak.exception.employee.EmployeeValidationException;
 import com.timetrak.mapper.EmployeeMapper;
 import com.timetrak.repository.EmployeeRepository;
-import com.timetrak.service.CompanyService;
+import com.timetrak.service.company.CompanyService;
 import com.timetrak.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -237,11 +241,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponseDTO registerEmployee(EmployeeRequestDTO dto) {
+    public EmployeeResponseDTO createEmployee(EmployeeRequestDTO dto) {
         try {
-            validationService.validateRegistration(dto);
+            validationService.validateUserRegistration(dto);
 
-            Employee employee = employeeMapper.toEntity(dto, companyService, departmentService, passwordEncoder);
+            Employee employee = employeeMapper.toEntity(dto, passwordEncoder);
+
+            employee.setRole(Role.EMPLOYEE);
+
+            Company company = companyService.getCompanyById(dto.getCompanyId());
+            employee.setCompany(company);
+
+            if (dto.getDepartmentId() != null) {
+                Department department = departmentService.getDepartmentById(dto.getDepartmentId(), dto.getCompanyId());
+                employee.setDepartment(department);
+            }
+
             employee = employeeRepository.save(employee);
 
             log.info("Registered new employee: {} (ID: {})", employee.getUsername(), employee.getId());
@@ -252,6 +267,38 @@ public class EmployeeServiceImpl implements EmployeeService {
             handleDataIntegrityViolation(e, dto.getUsername(), dto.getEmail());
             throw new EmployeeValidationException("Unexpected data integrity violation", e);
         }
+    }
+
+    @Transactional
+    @Override
+    public EmployeeResponseDTO createAdmin(AdminRegRequestDTO adminRequest, Company company) {
+        try {
+            validationService.validateAdminRegistration(adminRequest);
+            EmployeeRequestDTO employeeRequest = EmployeeRequestDTO.builder()
+                    .firstName(adminRequest.getFirstName())
+                    .lastName(adminRequest.getLastName())
+                    .username(adminRequest.getUsername())
+                    .email(adminRequest.getEmail())
+                    .password(adminRequest.getPassword())
+                    .phoneNumber(adminRequest.getPhoneNumber())
+                    .build();
+
+            Employee employee = employeeMapper.toEntity(employeeRequest, passwordEncoder);
+            employee.setRole(Role.ADMIN);
+            employee.setStatus(EmployeeStatus.ACTIVE);
+            employee.setCompany(company);
+
+            employee = employeeRepository.save(employee);
+
+            log.info("Registered Admin: {} (ID: {})", employee.getUsername(), employee.getId());
+            return employeeMapper.toDTO(employee);
+
+        } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while registering Admin: {}", e.getMessage());
+            handleDataIntegrityViolation(e, adminRequest.getUsername(), adminRequest.getEmail());
+            throw new EmployeeValidationException("Unexpected data integrity violation", e);
+        }
+
     }
 
     @Override
@@ -304,4 +351,5 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<Long> getAllActiveEmployeeIdsForCompany(Long companyId) {
         return employeeRepository.findActiveEmployeeIdsByCompanyId(companyId);
     }
+
 }

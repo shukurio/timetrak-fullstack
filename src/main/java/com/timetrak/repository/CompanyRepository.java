@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface CompanyRepository extends JpaRepository<Company, Long> {
     @Query("SELECT c FROM Company c WHERE c.deletedAt IS NULL")
     Page<Company> findAllActive(Pageable pageable);
+
+    Boolean existsByCode(String code);
 }

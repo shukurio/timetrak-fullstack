@@ -5,10 +5,9 @@ import com.timetrak.dto.request.DepartmentRequestDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.exception.ResourceNotFoundException;
-import com.timetrak.exception.UnauthorizedAccessException;
 import com.timetrak.mapper.DepartmentMapper;
 import com.timetrak.repository.DepartmentRepository;
-import com.timetrak.service.CompanyService;
+import com.timetrak.service.company.CompanyService;
 import com.timetrak.service.DepartmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +29,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Department getDepartmentById(Long id, Long companyId) {
-        Department department = departmentRepository.findByIdAndDeletedAtIsNull(id)
+
+        return departmentRepository.findByIdAndCompanyIdAndDeletedAtIsNull(id,companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
-
-        if (!department.getCompany().getId().equals(companyId)) {
-            throw new UnauthorizedAccessException("Access denied: Department does not belong to your company.");
-        }
-
-        return department;
     }
 
     @Override
@@ -87,11 +81,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentResponseDTO getDepartmentByCode(String code, Long companyId){
-        Department department = departmentRepository.findByCode(code)
+        Department department = departmentRepository.findByCodeAndCompanyId(code,companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with code: " + code));
-        if(!department.getCompany().getId().equals(companyId)){
-            throw new UnauthorizedAccessException("Access denied");
-        }
+
         return departmentMapper.toDTO(department);
     }
 

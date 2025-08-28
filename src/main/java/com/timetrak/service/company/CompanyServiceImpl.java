@@ -1,16 +1,14 @@
-package com.timetrak.service.impl;
+package com.timetrak.service.company;
 
-import com.timetrak.dto.response.CompanyResponseDTO;
-import com.timetrak.dto.request.CompanyRequestDTO;
+import com.timetrak.dto.company.CompanyResponseDTO;
+import com.timetrak.dto.company.CompanyRequestDTO;
 import com.timetrak.entity.Company;
+import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.CompanyMapper;
 import com.timetrak.repository.CompanyRepository;
-import com.timetrak.service.CompanyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -42,33 +40,24 @@ public class CompanyServiceImpl implements CompanyService {
          return companyMapper.toDTO(company);
     }
 
-    //SYSADMIN-ONLY
-    @Override
-    public Page<CompanyResponseDTO> getAllCompanies(Pageable pageable) {
-        return companyRepository.findAll(pageable).map(companyMapper::toDTO) ;
-    }
 
-    //SYSADMIN-ONLY
-    @Override
-    public Page<CompanyResponseDTO> getActiveCompanies(Pageable pageable) {
-        return companyRepository.findAllActive(pageable).map(companyMapper::toDTO);
-    }
+
 
     @Override
-    public CompanyResponseDTO createCompany(CompanyRequestDTO dto) {
-        Company company = companyMapper.toEntity(dto);
-        Company saved  = companyRepository.save(company);
-        return companyMapper.toDTO(saved);
-    }
-
-    @Override
+    @Transactional
     public CompanyResponseDTO updateCompany(Long id, CompanyRequestDTO dto) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
-        
+        validateUniqueCode(dto.getCode());
         companyMapper.updateCompanyFromDto(dto, company);
         Company updated = companyRepository.save(company);
         return companyMapper.toDTO(updated);
+    }
+
+    public void validateUniqueCode(String code){
+        if(companyRepository.existsByCode(code)){
+            throw new DuplicateResourceException("Company code already exists");
+        }
     }
 
 

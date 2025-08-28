@@ -94,7 +94,7 @@ public class AdminEmployeeController {
 
     @PostMapping("/register")
     public ResponseEntity<EmployeeResponseDTO> registerEmployee(@Valid @RequestBody EmployeeRequestDTO request) {
-        EmployeeResponseDTO employee = employeeService.registerEmployee(request);
+        EmployeeResponseDTO employee = employeeService.createEmployee(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(employee);  // 201 CREATED
     }
 

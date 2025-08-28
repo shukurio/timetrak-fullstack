@@ -36,6 +36,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Enable CORS
                 .authorizeHttpRequests(auth -> auth
                         // Public auth routes
+
+                        //Company Registration
+                        .requestMatchers("/api/companies/register").permitAll()
+
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/register").permitAll()
 
                         // Kiosk routes (for employee self-service clock in/out)
@@ -43,6 +47,7 @@ public class SecurityConfig {
                         
                         // Actuator endpoints (health, info, etc.)
                         .requestMatchers("/actuator/**").permitAll()
+
                         
                         // Swagger/OpenAPI documentation
                         .requestMatchers(
