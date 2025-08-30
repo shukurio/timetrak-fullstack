@@ -21,7 +21,6 @@ public interface DepartmentService {
 
     DepartmentResponseDTO updateDepartment(Long id,Long companyId, DepartmentRequestDTO updatedRequest);
 
-    DepartmentResponseDTO getDepartmentByCode(String code, Long companyId);
 
     boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId);
 

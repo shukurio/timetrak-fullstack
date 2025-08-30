@@ -31,6 +31,10 @@ public class AuthContextService {
         return getCurrentUserDetails().getEmployee().getRole();
     }
 
+    public String getCurrentUserEmail() {
+        return getCurrentUserDetails().getEmployee().getEmail();
+    }
+
 
     public CustomUserDetails getCurrentUserDetails() {
         Authentication authentication = getAuthentication();

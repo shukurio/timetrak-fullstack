@@ -249,9 +249,10 @@ class PaymentManagementServiceImplTest {
         payment.setCompanyId(companyId);
         payment.setStatus(PaymentStatus.CALCULATED);
         payment.setTotalEarnings(new BigDecimal("1000.00"));
-        payment.setTotalHours(new BigDecimal("40.00"));
+        payment.setTotalHours(40.0);
         payment.setPeriodStart(LocalDate.of(2025, 1, 1));
         payment.setPeriodEnd(LocalDate.of(2025, 1, 15));
+        payment.setPeriodNumber(1);
         payment.setShiftsCount(5);
         payment.setModifiedBy(1L);
 

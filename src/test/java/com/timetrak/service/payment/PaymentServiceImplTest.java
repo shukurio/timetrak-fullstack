@@ -8,6 +8,7 @@ import com.timetrak.enums.PaymentStatus;
 import com.timetrak.exception.payment.PaymentNotFoundException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
+import com.timetrak.service.payment.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -198,9 +199,10 @@ class PaymentServiceImplTest {
         payment.setCompanyId(companyId);
         payment.setStatus(PaymentStatus.CALCULATED);
         payment.setTotalEarnings(new BigDecimal("1000.00"));
-        payment.setTotalHours(new BigDecimal("40.00"));
+        payment.setTotalHours(40.0);
         payment.setPeriodStart(LocalDate.of(2025, 1, 1));
         payment.setPeriodEnd(LocalDate.of(2025, 1, 15));
+        payment.setPeriodNumber(1);
         payment.setShiftsCount(5);
         payment.setModifiedBy(1L);
 
@@ -219,7 +221,7 @@ class PaymentServiceImplTest {
         dto.setEmployeeId(2L);
         dto.setEmployeeName("John Doe");
         dto.setTotalEarnings(new BigDecimal("1000.00"));
-        dto.setTotalHours(new BigDecimal("40.00"));
+        dto.setTotalHours(40.00);
         dto.setStatus(PaymentStatus.CALCULATED);
         dto.setPeriodStart(LocalDate.of(2025, 1, 1));
         dto.setPeriodEnd(LocalDate.of(2025, 1, 15));
@@ -229,7 +231,7 @@ class PaymentServiceImplTest {
     private List<JobDetailsDTO> createTestJobDetails() {
         JobDetailsDTO jobDetail = new JobDetailsDTO();
         jobDetail.setJobTitle("COOK");
-        jobDetail.setTotalHours(new BigDecimal("40.00"));
+        jobDetail.setTotalHours(40.00);
         jobDetail.setHourlyRate(new BigDecimal("25.00"));
         jobDetail.setTotalEarnings(new BigDecimal("1000.00"));
         return List.of(jobDetail);

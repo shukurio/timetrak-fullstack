@@ -1,4 +1,4 @@
-package com.timetrak.service.payment;
+package com.timetrak.service.payment.impl;
 
 import com.timetrak.dto.payment.*;
 import com.timetrak.entity.Payment;
@@ -6,6 +6,8 @@ import com.timetrak.enums.PaymentStatus;
 import com.timetrak.exception.payment.PaymentNotFoundException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
+import com.timetrak.service.payment.JobDetailsBuilder;
+import com.timetrak.service.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -57,6 +59,12 @@ public class PaymentServiceImpl  implements PaymentService{
     public Page<PaymentDetailsDTO> getPaymentsByStatus(Long companyId, PaymentStatus status, Pageable pageable) {
      Page<Payment> payments = paymentRepository.findByCompanyIdAndStatus(companyId,status,pageable);
      return payments.map(paymentMapper::toDTO);
+    }
+
+    @Override
+    public Page<PaymentDetailsDTO> getPaymentsByPeriod(Long companyId, Integer periodNumber, Pageable pageable) {
+        Page<Payment> payments = paymentRepository.findByCompanyIdAndPeriodNumber(companyId, periodNumber, pageable);
+        return payments.map(paymentMapper::toDTO);
     }
 
 

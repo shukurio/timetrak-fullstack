@@ -70,6 +70,7 @@ public class PaymentCalculator {
                 .companyId(employee.getCompany().getId())
                 .periodStart(period.getStartDate())
                 .periodEnd(period.getEndDate())
+                .periodNumber(period.getPeriodNumber())
                 .totalHours(totals.getTotalHours())
                 .totalEarnings(totals.getTotalEarnings())
                 .shiftsCount(totals.getShiftsCount())

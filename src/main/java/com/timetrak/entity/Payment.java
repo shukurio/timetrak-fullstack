@@ -41,6 +41,10 @@ public class Payment extends BaseEntity {
     @NotNull
     private LocalDate periodEnd;
 
+    @Column(name = "period_number", nullable = false)
+    @NotNull
+    private Integer periodNumber;
+
     // WORK & PAY DETAILS
     @Column(name = "total_hours", nullable = false)
     @NotNull

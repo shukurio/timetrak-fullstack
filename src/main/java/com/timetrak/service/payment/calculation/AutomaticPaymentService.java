@@ -6,7 +6,7 @@ import com.timetrak.entity.CompanyPaymentSettings;
 import com.timetrak.repository.CompanyPaymentSettingsRepository;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.employee.EmployeeService;
-import com.timetrak.service.payment.PaymentPeriodService;
+import com.timetrak.service.payment.PeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +30,7 @@ public class AutomaticPaymentService {
 
     private final CompanyPaymentSettingsRepository companyPaymentSettingsRepository;
     private final PaymentCalculationService calculationService;
-    private final PaymentPeriodService paymentPeriodService;
+    private final PeriodService paymentPeriodService;
     private final EmployeeService employeeService;
     private final PaymentRepository paymentRepository;
 

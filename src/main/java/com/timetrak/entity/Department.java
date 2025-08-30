@@ -25,10 +25,6 @@ public class Department extends BaseEntity {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @NotBlank(message = "Department code is required")
-    @Size(min = 2, max = 10, message = "Department code must be between 2 and 10 characters")
-    @Column(name = "code", nullable = false, unique = true, length = 10)
-    private String code;
 
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     @Column(name = "description", length = 500)

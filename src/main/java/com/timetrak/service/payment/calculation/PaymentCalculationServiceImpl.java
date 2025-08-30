@@ -11,7 +11,7 @@ import com.timetrak.exception.payment.PaymentProcessingException;
 import com.timetrak.mapper.PaymentMapper;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.shift.ShiftService;
-import com.timetrak.service.payment.PaymentPeriodService;
+import com.timetrak.service.payment.PeriodService;
 import com.timetrak.service.payment.PaymentResponseBuilder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     private final PaymentResponseBuilder paymentResponseBuilder;
     private final PaymentCalculator paymentCalculator;
     private final ShiftService shiftService;
-    private final PaymentPeriodService paymentPeriodService;
+    private final PeriodService paymentPeriodService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
     private final PaymentCalculationValidator validator;

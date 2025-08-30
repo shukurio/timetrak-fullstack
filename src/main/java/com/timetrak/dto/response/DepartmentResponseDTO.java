@@ -9,7 +9,6 @@ import lombok.*;
 public class DepartmentResponseDTO {
     private Long id;
     private String name;
-    private String code;
     private String description;
     private Boolean isActive;
     private Long companyId;

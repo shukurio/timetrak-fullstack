@@ -78,10 +78,22 @@ public class AdminPaymentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/download")
+    @GetMapping("/period/{periodNumber}")
+    public ResponseEntity<Page<PaymentDetailsDTO>> getPaymentsByPeriod(
+            @PathVariable @Min(value = 1, message = "Period number can not be null or zero") Integer periodNumber,
+            Pageable pageable) {
+        
+        Long companyId = authContext.getCurrentCompanyId();
+        Page<PaymentDetailsDTO> payments = paymentService.getPaymentsByPeriod(companyId, periodNumber, pageable);
+        
+        log.debug("Retrieved {} payments for period {} and company: {}", payments.getContent().size(), periodNumber, companyId);
+        
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/export/period/{periodNumber}")
     public ResponseEntity<byte[]> exportPayments(
-            @RequestParam @Min(value = 1, message = "Period number can not be null or zero")
-                                                     Integer periodNumber) {
+            @PathVariable @Min(value = 1, message = "Period number can not be null or zero") Integer periodNumber) {
 
         Long companyId = authContext.getCurrentCompanyId();
         byte[] pdfData = exporter.exportPayments(periodNumber, companyId);

@@ -11,7 +11,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.timetrak.dto.payment.PaymentPeriod;
 import com.timetrak.entity.Payment;
 import com.timetrak.repository.PaymentRepository;
-import com.timetrak.service.payment.PaymentPeriodService;
+import com.timetrak.service.payment.PeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 public class PaymentExporterService {
     private final PaymentRepository paymentRepository;
-    private final PaymentPeriodService paymentPeriodService;
+    private final PeriodService paymentPeriodService;
 
     public byte[] exportPayments(int periodNumber,Long companyId) {
 

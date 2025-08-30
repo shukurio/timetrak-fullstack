@@ -36,6 +36,13 @@ public interface PaymentService {
                                                 PaymentStatus status,
                                                 Pageable pageable);
 
+    /**
+     * Get payments by period number for company
+     */
+    Page<PaymentDetailsDTO> getPaymentsByPeriod(Long companyId,
+                                               Integer periodNumber,
+                                               Pageable pageable);
+
 
     // =============== PAYMENT DETAILS ===============
 

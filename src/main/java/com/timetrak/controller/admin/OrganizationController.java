@@ -96,14 +96,6 @@ public class OrganizationController {
         return ResponseEntity.ok(Map.of("message", "Department deleted successfully"));
     }
 
-    @Operation(summary = "Get department by code", description = "Get department by department code")
-    @GetMapping("/departments/code/{code}")
-    public ResponseEntity<DepartmentResponseDTO> getDepartmentByCode(
-            @PathVariable String code) {
-
-        DepartmentResponseDTO department = departmentService.getDepartmentByCode(code, currentCompanyId());
-        return ResponseEntity.ok(department);
-    }
 
     private Long currentCompanyId() {
         return authContextService.getCurrentCompanyId();

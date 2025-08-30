@@ -13,7 +13,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.timetrak.dto.payment.PaymentPeriod;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.service.DepartmentService;
-import com.timetrak.service.payment.PaymentPeriodService;
+import com.timetrak.service.payment.PeriodService;
 import com.timetrak.service.shift.ShiftService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ShiftReportService {
     private final ShiftService shiftService;
-    private final PaymentPeriodService periodService;
+    private final PeriodService periodService;
     private final DepartmentService depService;
 
     public byte[] exportShifts(Integer periodNumber, Long companyId, @Nullable List<Long> departmentIds) {

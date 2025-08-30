@@ -30,6 +30,7 @@ class StatusUpdateValidatorTest {
         validator = new StatusUpdateValidator();
         testPayment = new Payment();
         testPayment.setId(1L);
+        testPayment.setPeriodNumber(1);
     }
 
     @Test

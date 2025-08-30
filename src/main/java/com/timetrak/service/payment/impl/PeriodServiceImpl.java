@@ -1,10 +1,13 @@
-package com.timetrak.service.payment;
+package com.timetrak.service.payment.impl;
 
 import com.timetrak.dto.payment.PaymentPeriod;
+import com.timetrak.dto.payment.PaymentPeriodSummaryDTO;
 import com.timetrak.entity.CompanyPaymentSettings;
 import com.timetrak.enums.PayFrequency;
 import com.timetrak.exception.payment.PaymentSettingsConfigurationException;
+import com.timetrak.mapper.PaymentPeriodMapper;
 import com.timetrak.repository.CompanyPaymentSettingsRepository;
+import com.timetrak.service.payment.PeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,15 +20,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentPeriodService {
+public class PeriodServiceImpl implements PeriodService {
 
     private final CompanyPaymentSettingsRepository companyPaymentSettingsRepository;
+    private final PaymentPeriodMapper paymentPeriodMapper;
 
+    @Override
     public PaymentPeriod getCurrentPaymentPeriod(Long companyId) {
         LocalDate today = LocalDate.now();
         return getPaymentPeriodForDate(today, companyId);
     }
 
+    @Override
     public PaymentPeriod getPaymentPeriodForDate(LocalDate date, Long companyId) {
         CompanyPaymentSettings settings = getCompanyPaymentSettings(companyId);
 
@@ -40,6 +46,7 @@ public class PaymentPeriodService {
         return calculatePaymentPeriod(date, firstDay, frequency);
     }
 
+    @Override
     public PaymentPeriod getPaymentPeriodByNumber(Integer periodNumber, Long companyId) {
 
         CompanyPaymentSettings settings = getCompanyPaymentSettings(companyId);
@@ -55,7 +62,7 @@ public class PaymentPeriodService {
         return calculatePaymentPeriod(targetDate, baseDate, frequency);
     }
 
-
+    @Override
     public List<PaymentPeriod> getAvailablePaymentPeriods(int numberOfPeriods, Long companyId) {
         CompanyPaymentSettings settings = getCompanyPaymentSettings(companyId);
 
@@ -68,6 +75,25 @@ public class PaymentPeriodService {
         }
 
         return periods;
+    }
+
+    @Override
+    public List<PaymentPeriodSummaryDTO> getAvailablePaymentPeriodSummaries(int numberOfPeriods, Long companyId) {
+        List<PaymentPeriod> periods = getAvailablePaymentPeriods(numberOfPeriods, companyId);
+        return periods.stream()
+                .map(paymentPeriodMapper::toSummaryDTO)
+                .toList();
+    }
+
+    @Override
+    public PaymentPeriodSummaryDTO getMostRecentCompletedPeriodSummary(Long companyId) {
+        // Get last 2 periods to get the most recent completed one
+        List<PaymentPeriod> periods = getAvailablePaymentPeriods(2, companyId);
+        
+        // Return the previous period (index 1), or current if only one exists
+        PaymentPeriod mostRecentCompleted = periods.size() > 1 ? periods.get(1) : periods.get(0);
+        
+        return paymentPeriodMapper.toSummaryDTO(mostRecentCompleted);
     }
 
     // Helper method to get company payment settings

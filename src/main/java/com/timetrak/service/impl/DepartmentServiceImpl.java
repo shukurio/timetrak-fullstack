@@ -52,7 +52,6 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         Department department = Department.builder()
                 .name(request.getName())
-                .code(request.getCode())
                 .description(request.getDescription())
                 .isActive(true)
                 .company(company)
@@ -79,13 +78,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentMapper.toDTO(saved);
     }
 
-    @Override
-    public DepartmentResponseDTO getDepartmentByCode(String code, Long companyId){
-        Department department = departmentRepository.findByCodeAndCompanyId(code,companyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Department not found with code: " + code));
-
-        return departmentMapper.toDTO(department);
-    }
 
     @Override
     public boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId) {

@@ -16,11 +16,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     //TODO when JWT is implemneted, add another arg so that i can ceck current
     // users companyId and what user is trying to access, i ned them to match
 
-    Optional<Department> findByCodeAndCompanyId(String code,Long companyId);
-
     Optional<Department> findByName(String name);
-
-    boolean existsByCode(String code);
 
     boolean existsByName(String name);
 
