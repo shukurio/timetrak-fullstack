@@ -16,7 +16,7 @@ public class ShiftSummaryDTO {
     private int totalShifts;
     private int activeShifts;
     private int completedShifts;
-    private double totalHours;
-    private double totalEarnings;
-    private double averageShiftLength;
+    private Double totalHours;
+    private Double totalEarnings;
+    private Double averageShiftLength;
 }

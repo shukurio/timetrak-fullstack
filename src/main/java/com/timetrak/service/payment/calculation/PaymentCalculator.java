@@ -86,16 +86,15 @@ public class PaymentCalculator {
 
 
     public PaymentTotals calculateShiftTotals(List<ShiftResponseDTO> shifts) {
-        BigDecimal totalHours = BigDecimal.ZERO;
+        Double totalHours = 0.0;
         BigDecimal totalEarnings = BigDecimal.ZERO;
 
         for (ShiftResponseDTO shift : shifts) {
-            BigDecimal shiftHours = shift.getTotalHours() != null ?
-                    shift.getTotalHours() : BigDecimal.ZERO;
+            Double shiftHours = shift.getHours() != null ? shift.getHours() : 0.0;
             BigDecimal shiftEarnings = shift.getShiftEarnings() != null ?
                     shift.getShiftEarnings() : BigDecimal.ZERO;
 
-            totalHours = totalHours.add(shiftHours);
+            totalHours += shiftHours;
             totalEarnings = totalEarnings.add(shiftEarnings);
         }
 

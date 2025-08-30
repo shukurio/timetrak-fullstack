@@ -44,9 +44,8 @@ public class PaymentDetailsDTO {
 
     // =============== WORK & PAY SUMMARY ===============
     @NotNull(message = "Total hours is required")
-    @DecimalMin(value = "0.0", message = "Total hours cannot be negative")
-    @Digits(integer = 3, fraction = 2, message = "Total hours precision invalid")
-    private BigDecimal totalHours;
+    @Min(value = 0, message = "Total hours cannot be negative")
+    private Double totalHours;
 
     @NotNull(message = "Total amount is required")
     @DecimalMin(value = "0.0", message = "Total amount cannot be negative")

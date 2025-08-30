@@ -25,7 +25,7 @@ public class Shift extends BaseEntity{
     private EmployeeJob employeeJob;
 
     @ManyToOne
-    @JoinColumn(name = "employee")
+    @JoinColumn(name = "employee_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Employee employee;
 
@@ -47,5 +47,10 @@ public class Shift extends BaseEntity{
 
     @Column(name="notes")
     private String notes;
+
+    public void setEmployeeJob(EmployeeJob employeeJob) {
+        this.employeeJob = employeeJob;
+        this.employee = employeeJob.getEmployee(); // Auto-sync
+    }
 
 }

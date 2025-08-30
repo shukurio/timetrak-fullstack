@@ -3,11 +3,13 @@ package com.timetrak.service.shift;
 
 import com.timetrak.dto.request.ShiftRequestDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.entity.EmployeeJob;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ClockErrorCode;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
+import com.timetrak.service.employeeJob.EmployeeJobQueryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +23,19 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ShiftPersistenceServiceImpl implements ShiftPersistenceService {
     private final ShiftRepository shiftRepository;
+    private final EmployeeJobQueryService employeeJobQueryService;
     private final ShiftMapper shiftMapper;
     private final ShiftPersistenceValidator validator;
 
     @Override
-    public ShiftResponseDTO createShift(ShiftRequestDTO request) {
+    public ShiftResponseDTO createShift(ShiftRequestDTO request,Long companyId) {
         validator.validateShiftRequest(request);
+        EmployeeJob empJob = employeeJobQueryService.getEmployeeJobById(request.getEmployeeJobId(),companyId);
 
         Shift shift = shiftMapper.toEntity(request);
+        shift.setCompanyId(companyId);
+        shift.setEmployeeJob(empJob);
+        shift.setEmployee(empJob.getEmployee());
         Shift savedShift = shiftRepository.save(shift);
 
         log.info("Created shift {} for employee job {}", savedShift.getId(), request.getEmployeeJobId());

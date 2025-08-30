@@ -32,7 +32,6 @@ public class ShiftResponseDTO {
 
     private String jobTitle;
     private BigDecimal hourlyWage;
-    private BigDecimal totalHours;
     private BigDecimal shiftEarnings;
 
     public boolean isActive() {
@@ -40,18 +39,9 @@ public class ShiftResponseDTO {
     }
 
 
-    public BigDecimal getTotalHours() {
-        if (clockIn != null && clockOut != null) {
-            double duration = Duration.between(clockIn, clockOut).toMinutes() / 60.0;
-
-            return BigDecimal.valueOf(duration);
-        }
-        return null;
-    }
-
     public BigDecimal getShiftEarnings() {
-        if((hourlyWage != null) && getTotalHours() != null && status == ShiftStatus.COMPLETED) {
-            BigDecimal earnings = hourlyWage.multiply(getTotalHours());
+        if((hourlyWage != null) && getHours() != null && status == ShiftStatus.COMPLETED) {
+            BigDecimal earnings = hourlyWage.multiply(BigDecimal.valueOf(getHours()));
             return earnings.setScale(2, RoundingMode.HALF_UP);
         }
         return null;

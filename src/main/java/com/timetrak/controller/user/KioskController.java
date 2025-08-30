@@ -4,6 +4,7 @@ import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
 import com.timetrak.dto.response.EmployeeResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.enums.ClockAction;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.employeeJob.EmployeeJobQueryService;
 import com.timetrak.service.shift.ClockService;
@@ -34,28 +35,10 @@ public class KioskController {
     }
 
     @GetMapping("/determineAction/{employeeId}")
-    public String determineAction(@PathVariable Long employeeId) {
-        boolean canClockIn = clockService.canEmployeeClockIn(employeeId);
-        boolean canClockOut = clockService.canEmployeeClockOut(employeeId);
-
-        log.info("Determining action for employee ID {}: canClockIn={}, canClockOut={}", 
-                employeeId, canClockIn, canClockOut);
-
-        if (canClockOut) {
-            log.info("Employee {} should CLOCK OUT", employeeId);
-            return "ClockOut";
-        } else if (canClockIn) {
-            log.info("Employee {} should CLOCK IN", employeeId);
-            return "ClockIn";
-        } else {
-            log.warn("Cannot determine action for employee {}",
-                    employeeId);
-            return "Can't determine action";
-        }
+    public ResponseEntity<ClockAction> determineAction(@PathVariable Long employeeId) {
+        ClockAction action = clockService.determineAction(employeeId);
+        return ResponseEntity.ok(action);
     }
-
-
-
 
     @GetMapping("/jobs/{username}")
     public List<EmployeeJobResponseDTO> getAllJobs(@PathVariable String username) {

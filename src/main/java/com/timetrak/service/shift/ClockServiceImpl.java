@@ -9,7 +9,7 @@ import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ClockErrorCode;
-import com.timetrak.enums.ClockOperationType;
+import com.timetrak.enums.ClockAction;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.exception.InvalidOperationException;
 import com.timetrak.mapper.ShiftMapper;
@@ -89,7 +89,7 @@ public class ClockServiceImpl implements ClockService {
                 .successCount(successful.size())
                 .failureCount(failed.size())
                 .operationTime(LocalDateTime.now())
-                .operationType(ClockOperationType.CLOCK_IN.name())
+                .operationType(ClockAction.CLOCK_IN.name())
                 .successful(successful)
                 .failed(failed)
                 .build();
@@ -155,7 +155,7 @@ public class ClockServiceImpl implements ClockService {
                 .successCount(successful.size())
                 .failureCount(failed.size())
                 .operationTime(LocalDateTime.now())
-                .operationType(ClockOperationType.CLOCK_OUT.name())
+                .operationType(ClockAction.CLOCK_OUT.name())
                 .successful(successful)
                 .failed(failed)
                 .build();
@@ -341,6 +341,29 @@ public class ClockServiceImpl implements ClockService {
             log.error("Unexpected error during kiosk clock-out for employee ID {}: {}", request.getId(), e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Override
+    public ClockAction determineAction(Long employeeId) {
+        boolean canClockIn = canEmployeeClockIn(employeeId);
+        boolean canClockOut = canEmployeeClockOut(employeeId);
+        ClockAction action;
+
+        log.info("Determining action for employee ID {}: canClockIn={}, canClockOut={}",
+                employeeId, canClockIn, canClockOut);
+
+        if (canClockOut) {
+            log.info("Employee {} should CLOCK OUT", employeeId);
+            action = ClockAction.CLOCK_OUT;
+        } else if (canClockIn) {
+            log.info("Employee {} should CLOCK IN", employeeId);
+            action = ClockAction.CLOCK_IN;
+        } else {
+            log.warn("Cannot determine action for employee {}",
+                    employeeId);
+            action = ClockAction.UNAVAILABLE;
+        }
+        return action;
     }
 
     @Override

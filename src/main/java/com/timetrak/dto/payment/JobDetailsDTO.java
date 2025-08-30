@@ -22,7 +22,7 @@ public class JobDetailsDTO {
     @NotNull(message = "Hours worked is required")
     @DecimalMin(value = "0.0", message = "Hours cannot be negative")
     @Digits(integer = 3, fraction = 2, message = "Hours precision invalid")
-    private BigDecimal totalHours;
+    private Double  totalHours;
 
     @NotNull(message = "Hourly rate is required")
     @DecimalMin(value = "0.01", message = "Rate must be positive")
@@ -42,10 +42,10 @@ public class JobDetailsDTO {
     @DecimalMin(value = "0.0", message = "Percentage cannot be negative")
     @DecimalMax(value = "100.0", message = "Percentage cannot exceed 100%")
     @Digits(integer = 3, fraction = 2, message = "Percentage precision invalid")
-    private BigDecimal percentageOfTotalHours;
+    private Double percentageOfTotalHours;
 
     @DecimalMin(value = "0.0", message = "Percentage cannot be negative")
     @DecimalMax(value = "100.0", message = "Percentage cannot exceed 100%")
     @Digits(integer = 3, fraction = 2, message = "Percentage precision invalid")
-    private BigDecimal percentageOfTotalPay;
+    private Double percentageOfTotalPay;
 }

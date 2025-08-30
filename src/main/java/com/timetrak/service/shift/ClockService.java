@@ -4,6 +4,7 @@ import com.timetrak.dto.clock.AdminClockRequestDTO;
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.enums.ClockAction;
 
 public interface ClockService {
     ClockResponseDTO adminClockIn(AdminClockRequestDTO request);
@@ -13,6 +14,7 @@ public interface ClockService {
 
     ShiftResponseDTO kioskClockIn(EmployeeClockRequestDTO request);
     ShiftResponseDTO kioskClockOut(EmployeeClockRequestDTO request);
+    ClockAction determineAction (Long employeeId);
 
 
 

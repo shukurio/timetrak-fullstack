@@ -21,6 +21,7 @@ public class EmployeeResponseDTO {
     private Role role;
     private Long companyId;
     private Long departmentId;
+    private String departmentName;
 
 
 }

@@ -42,9 +42,9 @@ public class Payment extends BaseEntity {
     private LocalDate periodEnd;
 
     // WORK & PAY DETAILS
-    @Column(name = "total_hours", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_hours", nullable = false)
     @NotNull
-    private BigDecimal totalHours = BigDecimal.ZERO;
+    private Double totalHours = 0.0;
 
     @Column(name = "total_earnings", nullable = false, precision = 12, scale = 2)
     @NotNull

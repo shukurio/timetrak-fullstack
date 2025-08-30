@@ -40,10 +40,10 @@ public class JobDetailsBuilder {
             List<ShiftResponseDTO> jobShifts = entry.getValue();
 
             // Calculate totals for this job
-            BigDecimal totalHours = jobShifts.stream()
-                    .map(ShiftResponseDTO::getTotalHours)
+            Double totalHours = jobShifts.stream()
+                    .map(ShiftResponseDTO::getHours)
                     .filter(Objects::nonNull)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    .reduce(0.0, Double::sum);
 
             BigDecimal totalEarnings = jobShifts.stream()
                     .map(ShiftResponseDTO::getShiftEarnings)
@@ -58,8 +58,8 @@ public class JobDetailsBuilder {
                     .orElse(BigDecimal.ZERO);
 
             // Calculate percentages
-            BigDecimal percentageOfTotalHours = calculatePercentage(totalHours, payment.getTotalHours());
-            BigDecimal percentageOfTotalPay = calculatePercentage(totalEarnings, payment.getTotalEarnings());
+            Double percentageOfTotalHours = calculateHoursPercentage(totalHours, payment.getTotalHours());
+            Double percentageOfTotalPay = calculateEarningsPercentage(totalEarnings, payment.getTotalEarnings());
 
             JobDetailsDTO jobDetail = JobDetailsDTO.builder()
                     .jobTitle(jobTitle)
@@ -77,11 +77,19 @@ public class JobDetailsBuilder {
         return jobDetails;
     }
 
-    private BigDecimal calculatePercentage(BigDecimal part, BigDecimal total) {
-        if (total == null || total.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
+    private Double calculateHoursPercentage(Double part, Double total) {
+        if (total == null || total == 0.0) {
+            return 0.0;
         }
-        return part.multiply(BigDecimal.valueOf(100))
-                .divide(total, 2, RoundingMode.HALF_UP);
+        return (part / total) * 100.0;
+    }
+
+    private Double calculateEarningsPercentage(BigDecimal part, BigDecimal total) {
+        if (total == null || total.compareTo(BigDecimal.ZERO) == 0) {
+            return 0.0;
+        }
+        return part.divide(total, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .doubleValue();
     }
 }

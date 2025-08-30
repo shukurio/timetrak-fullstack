@@ -11,6 +11,7 @@ public interface EmployeeMapper {
 
     @Mapping(target = "departmentId", source = "department.id")
     @Mapping(target = "companyId", source = "company.id")
+    @Mapping(target = "departmentName", source ="department.name")
     EmployeeResponseDTO toDTO(Employee employee);
 
     @Mapping(target = "id", ignore = true)

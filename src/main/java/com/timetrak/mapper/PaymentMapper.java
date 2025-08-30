@@ -32,12 +32,12 @@ public interface PaymentMapper {
             return BigDecimal.ZERO;
         }
 
-        if (payment.getTotalHours().compareTo(BigDecimal.ZERO) == 0) {
+        if (payment.getTotalHours() == 0.0) {
             return BigDecimal.ZERO;
         }
 
         return payment.getTotalEarnings()
-                .divide(payment.getTotalHours(), 2, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(payment.getTotalHours()), 2, RoundingMode.HALF_UP);
     }
 
     List<PaymentDetailsDTO> toDTOList(List<Payment> payments);

@@ -177,8 +177,9 @@ public class ShiftReportService {
         document.add(deptTitle);
 
         BigDecimal deptTotalHours = shifts.stream()
-                .map(ShiftResponseDTO::getTotalHours)
+                .map(ShiftResponseDTO::getHours)
                 .filter(Objects::nonNull)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Paragraph deptStats = new Paragraph(String.format(
@@ -262,8 +263,8 @@ public class ShiftReportService {
                 .setPadding(4)
                 .setFontSize(9));
 
-        String hoursText = shift.getTotalHours() != null ?
-                String.format("%.2f", shift.getTotalHours()) : "0.00";
+        String hoursText = shift.getHours() != null ?
+                String.format("%.2f", shift.getHours()) : "0.00";
         table.addCell(new Cell()
                 .add(new Paragraph(hoursText))
                 .setTextAlignment(TextAlignment.RIGHT)
@@ -278,10 +279,10 @@ public class ShiftReportService {
     }
 
     private void createDepartmentSummary(Document document, List<ShiftResponseDTO> shifts, String deptName) {
-        BigDecimal totalHours = shifts.stream()
-                .map(ShiftResponseDTO::getTotalHours)
+        Double totalHours = shifts.stream()
+                .map(ShiftResponseDTO::getHours)
                 .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(0.0, Double::sum);
 
         long completedShifts = shifts.stream()
                 .filter(s -> "COMPLETED".equals(s.getStatus().toString()))
@@ -308,8 +309,9 @@ public class ShiftReportService {
 
         BigDecimal grandTotalHours = shiftsByDepartment.values().stream()
                 .flatMap(List::stream)
-                .map(ShiftResponseDTO::getTotalHours)
+                .map(ShiftResponseDTO::getHours)
                 .filter(Objects::nonNull)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         long totalCompletedShifts = shiftsByDepartment.values().stream()
@@ -339,8 +341,9 @@ public class ShiftReportService {
             String deptName = departmentNames.getOrDefault(entry.getKey(), "Department " + entry.getKey());
             int deptShiftCount = entry.getValue().size();
             BigDecimal deptHours = entry.getValue().stream()
-                    .map(ShiftResponseDTO::getTotalHours)
+                    .map(ShiftResponseDTO::getHours)
                     .filter(Objects::nonNull)
+                    .map(BigDecimal::valueOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             Paragraph deptLine = new Paragraph(String.format(

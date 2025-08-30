@@ -118,7 +118,7 @@ public class AdminShiftController {
     public ResponseEntity<ShiftResponseDTO> createShift(@Valid @NotNull @RequestBody ShiftRequestDTO request) {
         log.info("Create shift request received for employee job ID: {}", request.getEmployeeJobId());
 
-        ShiftResponseDTO response = persistenceService.createShift(request);
+        ShiftResponseDTO response = persistenceService.createShift(request,currentCompanyId());
 
         log.info("Shift created successfully with ID: {}", response.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

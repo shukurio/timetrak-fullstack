@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -153,22 +152,24 @@ public class PaymentCalculationValidator {
     }
 
     private void validateHours(PaymentTotals totals) {
-        BigDecimal hours = totals.getTotalHours();
+        Double hours = totals.getTotalHours();
 
         if (hours == null) {
             throw new InvalidPaymentRequestException("Hours must not be null");
         }
 
-        if (hours.compareTo(BigDecimal.ZERO) < 0) {
+        if (hours < 0.0) {
             throw new InvalidPaymentRequestException("Payment hours must not be negative");
         }
 
-        if (hours.compareTo(MAX_HOURS_PER_PERIOD) > 0) {
+        if (hours > MAX_HOURS_PER_PERIOD.doubleValue()) {
             throw new InvalidPaymentRequestException(
                     "Payment hours cannot exceed " + MAX_HOURS_PER_PERIOD);
         }
 
-        if (hours.scale() > 2) {
+        // Check decimal places by converting to BigDecimal
+        BigDecimal hoursBD = BigDecimal.valueOf(hours);
+        if (hoursBD.scale() > 2) {
             throw new InvalidPaymentRequestException("Hours cannot have more than 2 decimal places");
         }
     }
@@ -192,28 +193,28 @@ public class PaymentCalculationValidator {
 
     private void validateCrossFieldRules(PaymentTotals totals) {
         BigDecimal earnings = totals.getTotalEarnings();
-        BigDecimal hours = totals.getTotalHours();
+        Double hours = totals.getTotalHours();
         Integer shiftsCount = totals.getShiftsCount();
 
-        if (hours.compareTo(BigDecimal.ZERO) == 0 && earnings.compareTo(BigDecimal.ZERO) > 0) {
+        if (hours == 0.0 && earnings.compareTo(BigDecimal.ZERO) > 0) {
             throw new InvalidPaymentRequestException(
                     "Cannot have earnings ($" + earnings + ") with zero hours worked");
         }
 
-        if (earnings.compareTo(BigDecimal.ZERO) == 0 && hours.compareTo(BigDecimal.ZERO) > 0) {
+        if (earnings.compareTo(BigDecimal.ZERO) == 0 && hours > 0.0) {
             log.warn("Zero earnings calculated for {} hours worked - possible unpaid time", hours);
         }
 
-        if (shiftsCount > 0 && hours.compareTo(BigDecimal.ZERO) == 0) {
+        if (shiftsCount > 0 && hours == 0.0) {
             throw new InvalidPaymentRequestException(
                     "Cannot have " + shiftsCount + " shifts with zero total hours");
         }
 
         if (shiftsCount > 0) {
-            BigDecimal avgHoursPerShift = hours.divide(new BigDecimal(shiftsCount), 2, RoundingMode.HALF_UP);
-            if (avgHoursPerShift.compareTo(BigDecimal.valueOf(MAX_SHIFT_DURATION_HOURS)) > 0) {
+            Double avgHoursPerShift = hours / shiftsCount;
+            if (avgHoursPerShift > MAX_SHIFT_DURATION_HOURS) {
                 throw new InvalidPaymentRequestException(
-                        "Average hours per shift (" + avgHoursPerShift + ") " +
+                        "Average hours per shift (" + String.format("%.2f", avgHoursPerShift) + ") " +
                                 "exceeds maximum shift duration (" + MAX_SHIFT_DURATION_HOURS + ")");
             }
         }

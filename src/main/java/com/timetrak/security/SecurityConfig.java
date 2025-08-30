@@ -27,7 +27,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder(){ return new BCryptPasswordEncoder(15); }
+    public PasswordEncoder passwordEncoder(){ return new BCryptPasswordEncoder(11); }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -36,11 +36,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Enable CORS
                 .authorizeHttpRequests(auth -> auth
                         // Public auth routes
-
-                        //Company Registration
-                        .requestMatchers("/api/companies/register").permitAll()
-
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/login",
+                                "/api/auth/refresh",
+                                "/api/auth/register",
+                                "/api/companies/register").permitAll()
                         .requestMatchers("/api/user/invites/**").permitAll()
 
                         // Kiosk routes (for employee self-service clock in/out)
@@ -61,6 +60,7 @@ public class SecurityConfig {
 
                         // Error endpoint (for validation errors)
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/auth/refresh").permitAll()
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
