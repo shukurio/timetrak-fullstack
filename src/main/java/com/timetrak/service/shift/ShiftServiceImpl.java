@@ -133,11 +133,15 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftByStatusAndEmployeeId(ShiftStatus status,Long employeeId,
-                                                                Long companyId,
-                                                                Pageable pageable) {
-        return shiftRepository.findByStatusAndEmployeeIdAndCompanyId(
-                status, employeeId,companyId, pageable).map(shiftMapper::toDTO);
+    public List<ShiftResponseDTO> getShiftByStatusAndEmployeeIdAndStartDate(ShiftStatus status,
+                                                                            Long employeeId,
+                                                                            Long companyId,
+                                                                            LocalDateTime startDate
+                                                                            ) {
+        List<Shift> shifts =
+                shiftRepository.findByStatusAndEmployeeIdAndCompanyIdAndClockInAfter(
+                status, employeeId,companyId,startDate);
+        return shiftMapper.toDTOList(shifts);
     }
 
     @Override

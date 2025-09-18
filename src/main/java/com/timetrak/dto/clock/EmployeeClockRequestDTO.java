@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmployeeClockRequestDTO {
 
-    @NotNull(message = "Employee ID cannot be null")
+    @NotNull(message = "Employee ID/EmployeeJobId cannot be null")
     private Long id;
 
 }

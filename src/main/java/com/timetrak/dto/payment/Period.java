@@ -54,7 +54,7 @@ public class Period {
 
     // =============== HELPER METHODS ===============
 
-    private String generateDescription() {
+    public String generateDescription() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d");
         return String.format("%s %d: %s - %s, %d",
                 frequency.toString(),
@@ -64,7 +64,7 @@ public class Period {
                 startDate.getYear());
     }
 
-    private String generateShortDescription() {
+    public String generateShortDescription() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d");
 
         if (startDate.getYear() == endDate.getYear()) {

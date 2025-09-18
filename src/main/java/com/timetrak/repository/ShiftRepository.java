@@ -42,10 +42,13 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
                                             @Param("endDateTime") LocalDateTime endDateTime,
                                             Pageable pageable);
 
-    Page<Shift> findByStatusAndEmployeeIdAndCompanyId(ShiftStatus status,
-                                                      Long employeeId,
-                                                      Long companyId,
-                                                      Pageable pageable);
+    List<Shift> findByStatusAndEmployeeIdAndCompanyIdAndClockInAfter(
+            ShiftStatus status,
+            Long employeeId,
+            Long companyId,
+            LocalDateTime startDate
+    );
+
 
     @Query("SELECT s FROM Shift s " +
             "WHERE DATE(s.clockIn) BETWEEN :startDate AND :endDate " +

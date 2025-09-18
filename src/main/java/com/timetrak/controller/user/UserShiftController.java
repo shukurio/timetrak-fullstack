@@ -29,7 +29,7 @@ import java.time.LocalDate;
 @RequestMapping("/api/employee/shifts")
 @Validated
 @Slf4j
-public class ShiftController {
+public class UserShiftController {
     private final ShiftService shiftService;
     private final ShiftMapper shiftMapper;
     private final AuthContextService contextService;
