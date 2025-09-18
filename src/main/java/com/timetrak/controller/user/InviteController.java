@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user/invites")
 @RequiredArgsConstructor
 @Slf4j
-public class UserInviteController {
+public class InviteController {
 
     private final InviteService inviteService;
 

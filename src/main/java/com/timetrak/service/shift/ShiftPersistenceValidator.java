@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static com.timetrak.constant.ShiftConstants.MAX_NOTES_LENGTH;
 import static com.timetrak.constant.ShiftConstants.MAX_SHIFT_DURATION_HOURS;
 
 @Component
@@ -26,14 +25,11 @@ public class ShiftPersistenceValidator {
             validateClockOutTime(request.getClockIn(), request.getClockOut());
         }
 
-        if (request.getNotes() != null && request.getNotes().length() > MAX_NOTES_LENGTH) {
-            throw new InvalidOperationException("Notes exceed maximum length of " + MAX_NOTES_LENGTH + " characters");
-        }
     }
 
     void validateShiftUpdatePermissions(Shift shift) {
         if (shift.getStatus() == ShiftStatus.COMPLETED) {
-            // Only allow note updates for completed shifts
+            // Completed shift update
             log.warn("Attempting to update completed shift {}", shift.getId());
         }
     }

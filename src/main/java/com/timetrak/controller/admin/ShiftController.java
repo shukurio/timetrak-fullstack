@@ -5,6 +5,7 @@ import com.timetrak.dto.request.ShiftRequestDTO;
 import com.timetrak.dto.response.ClockResponseDTO;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.enums.ShiftStatus;
+import com.timetrak.misc.PageableHelper;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.shift.ClockService;
 import com.timetrak.service.shift.ShiftPersistenceService;
@@ -15,9 +16,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/shifts/")
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminShiftController {
+public class ShiftController {
 
     private final ShiftService shiftService;
     private final ClockService clockService;
@@ -198,8 +197,9 @@ public class AdminShiftController {
     /**
      * Get shifts by employee and status
      */
-    @GetMapping("status/{status}")
+    @GetMapping("period/{periodNumber}/status/{status}")
     public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByStatus(
+            @PathVariable @Positive Integer periodNumber,
             @PathVariable ShiftStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -209,13 +209,29 @@ public class AdminShiftController {
         Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
 
 
-        Page<ShiftResponseDTO> response = shiftService.getShiftsByStatus(status,
-                currentCompanyId(),pageable);
+        Page<ShiftResponseDTO> response = shiftService.getShiftsByStatusAndPeriodNumber(periodNumber,
+                status,
+                currentCompanyId(),
+                pageable);
         log.debug("Get shifts by employee {} and status {} - page: {}, size: {}",
                 currentEmployeeId(), status, page, size);
 
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/periodNumber/{periodNumber}")
+    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByPeriodNumber(
+            @PathVariable Integer periodNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "clockIn") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir){
+
+        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
+
+        Page<ShiftResponseDTO> shifts = shiftService.getShiftsByPeriodNumber(periodNumber, currentCompanyId(), pageable);
+        return ResponseEntity.ok(shifts);
     }
 
     private Long currentEmployeeId() {
@@ -225,16 +241,5 @@ public class AdminShiftController {
         return authContextService.getCurrentCompanyId();
     }
 
-
-    public static class PageableHelper {
-
-        public static Pageable buildPageable(int page, int size, String sortBy, String sortDir) {
-            Sort sort = Sort.by(
-                    sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-                    sortBy
-            );
-            return PageRequest.of(page, size, sort);
-        }
-    }
 
 }

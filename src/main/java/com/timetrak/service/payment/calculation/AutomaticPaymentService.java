@@ -1,6 +1,6 @@
 package com.timetrak.service.payment.calculation;
 
-import com.timetrak.dto.payment.PaymentPeriod;
+import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.payment.PaymentResponseDTO;
 import com.timetrak.entity.CompanyPaymentSettings;
 import com.timetrak.repository.CompanyPaymentSettingsRepository;
@@ -75,7 +75,7 @@ public class AutomaticPaymentService {
 
         // Check if payments already calculated for current period
         Long companyId = settings.getCompany().getId();
-        PaymentPeriod currentPeriod = paymentPeriodService.getCurrentPaymentPeriod(companyId);
+        Period currentPeriod = paymentPeriodService.getCurrentPeriod(companyId);
 
         boolean alreadyCalculated = paymentRepository.existsByCompanyIdAndPeriodStartAndPeriodEnd(
                 companyId, currentPeriod.getStartDate(), currentPeriod.getEndDate());
@@ -96,7 +96,7 @@ public class AutomaticPaymentService {
 
         try {
             // Get current payment period
-            PaymentPeriod currentPeriod = paymentPeriodService.getCurrentPaymentPeriod(companyId);
+            Period currentPeriod = paymentPeriodService.getCurrentPeriod(companyId);
 
             // Get all active employees for this company
             List<Long> activeEmployeeIds = employeeService.getAllActiveEmployeeIdsForCompany(companyId);
@@ -125,7 +125,7 @@ public class AutomaticPaymentService {
 
     private void sendPaymentNotification(CompanyPaymentSettings settings,
                                          PaymentResponseDTO response,
-                                         PaymentPeriod period) {
+                                         Period period) {
         try {
             String email = settings.getNotificationEmail();
             if (email != null && !email.trim().isEmpty()) {

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentPeriodSummaryDTO {
+public class PeriodSummaryDTO {
     
     private Integer periodNumber;
     private LocalDate periodStart;

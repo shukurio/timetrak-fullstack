@@ -12,6 +12,5 @@ public class AdminClockRequestDTO {
     private List<Long> ids; //can be EmployeeJobsIds or EmployeeIds
 
     private LocalDateTime time; // Can set past/future times
-    private String notes;
     private String reason;
 }

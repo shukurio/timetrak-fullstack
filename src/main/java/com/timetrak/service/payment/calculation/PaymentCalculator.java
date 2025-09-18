@@ -25,7 +25,7 @@ public class PaymentCalculator {
 
     public PaymentCalculationResult calculateAllPaymentsForCompany(List<Employee> employees,
                                                                    Map<Employee, List<ShiftResponseDTO>> shiftsMap,
-                                                                   PaymentPeriod paymentPeriod,
+                                                                   Period period,
                                                                    Long initiatorId) {
         List<Payment> successful = new ArrayList<>();
         List<PaymentFailureResponse> errors = new ArrayList<>();
@@ -33,7 +33,7 @@ public class PaymentCalculator {
         for (Employee employee : employees) {
             try {
                 List<ShiftResponseDTO> shifts = shiftsMap.getOrDefault(employee, new ArrayList<>());
-                Payment payment = calculateSingleEmployeePayment(employee, shifts, paymentPeriod, initiatorId);
+                Payment payment = calculateSingleEmployeePayment(employee, shifts, period, initiatorId);
                 successful.add(payment);
             } catch (Exception e) {
                 String errorCode = (e instanceof PaymentException)
@@ -42,7 +42,7 @@ public class PaymentCalculator {
 
                 errors.add(PaymentFailureResponse.builder()
                         .employeeId(employee.getId())
-                        .period(paymentPeriod.getFormattedPeriod())
+                        .period(period.getFormattedPeriod())
                         .errorMessage(e.getMessage())
                         .errorCode(errorCode)
                         .cause(e)
@@ -50,13 +50,13 @@ public class PaymentCalculator {
             }
         }
 
-        return new PaymentCalculationResult(successful, errors, paymentPeriod);
+        return new PaymentCalculationResult(successful, errors, period);
     }
 
     public Payment calculateSingleEmployeePayment(
             Employee employee,
             List<ShiftResponseDTO> shifts,
-            PaymentPeriod period,
+            Period period,
             Long initiatorId) {
 
         log.debug("Calculating payment for employee {} in period {}",

@@ -21,7 +21,7 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/employee-jobs")
 @Validated
-public class AdminEmployeeJobController {
+public class EmployeeJobController {
     
     private final EmployeeJobManagementService managementService;
     private final EmployeeJobQueryService queryService;

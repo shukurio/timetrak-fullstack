@@ -2,7 +2,6 @@ package com.timetrak.dto.request;
 
 import com.timetrak.enums.ShiftStatus;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,8 +21,6 @@ public class ShiftRequestDTO {
   private LocalDateTime clockIn;
   private LocalDateTime clockOut;
   
-  @Size(max = 1000, message = "Notes cannot exceed 1000 characters")
-  private String notes;
   
   private ShiftStatus status;
 }

@@ -10,7 +10,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
-import com.timetrak.dto.payment.PaymentPeriod;
+import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.service.DepartmentService;
 import com.timetrak.service.payment.PeriodService;
@@ -36,7 +36,7 @@ public class ShiftReportService {
     private final DepartmentService depService;
 
     public byte[] exportShifts(Integer periodNumber, Long companyId, @Nullable List<Long> departmentIds) {
-        PaymentPeriod period = resolvePaymentPeriod(periodNumber, companyId);
+        Period period = resolvePaymentPeriod(periodNumber, companyId);
 
         List<Long> targetDepartments;
         String reportType;
@@ -72,13 +72,13 @@ public class ShiftReportService {
         }
     }
 
-    private PaymentPeriod resolvePaymentPeriod(Integer periodNumber, Long companyId) {
+    private Period resolvePaymentPeriod(Integer periodNumber, Long companyId) {
         if (periodNumber == null || periodNumber <= 0) {
             log.info("No period number provided, using current period for company {}", companyId);
-            return periodService.getCurrentPaymentPeriod(companyId);
+            return periodService.getCurrentPeriod(companyId);
         } else {
             log.info("Using period {} for company {}", periodNumber, companyId);
-            return periodService.getPaymentPeriodByNumber(periodNumber, companyId);
+            return periodService.getPeriodByNumber(periodNumber, companyId);
         }
     }
 
@@ -100,7 +100,7 @@ public class ShiftReportService {
     private byte[] generateDepartmentCategorizedPdf(
             Map<Long, List<ShiftResponseDTO>> shiftsByDepartment,
             Map<Long, String> departmentNames,
-            PaymentPeriod period,
+            Period period,
             String reportType) throws Exception {
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {

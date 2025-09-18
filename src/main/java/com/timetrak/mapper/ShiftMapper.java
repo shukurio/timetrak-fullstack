@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
+import java.util.Objects;
 
 @Mapper(componentModel = "spring")
 public interface ShiftMapper {
@@ -28,7 +29,6 @@ public interface ShiftMapper {
                 .id(shift.getId())
                 .clockIn(shift.getClockIn())
                 .clockOut(shift.getClockOut())
-                .notes(shift.getNotes())
                 .status(shift.getStatus())
                 .employeeId(shift.getEmployee().getId())
                 .employeeJobId(shift.getEmployeeJob().getId())
@@ -36,7 +36,11 @@ public interface ShiftMapper {
                 .fullName(shift.getEmployeeJob().getEmployee().getFirstName() + " " +
                         shift.getEmployeeJob().getEmployee().getLastName())
                 .jobTitle(shift.getEmployeeJob().getJob().getJobTitle())
-                .hourlyWage(shift.getEmployeeJob().getHourlyWage())
+                .hourlyWage(
+                        shift.getEmployeeJob() != null && shift.getEmployeeJob().getHourlyWage() != null
+                                ? shift.getEmployeeJob().getHourlyWage()
+                                : Objects.requireNonNull(shift.getEmployeeJob()).getJob().getHourlyWage()
+                )
                 .hours(hours)
                 .build();
     }

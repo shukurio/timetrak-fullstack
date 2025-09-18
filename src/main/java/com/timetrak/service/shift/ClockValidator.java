@@ -68,17 +68,4 @@ public class ClockValidator {
         validateTimeNotInFuture(request.getTime(), CLOCK_OUT_FUTURE_TIME_MSG);
     }
 
-    String sanitizeNotes(String notes) {
-        if (notes == null) return null;
-
-        return notes.trim()
-                .replaceAll("<script[^>]*>.*?</script>", "")
-                .replaceAll("<[^>]+>", "");
-    }
-
-    String truncateNotes(String notes) {
-        if (notes == null) return null;
-        return notes.length() > MAX_NOTES_LENGTH ?
-                notes.substring(0, MAX_NOTES_LENGTH - 3) + "..." : notes;
-    }
 }

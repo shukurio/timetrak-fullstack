@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/payments")
-public class AdminPaymentController {
+public class PaymentController {
     private final PaymentService paymentService;
     private final AuthContextService authContext;
     private final PaymentManagementService manager;

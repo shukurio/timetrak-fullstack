@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @Repository
 public interface ShiftRepository extends JpaRepository<Shift, Long> {
-    
-    @Query("SELECT s FROM Shift s WHERE s.employee.id = :employeeId AND s.companyId =:companyId")
+
+    @Query("SELECT s FROM Shift s WHERE s.employee.id = :employeeId AND s.companyId = :companyId")
     Page<Shift> findByEmployeeId(@Param("employeeId") Long employeeId,
                                  @Param("companyId") Long companyId,
                                  Pageable pageable);
@@ -46,7 +46,21 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
                                                       Long employeeId,
                                                       Long companyId,
                                                       Pageable pageable);
-    Page<Shift> findAllByStatusAndCompanyId(ShiftStatus status, Long companyId, Pageable pageable);
+
+    @Query("SELECT s FROM Shift s " +
+            "WHERE DATE(s.clockIn) BETWEEN :startDate AND :endDate " +
+            "AND s.companyId = :companyId " +
+            "AND s.status = :status " +
+            "ORDER BY s.employee.id, s.clockIn")
+    Page<Shift> findAllByStatusAndDateRangeAndCompanyId(
+            @Param("status") ShiftStatus status,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("companyId") Long companyId,
+            Pageable pageable);
+
+
+
 
     @Query("SELECT COUNT(s) FROM Shift s WHERE s.status = :status AND s.employee.id = :employeeId")
     long countActiveShiftsByEmployeeId(@Param("status") ShiftStatus status, @Param("employeeId") Long employeeId);
@@ -81,6 +95,19 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("companyId") Long companyId);
+
+    @Query("SELECT s FROM Shift s " +
+            "WHERE DATE(s.clockIn) BETWEEN :startDate AND :endDate " +
+            "AND s.companyId = :companyId " +
+            "AND s.clockOut IS NOT NULL " +
+            "AND s.status = 'COMPLETED' " +
+            "AND s.employee IS NOT NULL " +
+            "ORDER BY s.employee.id, s.clockIn")
+    Page<Shift> findAllByCompanyIdAndDateRangePageable(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("companyId") Long companyId,
+            Pageable pageable);
 
     @Query("SELECT s FROM Shift s " +
             "JOIN s.employee e " +

@@ -1,6 +1,6 @@
 package com.timetrak.service.payment.calculation;
 
-import com.timetrak.dto.payment.PaymentPeriod;
+import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.payment.PaymentTotals;
 import com.timetrak.dto.response.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
@@ -26,7 +26,7 @@ import static com.timetrak.constant.PaymentConstants.*;
 public class PaymentCalculationValidator {
     private final PaymentRepository paymentRepository;
 
-    public void validateRequest(PaymentPeriod period, Long companyId) {
+    public void validateRequest(Period period, Long companyId) {
         if (period == null) {
             throw new InvalidPaymentRequestException("Payment period is required for payment processing");
         }
@@ -220,7 +220,7 @@ public class PaymentCalculationValidator {
         }
     }
 
-    public List<Long> filterEmployeesWithoutDuplicates(List<Long> employeeIds, PaymentPeriod period, Long companyId) {
+    public List<Long> filterEmployeesWithoutDuplicates(List<Long> employeeIds, Period period, Long companyId) {
         if (employeeIds.isEmpty()) return employeeIds;
 
         List<Long> employeesWithPayments = paymentRepository.findEmployeeIdsWithExistingPayments(

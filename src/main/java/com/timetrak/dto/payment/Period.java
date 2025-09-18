@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PaymentPeriod {
+public class Period {
 
     // =============== CORE PERIOD INFO ===============
     private LocalDate startDate;
@@ -36,7 +36,7 @@ public class PaymentPeriod {
 
     // =============== CONSTRUCTORS ===============
 
-    public PaymentPeriod(LocalDate startDate, LocalDate endDate, PayFrequency frequency, int periodNumber) {
+    public Period(LocalDate startDate, LocalDate endDate, PayFrequency frequency, int periodNumber) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.frequency = frequency;
@@ -105,7 +105,7 @@ public class PaymentPeriod {
         return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
-    public PaymentPeriod getNextPeriod() {
+    public Period getNextPeriod() {
         LocalDate nextStart = switch (frequency) {
             case WEEKLY -> startDate.plusWeeks(1);
             case BIWEEKLY -> startDate.plusWeeks(2);
@@ -118,10 +118,10 @@ public class PaymentPeriod {
             case MONTHLY -> nextStart.plusMonths(1).minusDays(1);
         };
 
-        return new PaymentPeriod(nextStart, nextEnd, frequency, periodNumber + 1);
+        return new Period(nextStart, nextEnd, frequency, periodNumber + 1);
     }
 
-    public PaymentPeriod getPreviousPeriod() {
+    public Period getPreviousPeriod() {
         LocalDate prevStart = switch (frequency) {
             case WEEKLY -> startDate.minusWeeks(1);
             case BIWEEKLY -> startDate.minusWeeks(2);
@@ -134,7 +134,7 @@ public class PaymentPeriod {
             case MONTHLY -> prevStart.plusMonths(1).minusDays(1);
         };
 
-        return new PaymentPeriod(prevStart, prevEnd, frequency, periodNumber - 1);
+        return new Period(prevStart, prevEnd, frequency, periodNumber - 1);
     }
 
     public String getDisplayName() {

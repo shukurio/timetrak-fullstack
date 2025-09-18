@@ -38,13 +38,13 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
     @Override
     @Transactional
-    public PaymentResponseDTO calculatePaymentsForPeriod(PaymentPeriod paymentPeriod, Long companyId,Long initiatorId) {
+    public PaymentResponseDTO calculatePaymentsForPeriod(Period period, Long companyId, Long initiatorId) {
         try {
-            validator.validateRequest(paymentPeriod,companyId);
+            validator.validateRequest(period,companyId);
 
             Map<Employee, List<ShiftResponseDTO>> shifts =
-                    shiftService.getAllShiftsByDateRange(paymentPeriod.getStartDate(),
-                            paymentPeriod.getEndDate(),
+                    shiftService.getAllShiftsByDateRange(period.getStartDate(),
+                            period.getEndDate(),
                             companyId);
             validator.validateShifts(shifts);
 
@@ -53,7 +53,7 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
 
             List<Long> validIds = validator.filterEmployeesWithoutDuplicates(
                     employees.stream().map(Employee::getId).toList(),
-                    paymentPeriod,
+                    period,
                     companyId
             );
 
@@ -68,17 +68,17 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
             validator.validateShiftsEmployeeConsistency(shifts,validEmployees);
 
             PaymentCalculationResult calculationResult = paymentCalculator
-                    .calculateAllPaymentsForCompany(validEmployees, shifts, paymentPeriod,
+                    .calculateAllPaymentsForCompany(validEmployees, shifts, period,
                              initiatorId);
 
             List<PaymentDetailsDTO> successful = savePayments(calculationResult.getSuccessful());
-            List<PaymentFailureResponse> failed = new ArrayList<>(paymentResponseBuilder.createDuplicateFailures(duplicatePayments,paymentPeriod));
+            List<PaymentFailureResponse> failed = new ArrayList<>(paymentResponseBuilder.createDuplicateFailures(duplicatePayments, period));
             failed.addAll(calculationResult.getErrors());
 
             log.info("Payment calculation completed: {} successful, {} failed",
                     successful.size(), failed.size());
 
-            return paymentResponseBuilder.buildResponse(successful, failed, paymentPeriod);
+            return paymentResponseBuilder.buildResponse(successful, failed, period);
 
         } catch (PaymentException e) {
             log.error("Payment processing failed: {}", e.getMessage());
@@ -93,8 +93,8 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     @Transactional
     public PaymentResponseDTO calculatePayments(PaymentRequestDTO request, Long companyId,Long initiatorId) {
         try {
-            PaymentPeriod paymentPeriod = resolvePaymentPeriod(request.getPeriodNumber(),companyId);
-            return calculatePaymentsForPeriod(paymentPeriod,companyId,initiatorId);
+            Period period = resolvePaymentPeriod(request.getPeriodNumber(),companyId);
+            return calculatePaymentsForPeriod(period,companyId,initiatorId);
         } catch (InvalidPaymentPeriodException e) {
             log.error("Invalid payment period in request: {}", e.getMessage());
             throw e;
@@ -102,11 +102,11 @@ public class PaymentCalculationServiceImpl implements PaymentCalculationService 
     }
 
 
-    private PaymentPeriod resolvePaymentPeriod(Integer paymentPeriodNumber, Long companyId) {
+    private Period resolvePaymentPeriod(Integer paymentPeriodNumber, Long companyId) {
         if (paymentPeriodNumber == null || paymentPeriodNumber <= 0) {
-            return paymentPeriodService.getCurrentPaymentPeriod(companyId);
+            return paymentPeriodService.getCurrentPeriod(companyId);
         } else {
-            return paymentPeriodService.getPaymentPeriodByNumber(paymentPeriodNumber,companyId);
+            return paymentPeriodService.getPeriodByNumber(paymentPeriodNumber,companyId);
         }
     }
 

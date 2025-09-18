@@ -45,8 +45,6 @@ public class Shift extends BaseEntity{
     @Column(name="status")
     private ShiftStatus status;
 
-    @Column(name="notes")
-    private String notes;
 
     public void setEmployeeJob(EmployeeJob employeeJob) {
         this.employeeJob = employeeJob;

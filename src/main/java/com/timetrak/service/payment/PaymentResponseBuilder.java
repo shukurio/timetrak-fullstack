@@ -16,7 +16,7 @@ public class PaymentResponseBuilder {
     public PaymentResponseDTO buildResponse(
             List<PaymentDetailsDTO> successful,
             List<PaymentFailureResponse> failed,
-            PaymentPeriod period) {
+            Period period) {
 
         int successCount = successful.size();
         int failureCount = failed.size();
@@ -35,29 +35,7 @@ public class PaymentResponseBuilder {
     }
 
 
-    // ========== GENERIC FAILURE BUILDERS ==========
-
-    public PaymentFailureResponse createFailureResponse(Long employeeId, String errorMessage,
-                                                         String errorCode, String period) {
-        try {
-            return PaymentFailureResponse.builder()
-                    .employeeId(employeeId)
-                    .period(period)
-                    .errorMessage(errorMessage)
-                    .errorCode(errorCode)
-                    .build();
-        } catch (Exception e) {
-            return PaymentFailureResponse.builder()
-                    .employeeId(employeeId)
-                    .period(period)
-                    .errorMessage(errorMessage)
-                    .errorCode(errorCode)
-                    .build();
-        }
-
-    }
-
-    public List<PaymentFailureResponse> createDuplicateFailures(List<Long> duplicateEmployeeIds, PaymentPeriod period) {
+    public List<PaymentFailureResponse> createDuplicateFailures(List<Long> duplicateEmployeeIds, Period period) {
         return duplicateEmployeeIds.stream()
                 .map(employeeId -> PaymentFailureResponse.builder()
                         .employeeId(employeeId)

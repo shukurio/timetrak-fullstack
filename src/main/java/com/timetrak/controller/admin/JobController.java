@@ -26,7 +26,7 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/jobs")
 @Validated
-public class AdminJobController {
+public class JobController {
 
     private final AuthContextService authContextService;
     private final JobService jobService;

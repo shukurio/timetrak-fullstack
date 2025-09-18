@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/admin/reports")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminReportController {
+public class ReportController {
 
     private final ShiftReportService shiftReportService;
     private final AuthContextService authContextService;

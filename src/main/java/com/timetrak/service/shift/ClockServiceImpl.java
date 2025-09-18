@@ -64,7 +64,6 @@ public class ClockServiceImpl implements ClockService {
                         .employee(employeeJob.getEmployee())
                         .companyId(empJob.getCompanyId())
                         .status(ShiftStatus.ACTIVE)
-                        .notes(validator.sanitizeNotes(request.getNotes()))
                         .build();
 
 
@@ -133,7 +132,6 @@ public class ClockServiceImpl implements ClockService {
                 validator.validateClockOutTime(shift.getClockIn(), clockOutTime);
 
                 shift.setClockOut(clockOutTime);
-                handleNotes(request.getNotes(),shift);
 
 
                 shift.setStatus(ShiftStatus.COMPLETED);
@@ -193,7 +191,6 @@ public class ClockServiceImpl implements ClockService {
                     .employee(employeeJob.getEmployee())
                     .companyId(companyId)
                     .status(ShiftStatus.ACTIVE)
-                    .notes(validator.sanitizeNotes(request.getNotes()))
                     .build();
 
             Shift savedShift = shiftRepository.save(shift);
@@ -234,7 +231,6 @@ public class ClockServiceImpl implements ClockService {
 
             activeShift.setClockOut(clockOutTime);
 
-            handleNotes(request.getNotes(),activeShift);
 
 
             activeShift.setStatus(ShiftStatus.COMPLETED);
@@ -279,7 +275,6 @@ public class ClockServiceImpl implements ClockService {
                     .employee(employeeJob.getEmployee())
                     .companyId(empJob.getCompanyId())
                     .status(ShiftStatus.ACTIVE)
-                    .notes(validator.sanitizeNotes(request.getNotes()))
                     .build();
 
             Shift savedShift = shiftRepository.save(shift);
@@ -319,7 +314,6 @@ public class ClockServiceImpl implements ClockService {
 
             activeShift.setClockOut(clockOutTime);
 
-            handleNotes(request.getNotes(),activeShift);
 
 
             activeShift.setStatus(ShiftStatus.COMPLETED);
@@ -411,15 +405,5 @@ public class ClockServiceImpl implements ClockService {
                 .build();
     }
 
-    private void handleNotes(String notes, Shift shift){
-        String sanitizedNotes = validator.sanitizeNotes(notes);
-        if (sanitizedNotes != null && !sanitizedNotes.trim().isEmpty()) {
-            String existingNotes = shift.getNotes() != null ? shift.getNotes() : "";
-            String combinedNotes = existingNotes.isEmpty() ?
-                    "Clock-out: " + sanitizedNotes :
-                    existingNotes + "\nClock-out: " + sanitizedNotes;
-            shift.setNotes(validator.truncateNotes(combinedNotes));
-        }
-    }
 
 }

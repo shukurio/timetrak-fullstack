@@ -13,5 +13,4 @@ public final class ShiftConstants {
     public static final double PRECISION_FACTOR = 100.0;
     public static final int MAX_GROUP_OPERATION_SIZE = 100;
     public static final int MAX_SHIFT_DURATION_HOURS = 24;
-    public static final int MAX_NOTES_LENGTH = 1000;
 }

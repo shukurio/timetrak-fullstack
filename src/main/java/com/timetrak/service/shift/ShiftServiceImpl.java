@@ -1,5 +1,6 @@
 package com.timetrak.service.shift;
 
+import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.response.*;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Shift;
@@ -9,6 +10,7 @@ import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.repository.ShiftRepository;
 import com.timetrak.service.employee.EmployeeService;
+import com.timetrak.service.payment.PeriodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,7 @@ public class ShiftServiceImpl implements ShiftService {
     private final ShiftRepository shiftRepository;
     private final ShiftMapper shiftMapper;
     private final EmployeeService employeeService;
+    private final PeriodService periodService;
 
     @Override
     public ShiftResponseDTO getShiftById(Long shiftId) {
@@ -138,9 +141,30 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Page<ShiftResponseDTO> getShiftsByStatus(ShiftStatus status,Long companyId,Pageable pageable) {
-        return shiftRepository.findAllByStatusAndCompanyId(status,companyId, pageable).map(shiftMapper::toDTO);
+    public Page<ShiftResponseDTO> getShiftsByStatusAndPeriodNumber(Integer periodNumber,ShiftStatus status, Long companyId, Pageable pageable) {
+
+        Period period = periodService.getPeriodByNumber(periodNumber, companyId);
+
+
+        return shiftRepository.findAllByStatusAndDateRangeAndCompanyId(status,
+                period.getStartDate(),
+                period.getEndDate(),
+                companyId,
+                pageable).map(shiftMapper::toDTO);
     }
+
+    @Override
+    public Page<ShiftResponseDTO> getShiftsByEmployeeIdAndPeriodNumber(Integer periodNumber,
+                                                                       Long employeeId,
+                                                                       Long companyId, Pageable pageable) {
+
+        Period period = periodService.getPeriodByNumber(periodNumber, companyId);
+
+        return getShiftsByEmployeeIdAndDateRange(employeeId, period.getStartDate(), period.getEndDate(), pageable);
+
+
+    }
+
 
     @Override
     public List<ShiftResponseDTO> getShiftsByDateRange(Long companyId, LocalDate startDate, LocalDate endDate) {
@@ -247,6 +271,17 @@ public class ShiftServiceImpl implements ShiftService {
                         Shift::getEmployee,
                         Collectors.mapping(shiftMapper::toDTO, Collectors.toList())
                 ));
+    }
+
+    @Override
+    public Page<ShiftResponseDTO> getShiftsByPeriodNumber(Integer periodNumber, Long companyId, Pageable pageable) {
+
+        Period period = periodService.getPeriodByNumber(periodNumber, companyId);
+        if(period == null) {
+            period = periodService.getCurrentPeriod(companyId);
+        }
+        //TODO validation
+        return getShiftsByDateRange(companyId,period.getStartDate(),period.getEndDate(),pageable);
     }
 
     /**

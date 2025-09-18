@@ -25,7 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/employees")
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminEmployeeController {
+public class EmployeeController {
 
     private final EmployeeService employeeService;
     private final AuthContextService authContextService;

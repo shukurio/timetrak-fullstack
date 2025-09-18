@@ -13,5 +13,4 @@ public class EmployeeClockRequestDTO {
     @NotNull(message = "Employee ID cannot be null")
     private Long id;
 
-    private String notes;
 }

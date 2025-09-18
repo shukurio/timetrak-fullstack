@@ -11,5 +11,5 @@ import java.util.List;
 public class PaymentCalculationResult {
     private List<Payment> successful;
     private List<PaymentFailureResponse> errors;
-    private final PaymentPeriod paymentPeriod;
+    private final Period period;
 }

@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminInviteController {
+public class InviteController {
 
     private final InviteService inviteService;
     private final AuthContextService authContextService;

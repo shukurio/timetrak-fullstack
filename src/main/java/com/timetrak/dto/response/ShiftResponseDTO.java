@@ -21,7 +21,6 @@ public class ShiftResponseDTO {
     private LocalDateTime clockIn;
     private LocalDateTime clockOut;
     private Double hours;
-    private String notes;
     private ShiftStatus status;
 
     private Long employeeId;

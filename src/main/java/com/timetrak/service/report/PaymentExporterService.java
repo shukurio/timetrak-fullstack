@@ -8,7 +8,7 @@ import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
-import com.timetrak.dto.payment.PaymentPeriod;
+import com.timetrak.dto.payment.Period;
 import com.timetrak.entity.Payment;
 import com.timetrak.repository.PaymentRepository;
 import com.timetrak.service.payment.PeriodService;
@@ -33,7 +33,7 @@ public class PaymentExporterService {
 
     public byte[] exportPayments(int periodNumber,Long companyId) {
 
-        PaymentPeriod period = resolvePaymentPeriod(periodNumber,companyId);
+        Period period = resolvePaymentPeriod(periodNumber,companyId);
         log.info("Exporting payments for company {} from {} to {} in PDF format",
                 companyId, period.getStartDate(), period.getEndDate());
 
@@ -69,13 +69,13 @@ public class PaymentExporterService {
         }
     }
 
-    private PaymentPeriod resolvePaymentPeriod(Integer periodNumber, Long companyId) {
+    private Period resolvePaymentPeriod(Integer periodNumber, Long companyId) {
         if (periodNumber == null || periodNumber <= 0) {
             log.info("No period number provided, using current payment period for company {}", companyId);
-            return paymentPeriodService.getCurrentPaymentPeriod(companyId);
+            return paymentPeriodService.getCurrentPeriod(companyId);
         } else {
             log.info("Using payment period {} for company {}", periodNumber, companyId);
-            return paymentPeriodService.getPaymentPeriodByNumber(periodNumber, companyId);
+            return paymentPeriodService.getPeriodByNumber(periodNumber, companyId);
         }
     }
 
