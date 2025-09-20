@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.unsecured;
 
 import com.timetrak.security.auth.JwtService;
 import com.timetrak.security.auth.dto.AuthRequest;
@@ -86,7 +86,6 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
             @RequestHeader("Authorization") String authHeader,
-            @CookieValue(value = "refreshToken", required = false) String refreshToken,
             Authentication authentication,
             HttpServletResponse response) {
 
@@ -95,7 +94,6 @@ public class AuthController {
             authService.logout(token);
         }
 
-        // Clear the refresh token cookie
         Cookie refreshCookie = new Cookie("refreshToken", "");
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);

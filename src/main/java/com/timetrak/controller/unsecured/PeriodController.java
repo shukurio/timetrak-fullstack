@@ -1,4 +1,4 @@
-package com.timetrak.controller;
+package com.timetrak.controller.unsecured;
 
 import com.timetrak.dto.payment.PeriodSummaryDTO;
 import com.timetrak.service.auth.AuthContextService;

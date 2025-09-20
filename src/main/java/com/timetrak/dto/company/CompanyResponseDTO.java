@@ -13,4 +13,7 @@ public class CompanyResponseDTO {
     private String code;
     private String description;
     private Boolean isActive;
+    private Double latitude;
+    private Double longitude;
+    private Double allowedRadius;
 }

@@ -1,4 +1,4 @@
-package com.timetrak.controller.admin;
+package com.timetrak.controller.unsecured;
 
 import com.timetrak.dto.company.CompanyRegistrationDTO;
 import com.timetrak.dto.company.CompanyRegistrationResponseDTO;

@@ -16,7 +16,6 @@ import static com.timetrak.constant.ShiftConstants.*;
 @Slf4j
 public class ClockValidator {
 
-
     // Shared messages
     private static final String OPERATION_SIZE_EXCEEDED_MSG =
             "Group operation size exceeds maximum allowed: " + MAX_GROUP_OPERATION_SIZE;

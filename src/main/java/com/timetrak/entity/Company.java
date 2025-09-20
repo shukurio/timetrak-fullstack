@@ -35,6 +35,15 @@ public class Company extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name="latitude")
+    private Double latitude;
+
+    @Column(name="longitude")
+    private Double longitude;
+
+    @Column(name="allowed_radius")
+    private Double allowedRadius;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 

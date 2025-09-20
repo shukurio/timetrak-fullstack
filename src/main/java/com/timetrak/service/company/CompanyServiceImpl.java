@@ -1,7 +1,7 @@
 package com.timetrak.service.company;
 
 import com.timetrak.dto.company.CompanyResponseDTO;
-import com.timetrak.dto.company.CompanyRequestDTO;
+import com.timetrak.dto.company.CompanyUpdateDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.exception.ResourceNotFoundException;
@@ -26,13 +26,6 @@ public class CompanyServiceImpl implements CompanyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
     }
 
-
-    @Override
-    public boolean existsById(Long id) {
-        return companyRepository.existsById(id);
-    }
-
-
     @Override
     public CompanyResponseDTO getCompanyDTOById(Long id) {
          Company company = companyRepository.findById(id)
@@ -45,10 +38,12 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public CompanyResponseDTO updateCompany(Long id, CompanyRequestDTO dto) {
+    public CompanyResponseDTO updateCompany(Long id, CompanyUpdateDTO dto) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
-        validateUniqueCode(dto.getCode());
+        if(dto.getCode()!=null) {
+            validateUniqueCode(dto.getCode());
+        }
         companyMapper.updateCompanyFromDto(dto, company);
         Company updated = companyRepository.save(company);
         return companyMapper.toDTO(updated);
