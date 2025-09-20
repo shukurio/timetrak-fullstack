@@ -1,4 +1,4 @@
-package com.timetrak.controller.user;
+package com.timetrak.controller.unsecured;
 
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
@@ -59,7 +59,6 @@ public class KioskController {
 
     @PostMapping("/clock-out")
     public ResponseEntity<ShiftResponseDTO> clockOut(@Valid @NotNull @RequestBody EmployeeClockRequestDTO request) {
-
 
         ShiftResponseDTO response = clockService.kioskClockOut(request);
 

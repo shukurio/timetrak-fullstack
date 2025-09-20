@@ -1,6 +1,6 @@
 package com.timetrak.controller.admin;
 
-import com.timetrak.dto.company.CompanyRequestDTO;
+import com.timetrak.dto.company.CompanyUpdateDTO;
 import com.timetrak.dto.request.DepartmentRequestDTO;
 import com.timetrak.dto.company.CompanyResponseDTO;
 import com.timetrak.dto.response.DepartmentResponseDTO;
@@ -41,9 +41,9 @@ public class OrganizationController {
     }
 
     @Operation(summary = "Update company", description = "Update current admin's company details")
-    @PutMapping("/company")
+    @PatchMapping("/company")
     public ResponseEntity<CompanyResponseDTO> updateCompany(
-            @RequestBody CompanyRequestDTO request
+            @RequestBody CompanyUpdateDTO request
            ) {
         CompanyResponseDTO company = companyService.updateCompany(currentCompanyId(), request);
         return ResponseEntity.ok(company);
