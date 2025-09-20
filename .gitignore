@@ -17,6 +17,8 @@ target/
 src/main/resources/application.properties
 logs
 
+src/main/resources/application-docker.properties
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
