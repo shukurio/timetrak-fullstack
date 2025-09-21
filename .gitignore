@@ -1,42 +1,57 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!src/main/**/target/
-!src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-# Application config (do not commit secrets)
-src/main/resources/application.properties
-logs
-
-src/main/resources/application-docker.properties
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!src/main/**/build/
-!src/test/**/build/
-
-### VS Code ###
+# IDE and Editor
+.idea/
 .vscode/
+*.iml
+.DS_Store
 
-# Git attributes file
-.gitattributes
+# Environment and Config
+.env
+.env.*
+!.env.example
+*.local
+
+# Docker
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.local
+
+# Sensitive files
+api-docs.json
+test-*.js
+*.pem
+*.key
+*.cert
+
+# Claude settings
+.claude/
+
+# Build directories
+dist/
+build/
+target/
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+.cache/
+
+# Database
+*.db
+*.sqlite
+
+# OS files
+Thumbs.db
+Desktop.ini

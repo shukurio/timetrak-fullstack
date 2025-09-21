@@ -1,0 +1,13 @@
+ target/
+  !target/*.jar
+  .mvn
+  mvnw
+  mvnw.cmd
+  .git
+  .gitignore
+  README.md
+  .env
+  .vscode
+  .DS_Store
+  *.log
+  .idea/
