@@ -7,7 +7,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 import companyService from '../../api/companyService';
 import InviteShareModal from '../../components/invites/InviteShareModal';
 import InviteQuickShare from '../../components/invites/InviteQuickShare';
@@ -139,21 +139,21 @@ const MultiUserInviteManagement = () => {
     const status = inviteService.getInviteStatus(invite);
     const colors = {
       active: 'bg-green-100 text-green-800 border-green-200',
-      full: 'bg-blue-100 text-blue-800 border-blue-200',
+      exhausted: 'bg-blue-100 text-blue-800 border-blue-200',
       expired: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      deactivated: 'bg-gray-100 text-gray-800 border-gray-200'
+      inactive: 'bg-gray-100 text-gray-800 border-gray-200'
     };
 
     const labels = {
       active: 'Active',
-      full: 'Full',
+      exhausted: 'Full',
       expired: 'Expired',
-      deactivated: 'Deactivated'
+      inactive: 'Deactivated'
     };
 
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${colors[status]}`}>
-        {labels[status]}
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${colors[status] || colors.inactive}`}>
+        {labels[status] || 'Unknown'}
       </span>
     );
   };
@@ -161,18 +161,18 @@ const MultiUserInviteManagement = () => {
   const getProgressBar = (invite) => {
     const percentage = inviteService.getUsagePercentage(invite);
     const status = inviteService.getInviteStatus(invite);
-    
+
     const colors = {
       active: 'bg-green-500',
-      full: 'bg-blue-500',
+      exhausted: 'bg-blue-500',
       expired: 'bg-yellow-500',
-      deactivated: 'bg-gray-400'
+      inactive: 'bg-gray-400'
     };
 
     return (
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
-          className={`h-2 rounded-full transition-all ${colors[status]}`}
+          className={`h-2 rounded-full transition-all ${colors[status] || colors.inactive}`}
           style={{ width: `${percentage}%` }}
         />
       </div>
@@ -350,14 +350,11 @@ const MultiUserInviteManagement = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium text-gray-900 min-w-[4rem]">
-                        {invite.currentUses || 0}/{invite.maxUses}
+                        {invite.usedCount || 0}/{invite.maxUses}
                       </span>
                       <div className="flex-1">
                         {getProgressBar(invite)}
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {inviteService.getUsagePercentage(invite)}%
-                      </span>
                     </div>
                   </td>
                   

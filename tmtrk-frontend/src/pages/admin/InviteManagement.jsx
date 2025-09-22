@@ -3,7 +3,7 @@ import { Plus, Copy, Trash2, Mail, Calendar, Clock, AlertCircle, Check } from 'l
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 import companyService from '../../api/companyService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 

@@ -82,17 +82,18 @@ function App() {
           }
         }
       } catch (error) {
-        console.error('Refresh failed:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message
-        });
-        
-        // Don't logout if it's just a missing refresh token on first visit
-        if (error.response?.status === 401) {
-          console.log('No refresh token found - user not logged in');
+        // Only log refresh errors in development or if it's not a 401/500
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.log('No valid session - user not logged in');
+        } else if (error.response?.status === 500) {
+          // Silently handle 500 errors (usually means no refresh token cookie)
+          console.log('No refresh token available');
         } else {
-          console.log('Refresh token invalid or expired');
+          console.error('Refresh failed:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+          });
         }
         
         // Step 4: Clear auth state but don't call backend logout during initialization

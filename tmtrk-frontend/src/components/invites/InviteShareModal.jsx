@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Share2, Mail, MessageCircle, QrCode, Download, X, Check, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 
 const InviteShareModal = ({ invite, companyName, isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);

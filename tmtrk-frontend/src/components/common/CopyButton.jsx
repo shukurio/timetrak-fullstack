@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 
 const CopyButton = ({ text, label = "Copy", successMessage = "Copied to clipboard!" }) => {
   const [copied, setCopied] = useState(false);

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const schema = yup.object({
@@ -21,7 +21,10 @@ const schema = yup.object({
     .max(30, 'Username must be between 3 and 30 characters')
     .matches(/^[a-zA-Z0-9._-]+$/, 'Username can only contain letters, numbers, dots, underscores, and hyphens'),
   email: yup.string().required('Email is required').email('Invalid email format'),
-  phoneNumber: yup.string().matches(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number'),
+  phoneNumber: yup.string().notRequired().test('phone-validation', 'Invalid phone number', function(value) {
+    if (!value || value.trim() === '') return true; // Allow empty values
+    return /^\+?[1-9]\d{1,14}$/.test(value.replace(/[\s\-\(\)]/g, '')); // Clean and validate
+  }),
   password: yup.string()
     .required('Password is required')
     .min(8, 'Password must be at least 8 characters')

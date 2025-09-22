@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Share2, Check, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
-import inviteService from '../../services/inviteService';
+import inviteService from '../../api/inviteService';
 
 const InviteQuickShare = ({ invite, companyName = 'our company' }) => {
   const [copied, setCopied] = useState(false);

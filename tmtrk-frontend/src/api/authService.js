@@ -43,7 +43,7 @@ class AuthService {
   }
 
   async refreshToken() {
-    const response = await axios.post(`/auth/refresh`, {}, {
+    const response = await apiClient.post(`/auth/refresh`, {}, {
       withCredentials: true
     });
     return response.data;
