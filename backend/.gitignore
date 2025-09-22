@@ -15,6 +15,7 @@ target/
 
 # Application config (do not commit secrets)
 logs
+src/main/resources/application-local.properties
 
 src/main/resources/application-docker.properties
 

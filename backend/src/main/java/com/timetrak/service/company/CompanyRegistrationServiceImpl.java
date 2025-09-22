@@ -27,6 +27,10 @@ public class CompanyRegistrationServiceImpl implements CompanyRegistrationServic
 
 
         //IsActive should be fixed when Sys-Admin is implemented
+        if(request.getCompany().getCode() == null){
+            throw new IllegalArgumentException("Company code is null");
+
+        }
         validateUniqueCode(request.getCompany().getCode());
         Company company = companyRepository.save(companyMapper.toEntity(request.getCompany()));
         CompanyResponseDTO companyDto = companyMapper.toDTO(company);
