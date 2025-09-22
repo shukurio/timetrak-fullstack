@@ -301,25 +301,25 @@ const MultiUserInviteManagement = () => {
       {/* Invites Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                   Invite Details
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                   Department
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
                   Usage Progress
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                   Expires
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                   Actions
                 </th>
               </tr>
@@ -347,12 +347,12 @@ const MultiUserInviteManagement = () => {
                     </span>
                   </td>
                   
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-900 min-w-[4rem]">
+                  <td className="px-6 py-4 w-48">
+                    <div className="flex items-center gap-3 max-w-full">
+                      <span className="text-sm font-medium text-gray-900 flex-shrink-0">
                         {invite.usedCount || 0}/{invite.maxUses}
                       </span>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         {getProgressBar(invite)}
                       </div>
                     </div>
