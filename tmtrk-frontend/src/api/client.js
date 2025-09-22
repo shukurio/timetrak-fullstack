@@ -2,7 +2,7 @@ import axios from 'axios';
 import useAuthStore from '../store/authStore';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8093/api';
+const API_BASE_URL = 'https://timetrak.up.railway.app/api';
 
 // Create axios instance
 const apiClient = axios.create({
