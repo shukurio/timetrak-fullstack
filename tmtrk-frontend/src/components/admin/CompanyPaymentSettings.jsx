@@ -292,7 +292,7 @@ const CompanyPaymentSettings = () => {
               </label>
               <select
                 {...register('payFrequency')}
-                className={`input ${errors.payFrequency ? 'border-red-500' : ''}`}
+                className={`w-full py-2 px-3 bg-white border ${errors.payFrequency ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
               >
                 <option value="WEEKLY">Weekly</option>
                 <option value="BIWEEKLY">Bi-weekly (Every 2 weeks)</option>
@@ -311,7 +311,7 @@ const CompanyPaymentSettings = () => {
               <input
                 type="date"
                 {...register('firstDay')}
-                className={`input ${errors.firstDay ? 'border-red-500' : ''}`}
+                className={`w-full py-2 px-3 bg-white border ${errors.firstDay ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
               />
               {errors.firstDay && (
                 <p className="mt-1 text-sm text-red-600">{errors.firstDay.message}</p>
@@ -331,7 +331,7 @@ const CompanyPaymentSettings = () => {
               </label>
               <select
                 {...register('calculationDay')}
-                className={`input ${errors.calculationDay ? 'border-red-500' : ''}`}
+                className={`w-full py-2 px-3 bg-white border ${errors.calculationDay ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
               >
                 <option value="MONDAY">Monday</option>
                 <option value="TUESDAY">Tuesday</option>
@@ -357,7 +357,7 @@ const CompanyPaymentSettings = () => {
               <input
                 type="time"
                 {...register('calculationTime')}
-                className={`input ${errors.calculationTime ? 'border-red-500' : ''}`}
+                className={`w-full py-2 px-3 bg-white border ${errors.calculationTime ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                 step="60"
               />
               {errors.calculationTime && (
@@ -379,7 +379,7 @@ const CompanyPaymentSettings = () => {
               min="0"
               max="168"
               {...register('gracePeriodHours')}
-              className={`input ${errors.gracePeriodHours ? 'border-red-500' : ''}`}
+              className={`w-full py-2 px-3 bg-white border ${errors.gracePeriodHours ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
             />
             {errors.gracePeriodHours && (
               <p className="mt-1 text-sm text-red-600">{errors.gracePeriodHours.message}</p>
@@ -436,7 +436,7 @@ const CompanyPaymentSettings = () => {
                   <input
                     type="email"
                     {...register('notificationEmail')}
-                    className={`input ${errors.notificationEmail ? 'border-red-500' : ''}`}
+                    className={`w-full py-2 px-3 bg-white border ${errors.notificationEmail ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                     placeholder="admin@company.com"
                   />
                   {errors.notificationEmail && (
