@@ -34,4 +34,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     @Query("SELECT j FROM Job j WHERE j.department.company.id = :companyId AND j.deletedAt IS NULL AND LOWER(j.jobTitle) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Job> searchByJobTitle(@Param("query") String query, @Param("companyId") Long companyId);
+
+    long countByDepartmentId(Long deptId);
+
 }

@@ -2,7 +2,7 @@ package com.timetrak.service.payment.calculation;
 
 import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.payment.PaymentTotals;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.PaymentStatus;
 import com.timetrak.exception.UnauthorizedAccessException;

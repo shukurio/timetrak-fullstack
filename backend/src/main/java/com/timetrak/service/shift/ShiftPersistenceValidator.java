@@ -1,6 +1,6 @@
 package com.timetrak.service.shift;
 
-import com.timetrak.dto.request.ShiftRequestDTO;
+import com.timetrak.dto.shift.ShiftRequestDTO;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.exception.InvalidOperationException;

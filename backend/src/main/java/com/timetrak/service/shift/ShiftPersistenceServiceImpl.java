@@ -1,8 +1,8 @@
 package com.timetrak.service.shift;
 
 
-import com.timetrak.dto.request.ShiftRequestDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftRequestDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.entity.EmployeeJob;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ClockErrorCode;

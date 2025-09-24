@@ -1,8 +1,8 @@
 package com.timetrak.controller.user;
 
 
-import com.timetrak.dto.response.ShiftResponseDTO;
-import com.timetrak.dto.response.ShiftSummaryDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftSummaryDTO;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.mapper.ShiftMapper;

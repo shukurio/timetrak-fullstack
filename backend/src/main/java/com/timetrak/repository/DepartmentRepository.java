@@ -31,4 +31,8 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     Optional<Department> findByIdAndCompanyIdAndDeletedAtIsNull(Long id, Long companyId);
 
     List<Department> findAllByCompanyIdAndIsActiveTrue(Long companyId);
+
+
+
+
 }

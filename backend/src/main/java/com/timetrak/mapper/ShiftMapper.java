@@ -1,7 +1,7 @@
 package com.timetrak.mapper;
 
-import com.timetrak.dto.request.ShiftRequestDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftRequestDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.entity.Shift;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

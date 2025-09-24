@@ -3,7 +3,7 @@ package com.timetrak.service.company;
 import com.timetrak.dto.company.CompanyRegistrationDTO;
 import com.timetrak.dto.company.CompanyRegistrationResponseDTO;
 import com.timetrak.dto.company.CompanyResponseDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.exception.DuplicateResourceException;
 import com.timetrak.mapper.CompanyMapper;

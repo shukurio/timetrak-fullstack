@@ -11,7 +11,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.timetrak.dto.payment.Period;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.service.department.DepartmentService;
 import com.timetrak.service.payment.PeriodService;
 import com.timetrak.service.shift.ShiftService;

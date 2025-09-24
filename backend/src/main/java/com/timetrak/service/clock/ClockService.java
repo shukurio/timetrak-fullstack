@@ -2,8 +2,8 @@ package com.timetrak.service.clock;
 
 import com.timetrak.dto.clock.AdminClockRequestDTO;
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;
-import com.timetrak.dto.response.ClockResponseDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.clock.ClockResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.enums.ClockAction;
 
 public interface ClockService {

@@ -1,7 +1,7 @@
 package com.timetrak.service.payment.calculation;
 
 import com.timetrak.dto.payment.*;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Payment;
 import com.timetrak.enums.PaymentStatus;

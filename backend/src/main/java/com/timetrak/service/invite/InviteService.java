@@ -4,7 +4,7 @@ import com.timetrak.dto.invite.InviteCreateRequestDTO;
 import com.timetrak.dto.invite.InviteResponseDTO;
 import com.timetrak.dto.invite.InviteSignupRequestDTO;
 import com.timetrak.dto.invite.InviteValidationResponseDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

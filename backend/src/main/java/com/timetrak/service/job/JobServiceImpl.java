@@ -118,6 +118,7 @@ public class JobServiceImpl implements JobService {
         return jobs.map(jobMapper::toDTO);
     }
 
+
     private void validateJobTitle(String jobTitle, Long departmentId, Long companyId) {
         if (jobTitle == null) return;
         String upperTitle = jobTitle.toUpperCase();
