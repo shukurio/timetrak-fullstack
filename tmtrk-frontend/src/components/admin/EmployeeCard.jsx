@@ -109,10 +109,25 @@ const EmployeeCard = ({ employee, isOpen, onClose, onActionClick, mutations }) =
         employeeJobId: '',
         clockIn: '',
         clockOut: '',
-        notes: '',
-        status: 'COMPLETED'
+        notes: ''
       }
     });
+
+    // Watch clockIn and clockOut values to auto-determine status
+    const watchClockIn = watch('clockIn');
+    const watchClockOut = watch('clockOut');
+
+    // Auto-determine status based on clock times
+    const getAutoStatus = () => {
+      if (watchClockIn && watchClockOut) {
+        return 'COMPLETED';
+      } else if (watchClockIn && !watchClockOut) {
+        return 'ACTIVE';
+      }
+      return '';
+    };
+
+    const autoStatus = getAutoStatus();
 
     const createShiftMutation = useMutation({
       mutationFn: (shiftData) => adminService.createShift(shiftData),
@@ -129,12 +144,16 @@ const EmployeeCard = ({ employee, isOpen, onClose, onActionClick, mutations }) =
     });
 
     const onSubmit = (data) => {
+      // Auto-determine status based on clock times
+      const status = data.clockOut ? 'COMPLETED' : 'ACTIVE';
+
       // Convert datetime-local values to ISO format
       const shiftData = {
-        ...data,
         employeeJobId: parseInt(data.employeeJobId),
         clockIn: new Date(data.clockIn).toISOString(),
-        clockOut: data.clockOut ? new Date(data.clockOut).toISOString() : null
+        clockOut: status === 'ACTIVE' ? null : (data.clockOut ? new Date(data.clockOut).toISOString() : null),
+        status: status,
+        ...(data.notes && data.notes.trim() && { notes: data.notes.trim() })
       };
       createShiftMutation.mutate(shiftData);
     };
@@ -214,19 +233,31 @@ const EmployeeCard = ({ employee, isOpen, onClose, onActionClick, mutations }) =
             {/* Status */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status *
+                Status
               </label>
-              <select
-                {...register('status', { required: 'Status is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="COMPLETED">Completed</option>
-                <option value="ACTIVE">Active</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              {errors.status && (
-                <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
-              )}
+              <div className="p-3 border rounded-lg bg-gray-50">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-600">Auto Status:</span>
+                  {autoStatus === 'COMPLETED' ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="w-2 h-2 mr-1 bg-blue-400 rounded-full"></span>
+                      COMPLETED
+                    </span>
+                  ) : autoStatus === 'ACTIVE' ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="w-2 h-2 mr-1 bg-green-400 rounded-full"></span>
+                      ACTIVE
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-500">Enter clock times</span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {autoStatus === 'ACTIVE' && 'Shift is active (no clock out time)'}
+                  {autoStatus === 'COMPLETED' && 'Shift is completed (has clock out time)'}
+                  {!autoStatus && 'Status will be determined by clock times'}
+                </p>
+              </div>
             </div>
 
             {/* Notes */}

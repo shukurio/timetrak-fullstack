@@ -18,11 +18,10 @@ const ShiftsTable = ({
 }) => {
   const getStatusBadge = (status) => {
     const statusConfig = {
-      ACTIVE: { color: 'bg-green-100 text-green-800', label: 'Active' },
-      COMPLETED: { color: 'bg-blue-100 text-blue-800', label: 'Completed' },
-      CANCELLED: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
+      ACTIVE: { color: 'bg-green-100 text-green-800', label: 'ACTIVE' },
+      COMPLETED: { color: 'bg-blue-100 text-blue-800', label: 'COMPLETED' }
     };
-    
+
     const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-800', label: status };
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
