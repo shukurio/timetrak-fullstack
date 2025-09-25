@@ -2,8 +2,8 @@
 package com.timetrak.controller.admin;
 
 
-import com.timetrak.dto.response.EmployeeResponseDTO;
-import com.timetrak.dto.request.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeRequestDTO;
 import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;

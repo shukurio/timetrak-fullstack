@@ -1,8 +1,8 @@
 package com.timetrak.service;
 
 import com.timetrak.dto.payment.Period;
-import com.timetrak.dto.response.EmployeeDashboardSummary;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.employee.EmployeeDashboardSummary;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Payment;
 import com.timetrak.entity.Shift;

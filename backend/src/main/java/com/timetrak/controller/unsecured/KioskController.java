@@ -2,8 +2,8 @@ package com.timetrak.controller.unsecured;
 
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.enums.ClockAction;
 import com.timetrak.service.employee.EmployeeService;
 import com.timetrak.service.employeeJob.EmployeeJobQueryService;

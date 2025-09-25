@@ -1,7 +1,7 @@
 package com.timetrak.service.employee;
 
 import com.timetrak.dto.company.AdminRegRequestDTO;
-import com.timetrak.dto.request.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeRequestDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeValidationException;

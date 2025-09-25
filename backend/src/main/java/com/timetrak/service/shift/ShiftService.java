@@ -1,7 +1,7 @@
 package com.timetrak.service.shift;
 
-import com.timetrak.dto.response.ShiftResponseDTO;
-import com.timetrak.dto.response.ShiftSummaryDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftSummaryDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.entity.Shift;
 import com.timetrak.enums.ShiftStatus;

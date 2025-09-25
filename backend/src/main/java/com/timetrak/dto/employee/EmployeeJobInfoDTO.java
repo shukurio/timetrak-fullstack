@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.employee;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

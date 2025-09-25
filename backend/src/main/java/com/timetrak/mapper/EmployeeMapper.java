@@ -1,7 +1,7 @@
 package com.timetrak.mapper;
 
-import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import com.timetrak.entity.Employee;
 import org.mapstruct.*;
 import org.springframework.security.crypto.password.PasswordEncoder;

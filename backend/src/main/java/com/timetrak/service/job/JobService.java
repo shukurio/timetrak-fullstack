@@ -23,4 +23,5 @@ public interface JobService {
 
     List<JobResponseDTO> getJobsByDepartment(Long departmentId, Long companyId);
     Page<JobResponseDTO> getJobsByDepartmentPaged(Long departmentId, Long companyId, Pageable pageable);
+
 }

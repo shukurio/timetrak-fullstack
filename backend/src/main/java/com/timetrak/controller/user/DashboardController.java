@@ -1,6 +1,6 @@
 package com.timetrak.controller.user;
 
-import com.timetrak.dto.response.EmployeeDashboardSummary;
+import com.timetrak.dto.employee.EmployeeDashboardSummary;
 import com.timetrak.service.EmployeeDashboardService;
 import com.timetrak.service.auth.AuthContextService;
 import lombok.RequiredArgsConstructor;

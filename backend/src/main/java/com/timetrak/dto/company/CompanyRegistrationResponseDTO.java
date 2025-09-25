@@ -1,6 +1,6 @@
 package com.timetrak.dto.company;
 
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

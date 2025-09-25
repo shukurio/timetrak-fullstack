@@ -1,7 +1,8 @@
 package com.timetrak.service.department;
 
-import com.timetrak.dto.response.DepartmentResponseDTO;
-import com.timetrak.dto.request.DepartmentRequestDTO;
+import com.timetrak.dto.department.DepartmentInfoDTO;
+import com.timetrak.dto.department.DepartmentResponseDTO;
+import com.timetrak.dto.department.DepartmentRequestDTO;
 import com.timetrak.entity.Department;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,6 @@ public interface DepartmentService {
     boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId);
 
     List<Long> getAllDepartmentIdsForCompany(Long companyId);
+
+    DepartmentInfoDTO getDepartmentInfoById(Long id);
 }

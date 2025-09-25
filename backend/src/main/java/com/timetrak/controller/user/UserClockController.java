@@ -3,7 +3,7 @@ package com.timetrak.controller.user;
 
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;
 import com.timetrak.dto.employeeJob.EmployeeJobResponseDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.enums.ClockAction;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employeeJob.EmployeeJobQueryService;
