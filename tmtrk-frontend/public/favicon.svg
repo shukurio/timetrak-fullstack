@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299e1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c5282;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48bb78;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38a169;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="50" cy="50" r="40" fill="url(#iconGradient)" />
+  <circle cx="50" cy="50" r="30" fill="white" stroke="url(#iconGradient)" stroke-width="3" />
+
+  <g stroke="#2c5282" stroke-width="3" fill="none">
+    <line x1="50" y1="26" x2="50" y2="32" />
+    <line x1="74" y1="50" x2="68" y2="50" />
+    <line x1="50" y1="74" x2="50" y2="68" />
+    <line x1="26" y1="50" x2="32" y2="50" />
+  </g>
+
+  <g stroke="#2c5282" stroke-width="4" stroke-linecap="round">
+    <line x1="50" y1="50" x2="62" y2="38" />
+    <line x1="50" y1="50" x2="50" y2="32" />
+  </g>
+
+  <circle cx="50" cy="50" r="4" fill="#2c5282" />
+
+  <g transform="translate(72, 28)">
+    <circle r="12" fill="url(#accentGradient)" />
+    <path d="M -5 0 L -1 4 L 5 -4" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
