@@ -11,5 +11,7 @@ RUN ls -la /app/dist  # Add this line to see what files are created
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY start-nginx.sh /start-nginx.sh
+RUN chmod +x /start-nginx.sh
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start-nginx.sh"]
