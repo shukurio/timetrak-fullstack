@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -62,7 +62,7 @@ const CompanyInformation = () => {
   });
 
   // Set form values when company data loads
-  useState(() => {
+  useEffect(() => {
     if (company) {
       reset({
         name: company.name || '',
@@ -157,7 +157,15 @@ const CompanyInformation = () => {
             )}
             {!isEditing && (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  if (company) {
+                    reset({
+                      name: company.name || '',
+                      description: company.description || '',
+                    });
+                  }
+                  setIsEditing(true);
+                }}
                 className="btn-outline btn-sm flex items-center"
               >
                 <Edit3 className="h-4 w-4 mr-1" />
@@ -177,17 +185,17 @@ const CompanyInformation = () => {
               Company Name *
             </label>
             {isEditing ? (
-              <>
+              <div>
                 <input
                   type="text"
                   {...register('name')}
-                  className={`input ${errors.name ? 'border-red-500' : ''}`}
+                  className={`w-full py-2 px-3 bg-white border ${errors.name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                   placeholder="Enter company name"
                 />
-                {errors.name && (
+                {errors.name ? (
                   <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                )}
-              </>
+                ) : null}
+              </div>
             ) : (
               <div className="py-2 px-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
                 {company.name}
@@ -202,20 +210,17 @@ const CompanyInformation = () => {
               Description
             </label>
             {isEditing ? (
-              <>
+              <div>
                 <textarea
-                  rows={4}
                   {...register('description')}
-                  className={`input ${errors.description ? 'border-red-500' : ''}`}
+                  className={`w-full py-2 px-3 bg-white border ${errors.description ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none min-h-[100px]`}
                   placeholder="Enter company description (optional)"
+                  style={{ minHeight: '100px' }}
                 />
-                {errors.description && (
+                {errors.description ? (
                   <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-500">
-                  Optional description of your company (up to 500 characters)
-                </p>
-              </>
+                ) : null}
+              </div>
             ) : (
               <div className="py-2 px-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 min-h-[100px]">
                 {company.description || (

@@ -31,10 +31,20 @@ const DepartmentsPage = () => {
     queryFn: () => adminService.getDepartments({ size: 100 }),
   });
 
+  // Extract departments from response
+  const departmentsList = departments?.content || departments || [];
+
   // Fetch selected department details
   const { data: departmentDetail, isLoading: detailLoading } = useQuery({
     queryKey: ['department', selectedDepartment?.id],
     queryFn: () => adminService.getDepartmentById(selectedDepartment.id),
+    enabled: !!selectedDepartment?.id,
+  });
+
+  // Fetch selected department info (employee and job counts)
+  const { data: departmentInfo, isLoading: infoLoading } = useQuery({
+    queryKey: ['department-info', selectedDepartment?.id],
+    queryFn: () => adminService.getDepartmentInfo(selectedDepartment.id),
     enabled: !!selectedDepartment?.id,
   });
 
@@ -210,8 +220,7 @@ const DepartmentsPage = () => {
     }
   }, [dropdownOpen]);
 
-  // Extract departments from paginated response and filter based on search
-  const departmentsList = departments?.content || departments || [];
+  // Filter departments based on search
   
   const filteredDepartments = departmentsList?.filter(dept =>
     dept.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -269,8 +278,7 @@ const DepartmentsPage = () => {
             onClick={() => setShowCreateForm(true)}
             className="btn-primary"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Department
+            + Add Department
           </button>
         </div>
       </div>
@@ -288,16 +296,7 @@ const DepartmentsPage = () => {
                   Description
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employees
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Jobs
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -307,7 +306,7 @@ const DepartmentsPage = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredDepartments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={4} className="px-6 py-12 text-center">
                     <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-gray-500">No departments found</p>
                   </td>
@@ -331,7 +330,7 @@ const DepartmentsPage = () => {
                             {department.name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            ID: {department.id}
+                            {department.description || 'No description'}
                           </div>
                         </div>
                       </div>
@@ -342,62 +341,34 @@ const DepartmentsPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-900">
-                        <Users className="h-4 w-4 mr-1 text-gray-400" />
-                        {department.employeeCount || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-900">
-                        <Briefcase className="h-4 w-4 mr-1 text-gray-400" />
-                        {department.jobCount || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        department.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        (!department.status || department.status === 'ACTIVE') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {department.status || 'ACTIVE'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {department.createdAt ? new Date(department.createdAt).toLocaleDateString() : 'N/A'}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="relative">
+                      <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={(e) => toggleDropdown(e, department.id)}
-                          className="text-gray-400 hover:text-gray-600 p-1 rounded"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditDepartment(department);
+                          }}
+                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
                         >
-                          <MoreVertical className="h-5 w-5" />
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit
                         </button>
-                        
-                        {dropdownOpen === department.id && (
-                          <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200 z-50 min-w-max">
-                            <div className="py-1">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditDepartment(department);
-                                }}
-                                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                              >
-                                <Edit2 className="h-3 w-3 mr-2" />
-                                Edit
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteDepartment(department);
-                                }}
-                                className="flex items-center w-full px-3 py-2 text-sm text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-3 w-3 mr-2" />
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDepartment(department);
+                          }}
+                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -437,6 +408,7 @@ const DepartmentsPage = () => {
         <DepartmentDetailModal
           department={selectedDepartment}
           departmentDetail={departmentDetail}
+          departmentInfo={departmentInfo}
           departmentEmployees={departmentEmployees}
           departmentJobs={departmentJobs}
           activeTab={activeTab}
@@ -448,6 +420,7 @@ const DepartmentsPage = () => {
           }}
           onEditDepartment={handleEditDepartment}
           detailLoading={detailLoading}
+          infoLoading={infoLoading}
           employeesLoading={employeesLoading}
           jobsLoading={jobsLoading}
           showJobForm={showJobForm}
@@ -473,6 +446,7 @@ const DepartmentsPage = () => {
 const DepartmentDetailModal = ({
   department,
   departmentDetail,
+  departmentInfo,
   departmentEmployees,
   departmentJobs,
   activeTab,
@@ -481,6 +455,7 @@ const DepartmentDetailModal = ({
   onClose,
   onEditDepartment,
   detailLoading,
+  infoLoading,
   employeesLoading,
   jobsLoading,
   showJobForm,
@@ -550,10 +525,12 @@ const DepartmentDetailModal = ({
         {/* Tab Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
           {activeTab === 'info' && (
-            <DepartmentInfoTab 
-              department={department} 
+            <DepartmentInfoTab
+              department={department}
               detail={departmentDetail}
+              departmentInfo={departmentInfo}
               isLoading={detailLoading}
+              infoLoading={infoLoading}
               onEditDepartment={onEditDepartment}
             />
           )}
@@ -597,7 +574,7 @@ const DepartmentDetailModal = ({
 };
 
 // Department Info Tab Component
-const DepartmentInfoTab = ({ department, detail, isLoading, onEditDepartment }) => {
+const DepartmentInfoTab = ({ department, detail, departmentInfo, isLoading, infoLoading, onEditDepartment }) => {
   if (isLoading) {
     return <LoadingSpinner text="Loading department details..." />;
   }
@@ -626,8 +603,10 @@ const DepartmentInfoTab = ({ department, detail, isLoading, onEditDepartment }) 
           <div className="flex items-center">
             <Users className="h-8 w-8 text-blue-600" />
             <div className="ml-3">
-              <p className="text-sm font-medium text-blue-600">Employees</p>
-              <p className="text-2xl font-bold text-blue-900">{department.employeeCount || 0}</p>
+              <p className="text-sm font-medium text-blue-600">Active Employees</p>
+              <p className="text-2xl font-bold text-blue-900">
+                {infoLoading ? '-' : (departmentInfo?.employeeCount ?? 0)}
+              </p>
             </div>
           </div>
         </div>
@@ -637,7 +616,9 @@ const DepartmentInfoTab = ({ department, detail, isLoading, onEditDepartment }) 
             <Briefcase className="h-8 w-8 text-green-600" />
             <div className="ml-3">
               <p className="text-sm font-medium text-green-600">Jobs</p>
-              <p className="text-2xl font-bold text-green-900">{department.jobCount || 0}</p>
+              <p className="text-2xl font-bold text-green-900">
+                {infoLoading ? '-' : (departmentInfo?.jobCount ?? 0)}
+              </p>
             </div>
           </div>
         </div>
@@ -648,7 +629,7 @@ const DepartmentInfoTab = ({ department, detail, isLoading, onEditDepartment }) 
             <div className="ml-3">
               <p className="text-sm font-medium text-purple-600">Active</p>
               <p className="text-2xl font-bold text-purple-900">
-                {department.status === 'ACTIVE' ? 'Yes' : 'No'}
+                {(!department.status || department.status === 'ACTIVE') ? 'Yes' : 'No'}
               </p>
             </div>
           </div>
@@ -660,30 +641,23 @@ const DepartmentInfoTab = ({ department, detail, isLoading, onEditDepartment }) 
         <h3 className="text-lg font-medium text-gray-900 mb-4">Department Details</h3>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department ID</label>
-            <p className="text-sm text-gray-900">{department.id}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <p className="text-sm text-gray-900">{department.name}</p>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              department.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              (!department.status || department.status === 'ACTIVE') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
             }`}>
               {department.status || 'ACTIVE'}
             </span>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Created</label>
+
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <p className="text-sm text-gray-900">
-              {department.createdAt ? new Date(department.createdAt).toLocaleDateString() : 'N/A'}
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
-            <p className="text-sm text-gray-900">
-              {department.updatedAt ? new Date(department.updatedAt).toLocaleDateString() : 'N/A'}
+              {department.description || 'No description provided'}
             </p>
           </div>
         </div>
@@ -1074,7 +1048,7 @@ const JobCard = ({ job, employees, onEdit, onAssign, onDelete, onUnassign, isDel
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-medium text-gray-900">{job.jobTitle || job.title}</h3>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              job.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              job.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
             }`}>
               {job.isActive !== false ? 'Active' : 'Inactive'}
             </span>
