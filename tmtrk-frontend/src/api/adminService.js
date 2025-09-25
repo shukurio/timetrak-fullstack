@@ -38,6 +38,11 @@ class AdminService {
     return response.data;
   }
 
+  async getDepartmentInfo(id) {
+    const response = await apiClient.get(`/admin/organization/departments/${id}/info`);
+    return response.data;
+  }
+
   // Employee Management
   async getEmployees(params = {}) {
     const response = await apiClient.get('/admin/employees/all', { params });
