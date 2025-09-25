@@ -139,7 +139,7 @@ public class ShiftServiceImpl implements ShiftService {
                                                                             LocalDateTime startDate
                                                                             ) {
         List<Shift> shifts =
-                shiftRepository.findByStatusAndEmployeeIdAndCompanyIdAndClockInAfter(
+                shiftRepository.findByStatusAndEmployeeIdAndCompanyIdAndClockInAfterAndDeletedAtIsNull(
                 status, employeeId,companyId,startDate);
         return shiftMapper.toDTOList(shifts);
     }
