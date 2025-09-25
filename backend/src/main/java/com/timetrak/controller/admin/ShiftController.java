@@ -1,9 +1,9 @@
 package com.timetrak.controller.admin;
 
 import com.timetrak.dto.clock.AdminClockRequestDTO;
-import com.timetrak.dto.request.ShiftRequestDTO;
-import com.timetrak.dto.response.ClockResponseDTO;
-import com.timetrak.dto.response.ShiftResponseDTO;
+import com.timetrak.dto.shift.ShiftRequestDTO;
+import com.timetrak.dto.clock.ClockResponseDTO;
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.enums.ShiftStatus;
 import com.timetrak.misc.PageableHelper;
 import com.timetrak.service.auth.AuthContextService;

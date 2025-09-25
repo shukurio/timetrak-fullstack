@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.shift;
 
 import com.timetrak.enums.ShiftStatus;
 

@@ -1,5 +1,6 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.clock;
 
+import com.timetrak.dto.shift.ShiftResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

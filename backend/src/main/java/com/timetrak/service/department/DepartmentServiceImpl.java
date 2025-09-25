@@ -1,12 +1,15 @@
 package com.timetrak.service.department;
 
-import com.timetrak.dto.response.DepartmentResponseDTO;
-import com.timetrak.dto.request.DepartmentRequestDTO;
+import com.timetrak.dto.department.DepartmentInfoDTO;
+import com.timetrak.dto.department.DepartmentResponseDTO;
+import com.timetrak.dto.department.DepartmentRequestDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.mapper.DepartmentMapper;
 import com.timetrak.repository.DepartmentRepository;
+import com.timetrak.repository.EmployeeRepository;
+import com.timetrak.repository.JobRepository;
 import com.timetrak.service.company.CompanyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final CompanyService companyService;
     private final DepartmentMapper departmentMapper;
+    private final EmployeeRepository employeeRepository;
+    private final JobRepository jobRepository;
 
     @Override
     public Department getDepartmentById(Long id, Long companyId) {
@@ -92,5 +97,16 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .stream()
                 .map(Department::getId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DepartmentInfoDTO getDepartmentInfoById(Long id) {
+        long employeeCount = employeeRepository.countActiveEmployeesInDepartment(id);
+        long jobCount = jobRepository.countByDepartmentId(id);
+
+        return DepartmentInfoDTO.builder()
+                .employeeCount(employeeCount)
+                .jobCount(jobCount)
+                .build();
     }
 }

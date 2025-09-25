@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.employee;
 
 import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;

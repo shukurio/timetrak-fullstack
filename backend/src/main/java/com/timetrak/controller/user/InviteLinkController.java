@@ -2,7 +2,7 @@ package com.timetrak.controller.user;
 
 import com.timetrak.dto.invite.InviteSignupRequestDTO;
 import com.timetrak.dto.invite.InviteValidationResponseDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import com.timetrak.service.invite.InviteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

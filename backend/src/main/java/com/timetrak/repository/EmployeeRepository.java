@@ -99,7 +99,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Page<Employee> findAllByCompanyIdAndDeletedAtIsNull(Long companyId, Pageable pageable);
 
-    @Query("SELECT e from Employee e where e.company.id = :companyId AND e.status='ACTIVE'")
+    @Query("SELECT e FROM Employee e WHERE e.company.id = :companyId AND e.status='ACTIVE'")
     Page<Employee> findAllActiveByCompanyId(@Param("companyId")Long companyId, Pageable pageable);
+
+    @Query("SELECT COUNT(e) FROM Employee e WHERE e.department.id = :departmentId AND e.status = 'ACTIVE' AND e.deletedAt IS NULL")
+    long countActiveEmployeesInDepartment(@Param("departmentId") Long departmentId);
 
 }

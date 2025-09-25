@@ -1,7 +1,7 @@
 package com.timetrak.mapper;
 
-import com.timetrak.dto.request.DepartmentRequestDTO;
-import com.timetrak.dto.response.DepartmentResponseDTO;
+import com.timetrak.dto.department.DepartmentRequestDTO;
+import com.timetrak.dto.department.DepartmentResponseDTO;
 import com.timetrak.entity.Department;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

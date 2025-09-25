@@ -1,4 +1,4 @@
-package com.timetrak.dto.request;
+package com.timetrak.dto.shift;
 
 import com.timetrak.enums.ShiftStatus;
 import jakarta.validation.constraints.NotNull;

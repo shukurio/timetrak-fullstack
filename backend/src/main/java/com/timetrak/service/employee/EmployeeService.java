@@ -2,8 +2,8 @@ package com.timetrak.service.employee;
 
 
 import com.timetrak.dto.company.AdminRegRequestDTO;
-import com.timetrak.dto.request.EmployeeRequestDTO;
-import com.timetrak.dto.response.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeResponseDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;

@@ -1,4 +1,4 @@
-package com.timetrak.dto.response;
+package com.timetrak.dto.department;
 
 import lombok.*;
 

@@ -1,9 +1,10 @@
 package com.timetrak.controller.admin;
 
 import com.timetrak.dto.company.CompanyUpdateDTO;
-import com.timetrak.dto.request.DepartmentRequestDTO;
+import com.timetrak.dto.department.DepartmentInfoDTO;
+import com.timetrak.dto.department.DepartmentRequestDTO;
 import com.timetrak.dto.company.CompanyResponseDTO;
-import com.timetrak.dto.response.DepartmentResponseDTO;
+import com.timetrak.dto.department.DepartmentResponseDTO;
 import com.timetrak.service.company.CompanyService;
 import com.timetrak.service.department.DepartmentService;
 import com.timetrak.service.auth.AuthContextService;
@@ -95,6 +96,16 @@ public class OrganizationController {
         departmentService.deleteDepartment(id, currentCompanyId());
         return ResponseEntity.ok(Map.of("message", "Department deleted successfully"));
     }
+
+    @Operation(summary = "Get department details", description = "Get current department's job and employee count")
+    @GetMapping("/departments/{departmentId}/info")
+    public ResponseEntity<DepartmentInfoDTO> getDepartmentInfo(@PathVariable Long departmentId) {
+        DepartmentInfoDTO department = departmentService.getDepartmentInfoById(departmentId);
+
+        return ResponseEntity.ok(department);
+    }
+
+
 
 
     private Long currentCompanyId() {
