@@ -121,8 +121,8 @@ const CompanyLocation = () => {
     setIsGettingLocation(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setValue('latitude', position.coords.latitude);
-        setValue('longitude', position.coords.longitude);
+        setValue('latitude', position.coords.latitude, { shouldDirty: true, shouldValidate: true });
+        setValue('longitude', position.coords.longitude, { shouldDirty: true, shouldValidate: true });
         toast.success('Current location retrieved successfully');
         setIsGettingLocation(false);
       },
@@ -277,7 +277,7 @@ const CompanyLocation = () => {
                     type="number"
                     step="any"
                     {...register('latitude', { valueAsNumber: true })}
-                    className={`input ${errors.latitude ? 'border-red-500' : ''}`}
+                    className={`w-full py-2 px-3 bg-white border ${errors.latitude ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                     placeholder="e.g., 40.7128"
                   />
                   {errors.latitude && (
@@ -301,7 +301,7 @@ const CompanyLocation = () => {
                     type="number"
                     step="any"
                     {...register('longitude', { valueAsNumber: true })}
-                    className={`input ${errors.longitude ? 'border-red-500' : ''}`}
+                    className={`w-full py-2 px-3 bg-white border ${errors.longitude ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                     placeholder="e.g., -74.0060"
                   />
                   {errors.longitude && (
@@ -329,7 +329,7 @@ const CompanyLocation = () => {
                   max="10000"
                   step="50"
                   {...register('allowedRadius', { valueAsNumber: true })}
-                  className={`input ${errors.allowedRadius ? 'border-red-500' : ''}`}
+                  className={`w-full py-2 px-3 bg-white border ${errors.allowedRadius ? 'border-red-500' : 'border-gray-200'} rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
                   placeholder="e.g., 100"
                 />
                 {errors.allowedRadius && (

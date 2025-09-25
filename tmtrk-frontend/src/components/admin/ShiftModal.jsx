@@ -21,8 +21,7 @@ const shiftSchema = yup.object({
       if (!value || !clockIn) return true;
       return new Date(value) > new Date(clockIn);
     }),
-  notes: yup.string().max(1000, 'Notes must be less than 1000 characters'),
-  status: yup.string().required('Status is required')
+  notes: yup.string().max(1000, 'Notes must be less than 1000 characters')
 });
 
 const ShiftModal = ({
@@ -47,6 +46,22 @@ const ShiftModal = ({
   } = useForm({
     resolver: yupResolver(shiftSchema)
   });
+
+  // Watch clockIn and clockOut values to auto-determine status
+  const watchClockIn = watch('clockIn');
+  const watchClockOut = watch('clockOut');
+
+  // Auto-determine status based on clock times
+  const getAutoStatus = () => {
+    if (watchClockIn && watchClockOut) {
+      return 'COMPLETED';
+    } else if (watchClockIn && !watchClockOut) {
+      return 'ACTIVE';
+    }
+    return '';
+  };
+
+  const autoStatus = getAutoStatus();
 
   // Fetch departments for create mode
   const { data: departmentsData } = useQuery({
@@ -88,7 +103,6 @@ const ShiftModal = ({
           setValue('clockOut', format(parseISO(editingShift.clockOut), "yyyy-MM-dd'T'HH:mm"));
         }
         setValue('notes', editingShift.notes || '');
-        setValue('status', editingShift.status);
       }, 10);
     }
   }, [editingShift, isOpen, setValue]);
@@ -124,11 +138,14 @@ const ShiftModal = ({
   }, [isOpen]);
 
   const handleFormSubmit = (data) => {
+    // Auto-determine status based on clock times
+    const status = data.clockOut ? 'COMPLETED' : 'ACTIVE';
+
     const shiftData = {
       employeeJobId: Number(data.employeeJobId),
       clockIn: data.clockIn,
-      clockOut: data.clockOut || null,
-      status: data.status,
+      clockOut: status === 'ACTIVE' ? null : (data.clockOut || null),
+      status: status,
       ...(data.notes && data.notes.trim() && { notes: data.notes.trim() })
     };
 
@@ -269,17 +286,31 @@ const ShiftModal = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status *
+              Status
             </label>
-            <select {...register('status')} className="input-field">
-              <option value="">Select Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-            {errors.status && (
-              <p className="text-sm text-red-600 mt-1">{errors.status.message}</p>
-            )}
+            <div className="p-3 border rounded-lg bg-gray-50">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-600">Auto Status:</span>
+                {autoStatus === 'COMPLETED' ? (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="w-2 h-2 mr-1 bg-blue-400 rounded-full"></span>
+                    COMPLETED
+                  </span>
+                ) : autoStatus === 'ACTIVE' ? (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="w-2 h-2 mr-1 bg-green-400 rounded-full"></span>
+                    ACTIVE
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-500">Enter clock times</span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {autoStatus === 'ACTIVE' && 'Shift is active (no clock out time)'}
+                {autoStatus === 'COMPLETED' && 'Shift is completed (has clock out time)'}
+                {!autoStatus && 'Status will be determined by clock times'}
+              </p>
+            </div>
           </div>
 
           <div>
