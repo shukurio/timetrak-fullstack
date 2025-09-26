@@ -7,10 +7,6 @@ import com.timetrak.service.invite.InviteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,26 +52,8 @@ public class InviteController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<Page<InviteResponseDTO>> getInvites(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
-        
-        Long currentCompanyId = authContextService.getCurrentCompanyId();
-        
-        Sort.Direction direction = sortDir.equalsIgnoreCase("desc") 
-            ? Sort.Direction.DESC 
-            : Sort.Direction.ASC;
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        Page<InviteResponseDTO> response = inviteService.getInvitesByCompany(currentCompanyId, pageable);
-        
-        return ResponseEntity.ok(response);
-    }
 
-    @GetMapping("/active")
+    @GetMapping()
     public ResponseEntity<List<InviteResponseDTO>> getActiveInvites() {
         Long currentCompanyId = authContextService.getCurrentCompanyId();
         List<InviteResponseDTO> response = inviteService.getActiveInvitesByCompany(currentCompanyId);
@@ -91,4 +69,5 @@ public class InviteController {
         
         return ResponseEntity.ok(response);
     }
+
 }

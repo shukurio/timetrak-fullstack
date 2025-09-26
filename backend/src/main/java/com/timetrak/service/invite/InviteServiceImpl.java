@@ -17,9 +17,6 @@ import com.timetrak.service.employee.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,25 +163,12 @@ public class InviteServiceImpl implements InviteService {
         return mapToResponseDTO(invite);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<InviteResponseDTO> getInvitesByCompany(Long companyId, Pageable pageable) {
-        Page<EmployeeInvite> invites = inviteRepository.findAll(pageable);
-        List<InviteResponseDTO> responseDTOs = invites.getContent().stream()
-                .filter(invite -> invite.getCompanyId().equals(companyId))
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(responseDTOs, pageable, responseDTOs.size());
-    }
 
     @Override
     @Transactional(readOnly = true)
     public List<InviteResponseDTO> getActiveInvitesByCompany(Long companyId) {
         List<EmployeeInvite> invites = inviteRepository.findByCompanyIdAndIsActiveTrue(companyId);
-        return invites.stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        return invites.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
     }
 
     @Override
