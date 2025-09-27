@@ -425,7 +425,7 @@ const KioskPage = () => {
                     >
                       <div className="font-semibold text-white">{job.jobTitle}</div>
                       <div className="text-sm text-slate-400">
-                        ${job.hourlyWage}/hour • {job.departmentName}
+                        ${job.hourlyWage}/hour
                       </div>
                     </button>
                   ))}

@@ -41,10 +41,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Enable CORS
                 .authorizeHttpRequests(auth -> auth
                         // Public auth routes
-                        .requestMatchers("/api/auth/login",
-                                "/api/auth/refresh",
-                                "/api/auth/register",
-                                "/api/companies/register").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/user/invites/**").permitAll()
 
                         // Kiosk routes (for employee self-service clock in/out)

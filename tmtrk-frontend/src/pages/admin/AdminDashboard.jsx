@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Briefcase, Clock, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, Briefcase, Clock, CreditCard, TrendingUp, AlertCircle, BarChart3 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import adminService from '../../api/adminService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -85,141 +85,137 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <div className="text-sm text-gray-600">
-          {format(new Date(), 'EEEE, MMMM d, yyyy')}
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
+          </div>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsCards.map((card, index) => (
-          <div key={index} className="card">
-            <div className="flex items-center">
-              <div className={`${card.color} p-3 rounded-lg`}>
-                <card.icon className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{card.title}</p>
-                <p className="text-2xl font-semibold text-gray-900">{card.value}</p>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className={`text-base font-semibold ${
-                card.changeType === 'positive' ? 'text-green-600' :
-                card.changeType === 'negative' ? 'text-red-600' :
-                card.changeType === 'warning' ? 'text-yellow-600' :
-                'text-gray-500'
-              }`}>
-                {card.change}
-              </span>
+        {/* Dashboard Header */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="text-xl font-bold text-gray-900">Overview</h2>
+            <div className="text-base font-medium text-gray-700 sm:text-sm sm:text-gray-600">
+              {format(new Date(), 'EEEE, MMMM d, yyyy')}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Shifts */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Shifts</h2>
-            <Clock className="h-5 w-5 text-gray-400" />
-          </div>
-          
-          {dashboardLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <div className="space-y-3">
-              {dashboardData?.recentShifts?.map((shift) => (
-                <div key={shift.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                  <div>
-                    <p className="font-medium text-gray-900">{shift.fullName}</p>
-                    <p className="text-sm text-gray-600">{shift.jobTitle}</p>
+        {/* Stats Cards */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {statsCards.map((card, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg shadow-sm border p-4">
+                <div className="flex items-center">
+                  <div className={`${card.color} p-3 rounded-lg`}>
+                    <card.icon className="h-6 w-6 text-white" />
                   </div>
-                  <div className="text-right">
-                    {shift.status === 'ACTIVE' ? (
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                        <p className="text-sm font-medium text-green-600">Active</p>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{card.title}</p>
+                    <p className="text-2xl font-semibold text-gray-900">{card.value}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className={`text-base font-semibold ${
+                    card.changeType === 'positive' ? 'text-green-600' :
+                    card.changeType === 'negative' ? 'text-red-600' :
+                    card.changeType === 'warning' ? 'text-yellow-600' :
+                    'text-gray-500'
+                  }`}>
+                    {card.change}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Shifts */}
+            <div className="bg-gray-50 rounded-lg border p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Shifts</h2>
+                <Clock className="h-5 w-5 text-gray-400" />
+              </div>
+
+              {dashboardLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <div className="space-y-3">
+                  {dashboardData?.recentShifts?.map((shift) => (
+                    <div key={shift.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                      <div>
+                        <p className="font-medium text-gray-900">{shift.fullName}</p>
+                        <p className="text-sm text-gray-600">{shift.jobTitle}</p>
                       </div>
-                    ) : (
-                      <p className="text-sm font-medium text-gray-900">
-                        {shift.hours?.toFixed(1)} hrs
-                      </p>
-                    )}
-                    <p className="text-sm text-gray-600">
-                      {shift.clockIn ? format(new Date(shift.clockIn), 'MMM d') : '-'}
-                    </p>
-                  </div>
+                      <div className="text-right">
+                        {shift.status === 'ACTIVE' ? (
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                            <p className="text-sm font-medium text-green-600">Active</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm font-medium text-gray-900">
+                            {shift.hours?.toFixed(1)} hrs
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-600">
+                          {shift.clockIn ? format(new Date(shift.clockIn), 'MMM d') : '-'}
+                        </p>
+                      </div>
+                    </div>
+                  )) || (
+                    <p className="text-gray-500 text-center py-4">No recent shifts</p>
+                  )}
                 </div>
-              )) || (
-                <p className="text-gray-500 text-center py-4">No recent shifts</p>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Recent Payments */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
-            <CreditCard className="h-5 w-5 text-gray-400" />
+            {/* Recent Payments */}
+            <div className="bg-gray-50 rounded-lg border p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
+                <CreditCard className="h-5 w-5 text-gray-400" />
+              </div>
+
+              {dashboardLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <div className="space-y-3">
+                  {dashboardData?.recentPayments?.map((payment) => (
+                    <div key={payment.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                      <div>
+                        <p className="font-medium text-gray-900">{payment.employeeName}</p>
+                        <p className="text-sm text-gray-600">{payment.formattedPeriod}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          ${payment.totalEarnings?.toFixed(2)}
+                        </p>
+                        <span className={`text-xs px-2 py-1 rounded-full uppercase font-medium ${
+                          payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                          payment.status === 'ISSUED' ? 'bg-blue-100 text-blue-800' :
+                          payment.status === 'CALCULATED' ? 'bg-yellow-100 text-yellow-800' :
+                          payment.status === 'VOIDED' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {payment.status}
+                        </span>
+                      </div>
+                    </div>
+                  )) || (
+                    <p className="text-gray-500 text-center py-4">No recent payments</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          
-          {dashboardLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <div className="space-y-3">
-              {dashboardData?.recentPayments?.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                  <div>
-                    <p className="font-medium text-gray-900">{payment.employeeName}</p>
-                    <p className="text-sm text-gray-600">{payment.formattedPeriod}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      ${payment.totalEarnings?.toFixed(2)}
-                    </p>
-                    <span className={`text-xs px-2 py-1 rounded-full uppercase font-medium ${
-                      payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                      payment.status === 'ISSUED' ? 'bg-blue-100 text-blue-800' :
-                      payment.status === 'CALCULATED' ? 'bg-yellow-100 text-yellow-800' :
-                      payment.status === 'VOIDED' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {payment.status}
-                    </span>
-                  </div>
-                </div>
-              )) || (
-                <p className="text-gray-500 text-center py-4">No recent payments</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors">
-            <Users className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-700">Add Employee</p>
-          </button>
-          
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors">
-            <Briefcase className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-700">Create Job</p>
-          </button>
-          
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors">
-            <CreditCard className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-700">Process Payments</p>
-          </button>
         </div>
       </div>
     </div>

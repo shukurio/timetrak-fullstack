@@ -190,206 +190,216 @@ const MultiUserInviteManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Multi-User Invite Management</h1>
-          <p className="text-gray-600 mt-1">Create and manage batch employee invitation links</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refreshData}
-            className="flex items-center gap-2 px-3 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={20} />
-            Create Multi-User Invite
-          </button>
-        </div>
-      </div>
-
-      {/* Quick Stats Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Invites</p>
-              <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-            </div>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <UserCheck className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Registrations</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.totalRegistrations}</p>
-            </div>
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Expiring Soon</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.expiringSoon}</p>
-            </div>
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="h-6 w-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Full Invites</p>
-              <p className="text-2xl font-bold text-purple-600">{stats.full}</p>
-            </div>
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search invites by code, description, or department..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-gray-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="full">Full</option>
-              <option value="expired">Expired</option>
-            </select>
+            <Users className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Multi-User Invite Management</h1>
           </div>
         </div>
-      </div>
 
-      {/* Invites Cards */}
-      {filteredInvites.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg mb-2">
-            {searchQuery || statusFilter !== 'all'
-              ? 'No invites match your filters'
-              : 'No invites created yet'
-            }
-          </p>
-          {!searchQuery && statusFilter === 'all' && (
-            <p className="text-gray-400 text-sm">Create your first multi-user invite to get started</p>
+        {/* Action Buttons */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={refreshData}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus size={20} />
+              Create Multi-User Invite
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Stats Dashboard */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gray-50 rounded-lg shadow-sm p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Active Invites</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                </div>
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <UserCheck className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg shadow-sm p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Registrations</p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.totalRegistrations}</p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg shadow-sm p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Expiring Soon</p>
+                  <p className="text-2xl font-bold text-yellow-600">{stats.expiringSoon}</p>
+                </div>
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <Clock className="h-6 w-6 text-yellow-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg shadow-sm p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Full Invites</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.full}</p>
+                </div>
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search invites by code, description, or department..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-gray-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="full">Full</option>
+                <option value="expired">Expired</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Invites Cards */}
+        <div className="p-6">
+          {filteredInvites.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchQuery || statusFilter !== 'all'
+                  ? 'No invites match your filters'
+                  : 'No invites created yet'
+                }
+              </h3>
+              {!searchQuery && statusFilter === 'all' && (
+                <p className="text-gray-400 text-sm">Create your first multi-user invite to get started</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredInvites.map((invite) => (
+                <div key={invite.id} className="bg-gray-50 rounded-lg shadow-sm border hover:shadow-md transition-shadow p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-medium text-gray-900 truncate">
+                        {invite.description || 'Multi-user invite'}
+                      </h3>
+                      <p className="text-sm text-gray-500 font-mono mt-1">
+                        Code: {invite.inviteCode}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Created {formatDistanceToNow(new Date(invite.createdAt))} ago
+                      </p>
+                    </div>
+                    {getStatusBadge(invite)}
+                  </div>
+
+                  {/* Department */}
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-gray-500">Department:</span>
+                    <p className="text-sm text-gray-900">{invite.departmentName || 'Any Department'}</p>
+                  </div>
+
+                  {/* Usage Progress */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-500">Usage Progress</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {invite.currentUses || 0}/{invite.maxUses}
+                      </span>
+                    </div>
+                    {getProgressBar(invite)}
+                  </div>
+
+                  {/* Expiry Info */}
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-gray-500">Expires:</span>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Calendar size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-900">
+                        {format(new Date(invite.expiresAt), 'MMM d, yyyy')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {formatDistanceToNow(new Date(invite.expiresAt))} remaining
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <InviteQuickShare
+                      invite={invite}
+                      companyName={companyData?.name}
+                    />
+
+                    <button
+                      onClick={() => handleShare(invite)}
+                      className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Share invite"
+                    >
+                      <Eye size={16} />
+                    </button>
+
+                    {inviteService.getInviteStatus(invite) === 'active' && (
+                      <button
+                        onClick={() => handleDeactivate(invite.inviteCode)}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                        title="Deactivate invite"
+                      >
+                        <Ban size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredInvites.map((invite) => (
-            <div key={invite.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow p-6">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-medium text-gray-900 truncate">
-                    {invite.description || 'Multi-user invite'}
-                  </h3>
-                  <p className="text-sm text-gray-500 font-mono mt-1">
-                    Code: {invite.inviteCode}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Created {formatDistanceToNow(new Date(invite.createdAt))} ago
-                  </p>
-                </div>
-                {getStatusBadge(invite)}
-              </div>
-
-              {/* Department */}
-              <div className="mb-4">
-                <span className="text-sm font-medium text-gray-500">Department:</span>
-                <p className="text-sm text-gray-900">{invite.departmentName || 'Any Department'}</p>
-              </div>
-
-              {/* Usage Progress */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-500">Usage Progress</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {invite.currentUses || 0}/{invite.maxUses}
-                  </span>
-                </div>
-                {getProgressBar(invite)}
-              </div>
-
-              {/* Expiry Info */}
-              <div className="mb-4">
-                <span className="text-sm font-medium text-gray-500">Expires:</span>
-                <div className="flex items-center gap-1 mt-1">
-                  <Calendar size={14} className="text-gray-400" />
-                  <span className="text-sm text-gray-900">
-                    {format(new Date(invite.expiresAt), 'MMM d, yyyy')}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(invite.expiresAt))} remaining
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-100">
-                <InviteQuickShare
-                  invite={invite}
-                  companyName={companyData?.name}
-                />
-
-                <button
-                  onClick={() => handleShare(invite)}
-                  className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-                  title="Share invite"
-                >
-                  <Eye size={16} />
-                </button>
-
-                {inviteService.getInviteStatus(invite) === 'active' && (
-                  <button
-                    onClick={() => handleDeactivate(invite.inviteCode)}
-                    className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
-                    title="Deactivate invite"
-                  >
-                    <Ban size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
 
       {/* Create Invite Modal */}
       {showCreateForm && (
