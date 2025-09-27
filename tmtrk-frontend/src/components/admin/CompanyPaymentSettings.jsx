@@ -264,17 +264,17 @@ const CompanyPaymentSettings = () => {
     <form onSubmit={handleSubmit(handleSave)} className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Settings className="h-6 w-6 text-blue-600" />
+              <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Payment Settings</h2>
-                <p className="text-sm text-gray-600">Configure company payroll calculation settings</p>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Payment Settings</h2>
+                <p className="text-xs sm:text-sm text-gray-600">Configure company payroll calculation settings</p>
               </div>
             </div>
             {paymentSettings && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
                 <CheckCircle className="h-4 w-4" />
                 <span>Configured</span>
               </div>
@@ -282,7 +282,7 @@ const CompanyPaymentSettings = () => {
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {/* Pay Frequency & First Pay Period */}
           <div className="grid md:grid-cols-2 gap-6">
             <div>

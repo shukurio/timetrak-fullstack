@@ -183,7 +183,7 @@ const MyShiftsPage = () => {
             </div>
             <div className="text-right">
               <p className="text-green-800 font-semibold">
-                {formatDuration(activeShift.hours)} worked
+                {formatDuration(activeShift.hours)}
               </p>
               <p className="text-green-600 text-sm">
                 {formatCurrency(activeShift.hourlyWage)}/hr
@@ -238,7 +238,54 @@ const MyShiftsPage = () => {
           </div>
         ) : filteredShifts.length > 0 ? (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile Card View */}
+            <div className="sm:hidden space-y-4">
+              {filteredShifts.map((shift) => (
+                <div key={shift.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{shift.jobTitle}</h3>
+                      {shift.notes && (
+                        <p className="text-sm text-gray-500 mt-1">{shift.notes}</p>
+                      )}
+                    </div>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(shift.status)}`}>
+                      {shift.status.toLowerCase()}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date & Time:</span>
+                      <div className="text-right">
+                        <p className="text-gray-900">{formatDateTime(shift.clockIn)}</p>
+                        {shift.clockOut && (
+                          <p className="text-gray-500">to {formatDateTime(shift.clockOut)}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Duration:</span>
+                      <span className="text-gray-900">{formatDuration(shift.hours)}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Rate:</span>
+                      <span className="text-gray-900">{formatCurrency(shift.hourlyWage)}/hr</span>
+                    </div>
+
+                    <div className="flex justify-between pt-2 border-t border-gray-100">
+                      <span className="font-medium text-gray-700">Earnings:</span>
+                      <span className="font-semibold text-green-600">{formatCurrency(shift.shiftEarnings)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">

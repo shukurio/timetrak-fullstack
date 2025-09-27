@@ -68,7 +68,7 @@ describe('KioskPage', () => {
     it('should render kiosk page with time display', () => {
       render(<KioskPage />)
 
-      expect(screen.getByText('TimeTrack Kiosk')).toBeInTheDocument()
+      expect(screen.getByText('TimeTrak Kiosk')).toBeInTheDocument()
       expect(screen.getByText('12:00:00')).toBeInTheDocument()
       expect(screen.getByText('Sunday, January 1, 2023')).toBeInTheDocument()
       expect(screen.getByLabelText('Enter Username')).toBeInTheDocument()

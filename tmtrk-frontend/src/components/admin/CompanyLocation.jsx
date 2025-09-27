@@ -205,13 +205,13 @@ const CompanyLocation = () => {
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <MapPin className="h-6 w-6 text-blue-600" />
+            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Company Location</h2>
-              <p className="text-sm text-gray-600">Manage location settings for employee check-in validation</p>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Company Location</h2>
+              <p className="text-xs sm:text-sm text-gray-600">Manage location settings for employee check-in validation</p>
             </div>
           </div>
           {!isEditing && (
@@ -227,7 +227,7 @@ const CompanyLocation = () => {
       </div>
 
       {/* Content */}
-      <form onSubmit={handleSubmit(handleSave)} className="p-6">
+      <form onSubmit={handleSubmit(handleSave)} className="p-4 sm:p-6">
         <div className="space-y-6">
           {/* Location Info Box */}
           {isEditing && (
@@ -250,7 +250,7 @@ const CompanyLocation = () => {
                   >
                     {isGettingLocation ? (
                       <>
-                        <LoadingSpinner size="sm" text="" />
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
                         Getting Location...
                       </>
                     ) : (

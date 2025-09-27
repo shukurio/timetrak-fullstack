@@ -885,23 +885,23 @@ const EmployeeCard = ({ employee, isOpen, onClose, onActionClick, mutations }) =
             </div>
 
             {/* Tabs */}
-            <div className="border-b">
-              <nav className="flex space-x-8 px-6">
+            <div className="border-b overflow-x-auto">
+              <nav className="flex space-x-4 sm:space-x-8 px-6 min-w-max">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
-                  
+
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      className={`flex items-center py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                         isActive
                           ? 'border-primary-500 text-primary-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <Icon className="h-5 w-5 mr-2" />
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                       {tab.label}
                     </button>
                   );

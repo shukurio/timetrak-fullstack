@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { 
-  Briefcase, 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit3, 
-  Trash2, 
-  Users, 
+import {
+  Briefcase,
+  Plus,
+  Search,
+  Filter,
+  Edit3,
+  Trash2,
+  Users,
   DollarSign,
   Building2,
-  MoreVertical,
   X,
   Save
 } from 'lucide-react';
@@ -181,12 +180,6 @@ const JobsPage = () => {
           </div>
         </div>
         
-        <div className="relative">
-          <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-            <MoreVertical className="h-4 w-4" />
-          </button>
-          {/* Dropdown menu would go here */}
-        </div>
       </div>
 
       <div className="space-y-3">

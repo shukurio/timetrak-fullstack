@@ -27,7 +27,7 @@ const InviteManagement = () => {
   // Fetch invites
   const { data: invitesData, isLoading, error } = useQuery({
     queryKey: ['invites'],
-    queryFn: () => inviteService.getInvites(),
+    queryFn: () => inviteService.getActiveInvites(),
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 

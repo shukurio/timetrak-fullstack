@@ -1,16 +1,16 @@
 import useAuthStore from '../../store/authStore';
 import ProfileComponent from '../../components/common/ProfileComponent';
 
-const ProfilePage = () => {
+const AdminProfilePage = () => {
   const { user, updateUser } = useAuthStore();
 
   return (
     <ProfileComponent
       user={user}
       onUserUpdate={updateUser}
-      isAdmin={false}
+      isAdmin={true}
     />
   );
 };
 
-export default ProfilePage;
+export default AdminProfilePage;

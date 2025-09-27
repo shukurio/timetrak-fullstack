@@ -3,10 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Eye, EyeOff, Clock } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import authService from '../../api/authService';
 import useAuthStore from '../../store/authStore';
+import TimeTrakIcon from '../../components/common/TimeTrakIcon';
+import { normalizeUsername } from '../../utils/stringUtils';
 
 const schema = yup.object({
   username: yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
@@ -33,7 +35,13 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const response = await authService.login(data);
+      // Normalize username before sending to backend
+      const loginData = {
+        ...data,
+        username: normalizeUsername(data.username)
+      };
+
+      const response = await authService.login(loginData);
       
       login(response, response.token, response.expiresIn);
       
@@ -67,11 +75,11 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
-            <Clock className="h-8 w-8 text-primary-600" />
+          <div className="mx-auto flex items-center justify-center">
+            <TimeTrakIcon width={80} height={80} />
           </div>
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            Sign in to TimeTrack
+            TimeTrak
           </h2>
         </div>
         
@@ -152,6 +160,28 @@ const LoginPage = () => {
             </Link>
           </div>
         </form>
+
+        {/* Demo Credentials */}
+        <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="text-center">
+            <p className="text-sm font-semibold text-blue-900 mb-2">
+              Demo Credentials
+            </p>
+            <div className="space-y-2 text-xs text-blue-700">
+              <div className="flex justify-between items-center bg-white rounded px-3 py-2">
+                <span className="font-medium">Admin:</span>
+                <span className="font-mono">testAdmin / Password@123</span>
+              </div>
+              <div className="flex justify-between items-center bg-white rounded px-3 py-2">
+                <span className="font-medium">User:</span>
+                <span className="font-mono">testUser / Password@123</span>
+              </div>
+            </div>
+            <p className="text-xs text-blue-600 mt-2 italic">
+              Use these credentials to explore the application
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

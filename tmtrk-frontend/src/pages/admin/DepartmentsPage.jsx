@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
-  Building2, Users, Briefcase, BarChart3, Plus, Edit2, Trash2, 
-  MoreVertical, Search, DollarSign, User,
-  XCircle, AlertCircle, UserPlus, UserMinus, Loader2, ChevronDown
+  Building2, Users, Briefcase, BarChart3, Plus, Edit2, Trash2, Search, DollarSign, User,
+  XCircle, AlertCircle, UserPlus, UserMinus, Loader2
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -203,10 +202,6 @@ const DepartmentsPage = () => {
     setShowDetailModal(true);
   };
 
-  const toggleDropdown = (e, deptId) => {
-    e.stopPropagation();
-    setDropdownOpen(dropdownOpen === deptId ? null : deptId);
-  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -261,123 +256,175 @@ const DepartmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Departments</h1>
-        <div className="flex space-x-3">
-          <div className="relative">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Departments</h1>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search departments..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <button 
+          <button
             onClick={() => setShowCreateForm(true)}
-            className="btn-primary"
+            className="btn-primary whitespace-nowrap"
           >
             + Add Department
           </button>
         </div>
       </div>
 
-      {/* Departments Table */}
-      <div className="card p-0">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Department
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredDepartments.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center">
-                    <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-500">No departments found</p>
-                  </td>
-                </tr>
-              ) : (
-                filteredDepartments.map((department) => (
-                  <tr 
-                    key={department.id} 
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => handleDepartmentClick(department)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-blue-600" />
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {department.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {department.description || 'No description'}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {department.description || 'No description'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        (!department.status || department.status === 'ACTIVE') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {department.status || 'ACTIVE'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditDepartment(department);
-                          }}
-                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
-                        >
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteDepartment(department);
-                          }}
-                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Departments - Responsive Cards for Mobile, Table for Desktop */}
+      {filteredDepartments.length === 0 ? (
+        <div className="card p-12 text-center">
+          <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-500">No departments found</p>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Mobile Cards View */}
+          <div className="block sm:hidden space-y-4">
+            {filteredDepartments.map((department) => (
+              <div
+                key={department.id}
+                className="card p-4 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleDepartmentClick(department)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {department.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {department.description || 'No description'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    (!department.status || department.status === 'ACTIVE') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {department.status || 'ACTIVE'}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditDepartment(department);
+                    }}
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                  >
+                    <Edit2 className="h-4 w-4 mr-1" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDepartment(department);
+                    }}
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block card p-0">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Department
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredDepartments.map((department) => (
+                    <tr
+                      key={department.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleDepartmentClick(department)}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <Building2 className="h-5 w-5 text-blue-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {department.name}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 max-w-xs truncate">
+                          {department.description || 'No description'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          (!department.status || department.status === 'ACTIVE') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {department.status || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditDepartment(department);
+                            }}
+                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                          >
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteDepartment(department);
+                            }}
+                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Create Department Modal */}
       {showCreateForm && (
@@ -574,7 +621,7 @@ const DepartmentDetailModal = ({
 };
 
 // Department Info Tab Component
-const DepartmentInfoTab = ({ department, detail, departmentInfo, isLoading, infoLoading, onEditDepartment }) => {
+const DepartmentInfoTab = ({ department, departmentInfo, isLoading, infoLoading, onEditDepartment }) => {
   if (isLoading) {
     return <LoadingSpinner text="Loading department details..." />;
   }
@@ -679,21 +726,13 @@ const DepartmentEmployeesTab = ({ department, employees, isLoading }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Employees in {department.name}</h2>
-        <button className="btn-primary">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Assign Employee
-        </button>
       </div>
 
       {!employeesList?.length ? (
         <div className="text-center py-12">
           <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Employees</h3>
-          <p className="text-gray-600 mb-4">This department doesn't have any employees assigned yet.</p>
-          <button className="btn-primary">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Assign First Employee
-          </button>
+          <p className="text-gray-600">This department doesn't have any employees assigned yet.</p>
         </div>
       ) : (
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
@@ -1029,17 +1068,7 @@ const JobFormModal = ({ department, job, isOpen, onClose, onSubmit, isLoading })
 };
 
 // Job Card Component
-const JobCard = ({ job, employees, onEdit, onAssign, onDelete, onUnassign, isDeleting, isUnassigning }) => {
-  const [showAssignedEmployees, setShowAssignedEmployees] = useState(false);
-  
-  // Get employees assigned to this job (this would normally come from the API)
-  const assignedEmployees = employees?.filter(emp => emp.jobs?.some(j => j.id === job.id)) || [];
-  
-  const handleUnassignEmployee = (employeeId) => {
-    if (window.confirm('Are you sure you want to unassign this job from the employee?')) {
-      onUnassign([employeeId]);
-    }
-  };
+const JobCard = ({ job, onEdit, onAssign }) => {
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -1059,43 +1088,6 @@ const JobCard = ({ job, employees, onEdit, onAssign, onDelete, onUnassign, isDel
             ${job.hourlyWage || job.payRate || job.hourlyRate || job.salary || 'TBD'}/hr
           </div>
 
-          {/* Assigned Employees Section */}
-          <div className="mb-3">
-            <button
-              onClick={() => setShowAssignedEmployees(!showAssignedEmployees)}
-              className="flex items-center text-sm text-gray-700 hover:text-gray-900"
-            >
-              <Users className="h-4 w-4 mr-1" />
-              {assignedEmployees.length} assigned employee{assignedEmployees.length !== 1 ? 's' : ''}
-              <ChevronDown className={`h-3 w-3 ml-1 transition-transform ${showAssignedEmployees ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {showAssignedEmployees && assignedEmployees.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {assignedEmployees.map((employee) => (
-                  <div key={employee.id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-6 w-6 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-medium text-xs">
-                          {employee.firstName?.charAt(0)}{employee.lastName?.charAt(0)}
-                        </span>
-                      </div>
-                      <span className="ml-2 text-sm text-gray-900">
-                        {employee.firstName} {employee.lastName}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleUnassignEmployee(employee.id)}
-                      disabled={isUnassigning}
-                      className="text-red-600 hover:text-red-800 text-xs"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
         
         <div className="flex items-center space-x-2 ml-4">

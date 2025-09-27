@@ -7,13 +7,6 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 const EmployeeDashboard = () => {
   const { user, isAuthenticated, getAccessToken } = useAuthStore();
 
-  // Debug logs - remove these after fixing
-  console.log('Auth Debug:', {
-    isAuthenticated,
-    user: user?.firstName,
-    hasToken: !!getAccessToken(),
-    token: getAccessToken()?.substring(0, 20) + '...' // Show first 20 chars only
-  });
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

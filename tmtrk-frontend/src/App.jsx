@@ -29,9 +29,9 @@ import JobsPage from './pages/admin/JobsPage';
 import ShiftsPage from './pages/admin/ShiftsPage';
 import PaymentsPage from './pages/admin/PaymentsPage';
 import ReportsPage from './pages/admin/ReportsPage';
-import InvitesPage from './pages/admin/InvitesPage';
 import InviteManagement from './pages/admin/InviteManagement';
 import MultiUserInviteManagement from './pages/admin/MultiUserInviteManagement';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
 
 // Employee Pages
 import EmployeeDashboard from './pages/employee/EmployeeDashboard';
@@ -176,6 +176,7 @@ function App() {
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="invites" element={<MultiUserInviteManagement />} />
+                <Route path="profile" element={<AdminProfilePage />} />
               </Route>
 
               {/* Manager Routes (same as admin but with department filtering) */}

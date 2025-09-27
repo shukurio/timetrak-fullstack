@@ -4,7 +4,7 @@ import apiClient from './client';
 
 class CompanyService {
   async registerCompany(data) {
-    const response = await apiClient.post(`/companies/register`, data);
+    const response = await apiClient.post(`auth/companies/register`, data);
     return response.data;
   }
 

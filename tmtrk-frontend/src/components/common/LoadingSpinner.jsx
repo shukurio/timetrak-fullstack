@@ -6,8 +6,13 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...' }) => {
     xl: 'h-16 w-16',
   };
 
+  // Only apply minimum height for medium and larger sizes
+  const containerClasses = size === 'sm'
+    ? 'flex flex-col items-center justify-center transition-opacity duration-300'
+    : 'flex flex-col items-center justify-center min-h-64 transition-opacity duration-300';
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-64 transition-opacity duration-300">
+    <div className={containerClasses}>
       <div className={`animate-spin rounded-full border-4 border-gray-300 border-t-primary-600 ${sizeClasses[size]}`}></div>
       {text && <p className="mt-4 text-gray-600 text-sm">{text}</p>}
     </div>

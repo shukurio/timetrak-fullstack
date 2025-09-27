@@ -70,12 +70,10 @@ const ClockPage = () => {
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log('Geolocation position received:', position);
           const coords = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           };
-          console.log('Coordinates created:', coords);
           setLocation(coords);
           setIsGettingLocation(false);
           resolve(coords);
@@ -149,9 +147,7 @@ const ClockPage = () => {
     setIsLoading(true);
     try {
       // Get current location
-      console.log('Getting location for clock in...');
       const coords = await getCurrentLocation();
-      console.log('Location obtained:', coords);
 
       const clockData = {
         id: selectedJob.employeeJobId,
@@ -159,9 +155,6 @@ const ClockPage = () => {
         longitude: coords.longitude
       };
 
-      console.log('Clock in data being sent:', clockData);
-      console.log('Latitude type:', typeof coords.latitude, 'Value:', coords.latitude);
-      console.log('Longitude type:', typeof coords.longitude, 'Value:', coords.longitude);
 
       const response = await employeeService.clockIn(clockData);
 
@@ -193,7 +186,6 @@ const ClockPage = () => {
         longitude: coords.longitude
       };
 
-      console.log('Clock out data being sent:', clockData);
       const response = await employeeService.clockOut(clockData);
 
       // Show success message with earnings

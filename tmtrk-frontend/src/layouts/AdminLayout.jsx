@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  Users, 
-  Briefcase, 
-  Clock, 
-  CreditCard, 
-  BarChart3, 
-  Settings,
+import {
+  Building2,
+  Users,
+  Briefcase,
+  Clock,
+  CreditCard,
+  BarChart3,
   Menu,
   X,
   LogOut,
-  Bell,
-  UserPlus
+  UserPlus,
+  User
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import authService from '../api/authService';
 import toast from 'react-hot-toast';
+import TimeTrakIcon from '../components/common/TimeTrakIcon';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +46,7 @@ const AdminLayout = () => {
     { name: 'Shifts', href: '/admin/shifts', icon: Clock },
     { name: 'Payments', href: '/admin/payments', icon: CreditCard },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
+    { name: 'Profile', href: '/admin/profile', icon: User },
   ];
 
   return (
@@ -63,7 +64,10 @@ const AdminLayout = () => {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b">
-          <h1 className="text-xl font-bold text-gray-900">TimeTrack Admin</h1>
+          <div className="flex items-center">
+            <TimeTrakIcon width={24} height={24} className="mr-2" />
+            <h1 className="text-xl font-bold text-gray-900">TimeTrak</h1>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-2 rounded-md hover:bg-gray-100"
@@ -107,7 +111,6 @@ const AdminLayout = () => {
                 <p className="text-sm font-medium text-gray-900">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-xs text-gray-500">{user?.role}</p>
               </div>
             </div>
             <button
@@ -138,10 +141,7 @@ const AdminLayout = () => {
               </h2>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
-                <Bell className="h-5 w-5" />
-              </button>
+            <div className="flex items-center">
               <div className="flex items-center">
                 <span className="text-sm text-gray-700 mr-3">
                   Welcome, {user?.firstName}

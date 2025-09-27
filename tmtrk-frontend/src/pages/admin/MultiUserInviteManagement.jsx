@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Plus, Search, Filter, RefreshCw, Users, Clock, AlertTriangle, 
   TrendingUp, Eye, Ban, MoreHorizontal, Calendar, UserCheck
@@ -43,12 +43,13 @@ const MultiUserInviteManagement = () => {
   // Fetch invites with auto-refresh
   const { data: invitesData, isLoading, error } = useQuery({
     queryKey: ['invites'],
-    queryFn: () => inviteService.getInvites(),
+    queryFn: () => inviteService.getActiveInvites(),
     refetchInterval: 30000, // Auto-refresh every 30 seconds
     refetchIntervalInBackground: true
   });
 
-  const invites = invitesData?.content || [];
+  // Handle both array and paginated response formats
+  const invites = Array.isArray(invitesData) ? invitesData : (invitesData?.content || []);
   const stats = inviteService.getInviteStats(invites);
 
   // Create invite mutation
@@ -140,19 +141,17 @@ const MultiUserInviteManagement = () => {
     const colors = {
       active: 'bg-green-100 text-green-800 border-green-200',
       exhausted: 'bg-blue-100 text-blue-800 border-blue-200',
-      expired: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      inactive: 'bg-gray-100 text-gray-800 border-gray-200'
+      expired: 'bg-yellow-100 text-yellow-800 border-yellow-200'
     };
 
     const labels = {
       active: 'Active',
       exhausted: 'Full',
-      expired: 'Expired',
-      inactive: 'Deactivated'
+      expired: 'Expired'
     };
 
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${colors[status] || colors.inactive}`}>
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${colors[status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
         {labels[status] || 'Unknown'}
       </span>
     );
@@ -292,135 +291,105 @@ const MultiUserInviteManagement = () => {
               <option value="active">Active</option>
               <option value="full">Full</option>
               <option value="expired">Expired</option>
-              <option value="deactivated">Deactivated</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Invites Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full table-fixed">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Invite Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                  Department
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                  Usage Progress
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                  Expires
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredInvites.map((invite) => (
-                <tr key={invite.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 mb-1">
-                        {invite.description || 'Multi-user invite'}
-                      </div>
-                      <div className="text-xs text-gray-500 font-mono">
-                        Code: {invite.inviteCode}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        Created {formatDistanceToNow(new Date(invite.createdAt))} ago
-                      </div>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {invite.departmentName || 'Any Department'}
-                    </span>
-                  </td>
-                  
-                  <td className="px-6 py-4 w-48">
-                    <div className="flex items-center gap-3 max-w-full">
-                      <span className="text-sm font-medium text-gray-900 flex-shrink-0">
-                        {invite.usedCount || 0}/{invite.maxUses}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        {getProgressBar(invite)}
-                      </div>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(invite)}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        <Calendar size={14} />
-                        {format(new Date(invite.expiresAt), 'MMM d, yyyy')}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(invite.expiresAt))} remaining
-                      </div>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <InviteQuickShare 
-                        invite={invite} 
-                        companyName={companyData?.name} 
-                      />
-                      
-                      <button
-                        onClick={() => handleShare(invite)}
-                        className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                        title="Share invite"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      
-                      {inviteService.getInviteStatus(invite) === 'active' && (
-                        <button
-                          onClick={() => handleDeactivate(invite.inviteCode)}
-                          className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                          title="Deactivate invite"
-                        >
-                          <Ban size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Invites Cards */}
+      {filteredInvites.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg mb-2">
+            {searchQuery || statusFilter !== 'all'
+              ? 'No invites match your filters'
+              : 'No invites created yet'
+            }
+          </p>
+          {!searchQuery && statusFilter === 'all' && (
+            <p className="text-gray-400 text-sm">Create your first multi-user invite to get started</p>
+          )}
         </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredInvites.map((invite) => (
+            <div key={invite.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-medium text-gray-900 truncate">
+                    {invite.description || 'Multi-user invite'}
+                  </h3>
+                  <p className="text-sm text-gray-500 font-mono mt-1">
+                    Code: {invite.inviteCode}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Created {formatDistanceToNow(new Date(invite.createdAt))} ago
+                  </p>
+                </div>
+                {getStatusBadge(invite)}
+              </div>
 
-        {filteredInvites.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">
-              {searchQuery || statusFilter !== 'all' 
-                ? 'No invites match your filters' 
-                : 'No invites created yet'
-              }
-            </p>
-            {!searchQuery && statusFilter === 'all' && (
-              <p className="text-gray-400 text-sm mt-1">Create your first multi-user invite to get started</p>
-            )}
-          </div>
-        )}
-      </div>
+              {/* Department */}
+              <div className="mb-4">
+                <span className="text-sm font-medium text-gray-500">Department:</span>
+                <p className="text-sm text-gray-900">{invite.departmentName || 'Any Department'}</p>
+              </div>
+
+              {/* Usage Progress */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-500">Usage Progress</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {invite.currentUses || 0}/{invite.maxUses}
+                  </span>
+                </div>
+                {getProgressBar(invite)}
+              </div>
+
+              {/* Expiry Info */}
+              <div className="mb-4">
+                <span className="text-sm font-medium text-gray-500">Expires:</span>
+                <div className="flex items-center gap-1 mt-1">
+                  <Calendar size={14} className="text-gray-400" />
+                  <span className="text-sm text-gray-900">
+                    {format(new Date(invite.expiresAt), 'MMM d, yyyy')}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {formatDistanceToNow(new Date(invite.expiresAt))} remaining
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end space-x-2 pt-4 border-t border-gray-100">
+                <InviteQuickShare
+                  invite={invite}
+                  companyName={companyData?.name}
+                />
+
+                <button
+                  onClick={() => handleShare(invite)}
+                  className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+                  title="Share invite"
+                >
+                  <Eye size={16} />
+                </button>
+
+                {inviteService.getInviteStatus(invite) === 'active' && (
+                  <button
+                    onClick={() => handleDeactivate(invite.inviteCode)}
+                    className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                    title="Deactivate invite"
+                  >
+                    <Ban size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Create Invite Modal */}
       {showCreateForm && (

@@ -6,85 +6,82 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 const AdminDashboard = () => {
-  const [activeEmployees, setActiveEmployees] = useState(0);
-  const [pendingEmployees, setPendingEmployees] = useState(0);
-
-  // Fetch active employees count
-  const { data: activeEmployeesData } = useQuery({
-    queryKey: ['activeEmployees'],
-    queryFn: () => adminService.getActiveEmployees({ page: 0, size: 1 }),
+  // Fetch dashboard stats from single endpoint (includes shifts and payments)
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: () => adminService.getDashboardStats(),
   });
 
-  // Fetch pending employees count
-  const { data: pendingEmployeesData } = useQuery({
-    queryKey: ['pendingEmployees'],
-    queryFn: () => adminService.getEmployeesByStatus('PENDING', { page: 0, size: 1 }),
-  });
+  const formatPercentageChange = (change) => {
+    if (!change || change === 0) return '0%';
+    const sign = change > 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
+  };
 
-  // Fetch this week's shifts
-  const { data: weekShifts, isLoading: weekShiftsLoading } = useQuery({
-    queryKey: ['weekShifts'],
-    queryFn: () => adminService.getThisWeekShifts({ page: 0, size: 100 }),
-  });
+  const getChangeDescription = (change, type) => {
+    if (!change || change === 0) return 'No change from last period';
+    const direction = change > 0 ? 'increase' : 'decrease';
+    const absChange = Math.abs(change).toFixed(1);
 
-  // Fetch this month's shifts
-  const { data: monthShifts, isLoading: monthShiftsLoading } = useQuery({
-    queryKey: ['monthShifts'],
-    queryFn: () => adminService.getThisMonthShifts({ page: 0, size: 100 }),
-  });
-
-  // Fetch recent payments
-  const { data: recentPayments, isLoading: paymentsLoading } = useQuery({
-    queryKey: ['recentPayments'],
-    queryFn: () => adminService.getAllPayments({ page: 0, size: 10 }),
-  });
-
-  useEffect(() => {
-    if (activeEmployeesData) {
-      setActiveEmployees(activeEmployeesData.totalElements || 0);
+    if (type === 'hours') {
+      return `${absChange}% ${direction} from last period`;
+    } else if (type === 'revenue') {
+      return `${absChange}% ${direction} from last period`;
     }
-  }, [activeEmployeesData]);
+    return `${absChange}% ${direction} from last period`;
+  };
 
-  useEffect(() => {
-    if (pendingEmployeesData) {
-      setPendingEmployees(pendingEmployeesData.totalElements || 0);
-    }
-  }, [pendingEmployeesData]);
+  const formatCurrency = (amount) => {
+    if (!amount) return '$0';
+    return `$${Number(amount).toLocaleString()}`;
+  };
 
   const statsCards = [
     {
       title: 'Active Employees',
-      value: activeEmployees,
+      value: dashboardData?.activeEmployeeCount || 0,
       icon: Users,
       color: 'bg-blue-500',
-      change: '+2.5%',
-      changeType: 'positive'
+      change: dashboardData?.activeShiftsCount > 0
+        ? `${dashboardData.activeShiftsCount} active shifts`
+        : 'No active shifts',
+      changeType: dashboardData?.activeShiftsCount > 0 ? 'positive' : 'neutral'
     },
     {
       title: 'Pending Approvals',
-      value: pendingEmployees,
+      value: dashboardData?.pendingEmployeeCount || 0,
       icon: AlertCircle,
       color: 'bg-yellow-500',
-      change: pendingEmployees > 0 ? 'Action Required' : 'All Cleared',
-      changeType: pendingEmployees > 0 ? 'warning' : 'positive'
+      change: dashboardData?.pendingEmployeeCount > 0 ? 'Action Required' : 'All Cleared',
+      changeType: dashboardData?.pendingEmployeeCount > 0 ? 'warning' : 'positive'
     },
     {
-      title: 'This Week Hours',
-      value: weekShifts?.content?.reduce((sum, shift) => sum + (shift.hours || 0), 0).toFixed(1) || '0',
+      title: 'Period Hours',
+      value: dashboardData?.thisPeriodHours?.toFixed(1) || '0',
       icon: Clock,
       color: 'bg-green-500',
-      change: `${weekShifts?.content?.length || 0} shifts`,
-      changeType: 'neutral'
+      change: getChangeDescription(dashboardData?.popHoursChange, 'hours'),
+      changeType: dashboardData?.popHoursChange > 0 ? 'positive' :
+                   dashboardData?.popHoursChange < 0 ? 'negative' : 'neutral'
     },
     {
-      title: 'This Month Revenue',
-      value: `$${monthShifts?.content?.reduce((sum, shift) => sum + (shift.shiftEarnings || 0), 0).toFixed(0) || '0'}`,
+      title: 'Period Revenue',
+      value: formatCurrency(dashboardData?.thisPeriodRevenue),
       icon: CreditCard,
       color: 'bg-purple-500',
-      change: `${monthShifts?.content?.length || 0} shifts`,
-      changeType: 'neutral'
+      change: getChangeDescription(dashboardData?.popRevenueChange, 'revenue'),
+      changeType: dashboardData?.popRevenueChange > 0 ? 'positive' :
+                   dashboardData?.popRevenueChange < 0 ? 'negative' : 'neutral'
     }
   ];
+
+  if (dashboardLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner text="Loading dashboard..." />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -110,8 +107,9 @@ const AdminDashboard = () => {
               </div>
             </div>
             <div className="mt-4">
-              <span className={`text-sm ${
+              <span className={`text-base font-semibold ${
                 card.changeType === 'positive' ? 'text-green-600' :
+                card.changeType === 'negative' ? 'text-red-600' :
                 card.changeType === 'warning' ? 'text-yellow-600' :
                 'text-gray-500'
               }`}>
@@ -131,27 +129,34 @@ const AdminDashboard = () => {
             <Clock className="h-5 w-5 text-gray-400" />
           </div>
           
-          {weekShiftsLoading ? (
+          {dashboardLoading ? (
             <LoadingSpinner />
           ) : (
             <div className="space-y-3">
-              {weekShifts?.content?.slice(0, 5).map((shift) => (
+              {dashboardData?.recentShifts?.map((shift) => (
                 <div key={shift.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
                   <div>
                     <p className="font-medium text-gray-900">{shift.fullName}</p>
                     <p className="text-sm text-gray-600">{shift.jobTitle}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      {shift.hours?.toFixed(1)} hrs
-                    </p>
+                    {shift.status === 'ACTIVE' ? (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        <p className="text-sm font-medium text-green-600">Active</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm font-medium text-gray-900">
+                        {shift.hours?.toFixed(1)} hrs
+                      </p>
+                    )}
                     <p className="text-sm text-gray-600">
                       {shift.clockIn ? format(new Date(shift.clockIn), 'MMM d') : '-'}
                     </p>
                   </div>
                 </div>
               )) || (
-                <p className="text-gray-500 text-center py-4">No shifts this week</p>
+                <p className="text-gray-500 text-center py-4">No recent shifts</p>
               )}
             </div>
           )}
@@ -164,11 +169,11 @@ const AdminDashboard = () => {
             <CreditCard className="h-5 w-5 text-gray-400" />
           </div>
           
-          {paymentsLoading ? (
+          {dashboardLoading ? (
             <LoadingSpinner />
           ) : (
             <div className="space-y-3">
-              {recentPayments?.content?.slice(0, 5).map((payment) => (
+              {dashboardData?.recentPayments?.map((payment) => (
                 <div key={payment.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
                   <div>
                     <p className="font-medium text-gray-900">{payment.employeeName}</p>
@@ -178,10 +183,11 @@ const AdminDashboard = () => {
                     <p className="text-sm font-medium text-gray-900">
                       ${payment.totalEarnings?.toFixed(2)}
                     </p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
+                    <span className={`text-xs px-2 py-1 rounded-full uppercase font-medium ${
                       payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
                       payment.status === 'ISSUED' ? 'bg-blue-100 text-blue-800' :
                       payment.status === 'CALCULATED' ? 'bg-yellow-100 text-yellow-800' :
+                      payment.status === 'VOIDED' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {payment.status}

@@ -1,6 +1,12 @@
 import apiClient from './client';
 
 class AdminService {
+  // Dashboard
+  async getDashboardStats() {
+    const response = await apiClient.get('/admin/reports/dashboard');
+    return response.data;
+  }
+
   // Company Management
   async getCompany() {
     const response = await apiClient.get('/admin/organization/company');
@@ -54,10 +60,6 @@ class AdminService {
     return response.data;
   }
 
-  async getEmployeeById(id) {
-    const response = await apiClient.get(`/admin/employees/${id}`);
-    return response.data;
-  }
 
   async getEmployeesByStatus(status, params = {}) {
     const response = await apiClient.get(`/admin/employees/status/${status}`, { params });
@@ -81,10 +83,7 @@ class AdminService {
     return response.data;
   }
 
-  async updateEmployee(id, data) {
-    const response = await apiClient.put(`/admin/employees/${id}`, data);
-    return response.data;
-  }
+
 
   async approveEmployee(id) {
     const response = await apiClient.put(`/admin/employees/${id}/approve`);
@@ -122,10 +121,6 @@ class AdminService {
     return response.data;
   }
 
-  async getJobById(id) {
-    const response = await apiClient.get(`/admin/jobs/${id}`);
-    return response.data;
-  }
 
   async getJobsByDepartment(departmentId) {
     const response = await apiClient.get(`/admin/jobs/department/${departmentId}`);
@@ -163,10 +158,6 @@ class AdminService {
     return response.data;
   }
 
-  async getEmployeeJobsByDepartment(departmentId) {
-    const response = await apiClient.get(`/admin/employee-jobs/department/${departmentId}`);
-    return response.data;
-  }
 
   async assignJobToEmployees(data) {
     const response = await apiClient.post('/admin/employee-jobs/assign', data);
@@ -199,10 +190,7 @@ class AdminService {
     return response.data;
   }
 
-  async getShiftsByStatus(status, params = {}) {
-    const response = await apiClient.get(`/admin/shifts/status/${status}`, { params });
-    return response.data;
-  }
+
 
   async getShiftsByPeriodNumber(periodNumber, params = {}) {
     const response = await apiClient.get(`/admin/shifts/periodNumber/${periodNumber}`, { params });
@@ -329,22 +317,6 @@ class AdminService {
     return response.data;
   }
 
-  async getPaymentById(paymentId) {
-    const response = await apiClient.get(`/admin/payments/${paymentId}`);
-    return response.data;
-  }
-
-  async getPaymentsByEmployee(employeeId, params = { page: 0, size: 20 }) {
-    const response = await apiClient.get(`/admin/payments/employee/${employeeId}`, {
-      params
-    });
-    return response.data;
-  }
-
-  async getEmployeePaymentDetails(employeeId, paymentId) {
-    const response = await apiClient.get(`/admin/payments/employee/${employeeId}/payments/${paymentId}`);
-    return response.data;
-  }
 
   async exportPaymentsByPeriod(periodNumber) {
     const response = await apiClient.get(`/admin/payments/export/period/${periodNumber}`, {
@@ -401,6 +373,12 @@ class AdminService {
       params,
       responseType: 'blob'
     });
+    return response.data;
+  }
+
+  // Profile Management
+  async updateProfile(profileData) {
+    const response = await apiClient.put('/admin/profile', profileData);
     return response.data;
   }
 }
