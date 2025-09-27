@@ -170,4 +170,12 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
     );
+
+    @Query("SELECT COUNT(s) FROM Shift s "+
+    "WHERE s.companyId=:companyId "+
+    "AND s.deletedAt IS NULL "+
+    "AND s.status=:status "+
+     "AND s.clockOut IS NULL")
+    long countShiftByStatusInCompany(@Param("companyId") Long companyId,
+                                     @Param("status") ShiftStatus status);
 }

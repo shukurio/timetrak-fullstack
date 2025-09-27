@@ -182,14 +182,14 @@ class PaymentServiceImplTest {
         Page<Payment> paymentsPage = new PageImpl<>(List.of(payment));
         PaymentDetailsDTO dto = createTestPaymentDTO(1L);
 
-        when(paymentRepository.findByEmployeeIdAndCompanyId(employeeId, companyId, pageable)).thenReturn(paymentsPage);
+        when(paymentRepository.findByEmployeeIdAndCompanyIdExcludingVoided(employeeId, companyId, pageable)).thenReturn(paymentsPage);
         when(paymentMapper.toDTO(payment)).thenReturn(dto);
 
         Page<PaymentDetailsDTO> result = paymentService.getAllPaymentsForEmployee(employeeId, companyId, pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(paymentRepository).findByEmployeeIdAndCompanyId(employeeId, companyId, pageable);
+        verify(paymentRepository).findByEmployeeIdAndCompanyIdExcludingVoided(employeeId, companyId, pageable);
     }
 
     // Helper methods

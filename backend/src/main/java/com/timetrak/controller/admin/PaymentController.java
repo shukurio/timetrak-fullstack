@@ -57,18 +57,6 @@ public class PaymentController {
         return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/employee/{employeeId}/payments/{paymentId}")
-    public ResponseEntity<PaymentDetailsDTO> getPaymentWithDetails(
-            @PathVariable @Min(value = 1, message = "Employee Id can not be null or zero") Long employeeId,
-            @PathVariable @Min(value = 1, message = "Payment Id can not be null or zero") Long paymentId) {
-
-        PaymentDetailsDTO payment = paymentService.getPaymentWithDetails(
-                paymentId,
-                employeeId,
-                authContext.getCurrentCompanyId());
-
-        return ResponseEntity.ok(payment);
-    }
 
     @PostMapping("/updateStatus")
     public ResponseEntity<StatusUpdateResponse> updatePaymentStatus(@Valid @RequestBody StatusUpdateRequest request) {

@@ -43,9 +43,14 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("companyId") Long companyId,
             @Param("excludeStatus") PaymentStatus excludeStatus);
 
-    Page<Payment> findByEmployeeIdAndCompanyId(Long employeeId,
-                                                         Long companyId,
-                                                         Pageable pageable);
+    @Query("SELECT p FROM Payment p WHERE p.employee.id = :employeeId " +
+            "AND p.companyId = :companyId " +
+            "AND p.status != 'VOIDED'")
+    Page<Payment> findByEmployeeIdAndCompanyIdExcludingVoided(
+            @Param("employeeId") Long employeeId,
+            @Param("companyId") Long companyId,
+            Pageable pageable
+    );
 
     @Query("SELECT p FROM Payment p where p.companyId =:companyId AND p.status =:status")
     Page<Payment> findByCompanyIdAndStatus(

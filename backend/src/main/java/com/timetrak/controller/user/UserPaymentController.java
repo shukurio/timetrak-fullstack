@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/payments")
+@RequestMapping("/api/employee/payments")
 public class UserPaymentController {
     private final PaymentService paymentService;
     private final AuthContextService authContext;
@@ -25,7 +25,7 @@ public class UserPaymentController {
         return ResponseEntity.ok(payment);
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<Page<PaymentDetailsDTO>> getAllPayments(Pageable pageable) {
         Long companyId = authContext.getCurrentCompanyId();
         Long employeeId = authContext.getCurrentEmployeeId();

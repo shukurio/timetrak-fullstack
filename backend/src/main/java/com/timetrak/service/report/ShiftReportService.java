@@ -1,17 +1,21 @@
 package com.timetrak.service.report;
 
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.timetrak.dto.payment.Period;
 import com.timetrak.dto.shift.ShiftResponseDTO;
+import com.timetrak.service.company.CompanyService;
 import com.timetrak.service.department.DepartmentService;
 import com.timetrak.service.payment.PeriodService;
 import com.timetrak.service.shift.ShiftService;
@@ -31,11 +35,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ShiftReportService {
+    private final CompanyService companyService;
     private final ShiftService shiftService;
     private final PeriodService periodService;
     private final DepartmentService depService;
 
+
     public byte[] exportShifts(Integer periodNumber, Long companyId, @Nullable List<Long> departmentIds) {
+        String companyName = companyService.getCompanyById(companyId).getName();
         Period period = resolvePaymentPeriod(periodNumber, companyId);
 
         List<Long> targetDepartments;
@@ -44,13 +51,9 @@ public class ShiftReportService {
         if (departmentIds == null || departmentIds.isEmpty()) {
             targetDepartments = depService.getAllDepartmentIdsForCompany(companyId);
             reportType = "Company-Wide";
-            log.info("Exporting shifts for ALL departments in company {} from {} to {}",
-                    companyId, period.getStartDate(), period.getEndDate());
         } else {
             targetDepartments = departmentIds;
             reportType = departmentIds.size() == 1 ? "Department" : "Multi-Department";
-            log.info("Exporting shifts for departments {} in company {} from {} to {}",
-                    departmentIds, companyId, period.getStartDate(), period.getEndDate());
         }
 
         Map<Long, List<ShiftResponseDTO>> shiftsByDepartment = shiftService.getShiftsByDepartmentsGrouped(
@@ -58,13 +61,8 @@ public class ShiftReportService {
 
         Map<Long, String> departmentNames = getDepartmentNames(shiftsByDepartment.keySet(),companyId);
 
-        if (shiftsByDepartment.isEmpty()) {
-            log.warn("No shifts found for departments {} in company {} for period {}",
-                    targetDepartments, companyId, period.getShortDescription());
-        }
-
         try {
-            return generateDepartmentCategorizedPdf(shiftsByDepartment, departmentNames, period, reportType);
+            return generateDepartmentCategorizedPdf(shiftsByDepartment, departmentNames, period, reportType,companyName);
         } catch (Exception e) {
             log.error("Failed to generate PDF for company {} departments {}: {}",
                     companyId, targetDepartments, e.getMessage(), e);
@@ -74,10 +72,8 @@ public class ShiftReportService {
 
     private Period resolvePaymentPeriod(Integer periodNumber, Long companyId) {
         if (periodNumber == null || periodNumber <= 0) {
-            log.info("No period number provided, using current period for company {}", companyId);
             return periodService.getCurrentPeriod(companyId);
         } else {
-            log.info("Using period {} for company {}", periodNumber, companyId);
             return periodService.getPeriodByNumber(periodNumber, companyId);
         }
     }
@@ -101,18 +97,15 @@ public class ShiftReportService {
             Map<Long, List<ShiftResponseDTO>> shiftsByDepartment,
             Map<Long, String> departmentNames,
             Period period,
-            String reportType) throws Exception {
+            String reportType,
+            String companyName) throws Exception {
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf, PageSize.A4.rotate());
 
-            int totalShifts = shiftsByDepartment.values().stream()
-                    .mapToInt(List::size).sum();
-
-            createPdfHeader(document, reportType + " Shift Report - " + period.getShortDescription(),
-                    totalShifts, shiftsByDepartment.size());
+            createPdfHeader(document, companyName, reportType + " Shift Report - " + period.getShortDescription());
 
             boolean firstDepartment = true;
             for (Map.Entry<Long, List<ShiftResponseDTO>> entry : shiftsByDepartment.entrySet()) {
@@ -121,22 +114,23 @@ public class ShiftReportService {
                 String deptName = departmentNames.getOrDefault(deptId, "Department " + deptId);
 
                 if (!firstDepartment) {
-                    document.add(new Paragraph(" ").setMarginTop(30));
+                    document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
                 }
 
-                addDepartmentSection(document, deptName, shifts, deptId);
+                addDepartmentSectionWithJobGrouping(document, deptName, shifts);
                 firstDepartment = false;
             }
 
-            createOverallSummary(document, shiftsByDepartment, departmentNames);
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+            createJobBreakdownTables(document, shiftsByDepartment, departmentNames);
 
             document.close();
             return out.toByteArray();
         }
     }
 
-    private void createPdfHeader(Document document, String title, int totalShifts, int departmentCount) {
-        Paragraph mainTitle = new Paragraph("Shift Report")
+    private void createPdfHeader(Document document, String companyName, String title) {
+        Paragraph mainTitle = new Paragraph(companyName)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(24)
                 .setBold()
@@ -146,60 +140,60 @@ public class ShiftReportService {
         Paragraph subtitle = new Paragraph(title)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(16)
-                .setMarginBottom(5);
+                .setMarginBottom(10);
         document.add(subtitle);
-
-        Paragraph stats = new Paragraph(String.format(
-                "Total Shifts: %d | Departments: %d", totalShifts, departmentCount))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(12)
-                .setMarginBottom(20);
-        document.add(stats);
 
         Paragraph timestamp = new Paragraph(String.format("Generated on: %s",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
                 .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(10)
+                .setFontSize(14)
+                .setBold()
                 .setMarginBottom(30);
         document.add(timestamp);
     }
 
-    private void addDepartmentSection(Document document, String deptName,
-                                      List<ShiftResponseDTO> shifts, Long deptId) {
-        Paragraph deptTitle = new Paragraph(String.format("Department: %s (ID: %d)", deptName, deptId))
+    private void addDepartmentSectionWithJobGrouping(Document document, String deptName,
+                                                    List<ShiftResponseDTO> shifts) {
+        // Define colors
+        DeviceRgb primaryBlue = new DeviceRgb(52, 73, 94);
+        DeviceRgb lightBlue = new DeviceRgb(174, 214, 241);
+
+        Paragraph deptTitle = new Paragraph(String.format("Department: %s", deptName))
                 .setBold()
-                .setFontSize(16)
+                .setFontSize(18)
                 .setMarginTop(20)
-                .setMarginBottom(5)
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setPadding(8)
+                .setMarginBottom(15)
+                .setBackgroundColor(primaryBlue)
+                .setFontColor(ColorConstants.WHITE)
+                .setPadding(12)
                 .setTextAlignment(TextAlignment.LEFT);
         document.add(deptTitle);
 
-        BigDecimal deptTotalHours = shifts.stream()
-                .map(ShiftResponseDTO::getHours)
-                .filter(Objects::nonNull)
-                .map(BigDecimal::valueOf)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Group shifts by job title
+        Map<String, List<ShiftResponseDTO>> shiftsByJob = shifts.stream()
+                .collect(Collectors.groupingBy(
+                        shift -> shift.getJobTitle() != null ? shift.getJobTitle() : "No Job Title"
+                ));
 
-        Paragraph deptStats = new Paragraph(String.format(
-                "Shifts: %d | Total Hours: %.2f",
-                shifts.size(), deptTotalHours))
-                .setFontSize(12)
-                .setMarginBottom(10);
-        document.add(deptStats);
+        boolean firstJob = true;
+        for (Map.Entry<String, List<ShiftResponseDTO>> jobEntry : shiftsByJob.entrySet()) {
+            String jobTitle = jobEntry.getKey();
+            List<ShiftResponseDTO> jobShifts = jobEntry.getValue();
 
-        Table table = createShiftTable(shifts);
-        document.add(table);
+            if (!firstJob) {
+                document.add(new Paragraph(" ").setMarginTop(15));
+            }
 
-        createDepartmentSummary(document, shifts, deptName);
+            addJobSection(document, jobTitle, jobShifts, lightBlue);
+            firstJob = false;
+        }
+
+        // Department summary removed - will be shown in breakdown tables at the end
     }
 
     private Table createShiftTable(List<ShiftResponseDTO> shifts) {
         String[] headers = {
-                "Employee ID",
                 "Employee Name",
-                "Job Title",
                 "Clock In",
                 "Clock Out",
                 "Total Hours",
@@ -208,15 +202,17 @@ public class ShiftReportService {
 
         Table table = new Table(headers.length);
         table.setWidth(UnitValue.createPercentValue(100));
-        table.setMarginBottom(15);
+        table.setMarginBottom(10);
+
+        DeviceRgb headerGray = new DeviceRgb(134, 142, 150);
 
         for (String header : headers) {
             Cell headerCell = new Cell()
-                    .add(new Paragraph(header).setBold())
-                    .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                    .add(new Paragraph(header).setBold().setFontColor(ColorConstants.WHITE))
+                    .setBackgroundColor(headerGray)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setPadding(5)
-                    .setFontSize(10);
+                    .setPadding(8)
+                    .setFontSize(11);
             table.addHeaderCell(headerCell);
         }
 
@@ -231,80 +227,162 @@ public class ShiftReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd HH:mm");
 
         table.addCell(new Cell()
-                .add(new Paragraph(String.valueOf(shift.getEmployeeId())))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(4)
-                .setFontSize(9));
-
-        table.addCell(new Cell()
                 .add(new Paragraph(shift.getFullName() != null ? shift.getFullName() : "Unknown"))
                 .setTextAlignment(TextAlignment.LEFT)
-                .setPadding(4)
-                .setFontSize(9));
-
-        table.addCell(new Cell()
-                .add(new Paragraph(shift.getJobTitle() != null ? shift.getJobTitle() : "N/A"))
-                .setTextAlignment(TextAlignment.LEFT)
-                .setPadding(4)
-                .setFontSize(9));
+                .setPadding(6)
+                .setFontSize(10));
 
         table.addCell(new Cell()
                 .add(new Paragraph(shift.getClockIn() != null ?
                         shift.getClockIn().format(formatter) : "N/A"))
                 .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(4)
-                .setFontSize(9));
+                .setPadding(6)
+                .setFontSize(10));
 
         String clockOutText = shift.getClockOut() != null ?
                 shift.getClockOut().format(formatter) : "Active";
         table.addCell(new Cell()
                 .add(new Paragraph(clockOutText))
                 .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(4)
-                .setFontSize(9));
+                .setPadding(6)
+                .setFontSize(10));
 
         String hoursText = shift.getHours() != null ?
                 String.format("%.2f", shift.getHours()) : "0.00";
         table.addCell(new Cell()
                 .add(new Paragraph(hoursText))
                 .setTextAlignment(TextAlignment.RIGHT)
-                .setPadding(4)
-                .setFontSize(9));
+                .setPadding(6)
+                .setFontSize(10));
 
-        table.addCell(new Cell()
-                .add(new Paragraph(shift.getStatus().toString()))
+        String statusText = shift.getStatus().toString();
+        Cell statusCell = new Cell()
+                .add(new Paragraph(statusText))
                 .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(4)
-                .setFontSize(9));
+                .setPadding(6)
+                .setFontSize(10);
+
+        if ("ACTIVE".equals(statusText)) {
+            statusCell.setBackgroundColor(new DeviceRgb(231, 76, 60))
+                     .setFontColor(ColorConstants.WHITE);
+        }
+
+        table.addCell(statusCell);
     }
 
-    private void createDepartmentSummary(Document document, List<ShiftResponseDTO> shifts, String deptName) {
-        Double totalHours = shifts.stream()
+    private void addJobSection(Document document, String jobTitle, List<ShiftResponseDTO> jobShifts,
+                              DeviceRgb lightBlue) {
+        BigDecimal jobTotalHours = jobShifts.stream()
                 .map(ShiftResponseDTO::getHours)
                 .filter(Objects::nonNull)
-                .reduce(0.0, Double::sum);
+                .map(BigDecimal::valueOf)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long completedShifts = shifts.stream()
-                .filter(s -> "COMPLETED".equals(s.getStatus().toString()))
-                .count();
-
-        Paragraph summary = new Paragraph(String.format(
-                "%s Summary: %d total shifts, %d completed, %.2f total hours",
-                deptName, shifts.size(), completedShifts, totalHours))
-                .setFontSize(11)
+        Paragraph jobHeader = new Paragraph(String.format("%s • %d shifts • %.2f hrs",
+                jobTitle, jobShifts.size(), jobTotalHours))
                 .setBold()
+                .setFontSize(14)
                 .setMarginTop(10)
-                .setMarginBottom(20)
-                .setBackgroundColor(ColorConstants.YELLOW)
-                .setPadding(5);
-        document.add(summary);
+                .setMarginBottom(8)
+                .setBackgroundColor(lightBlue)
+                .setPadding(8)
+                .setTextAlignment(TextAlignment.LEFT);
+        document.add(jobHeader);
+
+        Table table = createShiftTable(jobShifts);
+        document.add(table);
     }
 
-    private void createOverallSummary(Document document,
-                                      Map<Long, List<ShiftResponseDTO>> shiftsByDepartment,
-                                      Map<Long, String> departmentNames) {
 
-        int totalShifts = shiftsByDepartment.values().stream()
+
+    private void createJobBreakdownTables(Document document,
+                                          Map<Long, List<ShiftResponseDTO>> shiftsByDepartment,
+                                          Map<Long, String> departmentNames) {
+
+        DeviceRgb darkGray = new DeviceRgb(73, 80, 87);
+        DeviceRgb headerGray = new DeviceRgb(134, 142, 150);
+
+        // Job breakdown starts on new page (added above)
+
+        Paragraph summaryTitle = new Paragraph("Summary Report")
+                .setBold()
+                .setFontSize(20)
+                .setMarginBottom(25)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBackgroundColor(darkGray)
+                .setFontColor(ColorConstants.WHITE)
+                .setPadding(12);
+        document.add(summaryTitle);
+
+        // Create single job breakdown table
+        Table jobTable = new Table(4);
+        jobTable.setWidth(UnitValue.createPercentValue(80));
+        jobTable.setMarginBottom(20);
+
+        // Headers
+        String[] headers = {"Department", "Job Title", "Shifts", "Total Hours"};
+        for (String header : headers) {
+            Cell headerCell = new Cell()
+                    .add(new Paragraph(header).setBold().setFontColor(ColorConstants.WHITE))
+                    .setBackgroundColor(headerGray)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setPadding(8)
+                    .setFontSize(12);
+            jobTable.addHeaderCell(headerCell);
+        }
+
+        // Collect all job data
+        for (Map.Entry<Long, List<ShiftResponseDTO>> entry : shiftsByDepartment.entrySet()) {
+            Long deptId = entry.getKey();
+            List<ShiftResponseDTO> shifts = entry.getValue();
+            String deptName = departmentNames.getOrDefault(deptId, "Department " + deptId);
+
+            // Group shifts by job for this department
+            Map<String, List<ShiftResponseDTO>> jobGroups = shifts.stream()
+                    .collect(Collectors.groupingBy(
+                            shift -> shift.getJobTitle() != null ? shift.getJobTitle() : "No Job Title"
+                    ));
+
+            for (Map.Entry<String, List<ShiftResponseDTO>> jobGroup : jobGroups.entrySet()) {
+                String jobTitle = jobGroup.getKey();
+                List<ShiftResponseDTO> jobShifts = jobGroup.getValue();
+                int jobShiftCount = jobShifts.size();
+
+                BigDecimal jobHours = jobShifts.stream()
+                        .map(ShiftResponseDTO::getHours)
+                        .filter(Objects::nonNull)
+                        .map(BigDecimal::valueOf)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                // Add job row
+                jobTable.addCell(new Cell()
+                        .add(new Paragraph(deptName))
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setPadding(8)
+                        .setFontSize(11));
+
+                jobTable.addCell(new Cell()
+                        .add(new Paragraph(jobTitle))
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setPadding(8)
+                        .setFontSize(11));
+
+                jobTable.addCell(new Cell()
+                        .add(new Paragraph(String.valueOf(jobShiftCount)))
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setPadding(8)
+                        .setFontSize(11));
+
+                jobTable.addCell(new Cell()
+                        .add(new Paragraph(String.format("%.2f", jobHours)))
+                        .setTextAlignment(TextAlignment.RIGHT)
+                        .setPadding(8)
+                        .setFontSize(11));
+            }
+        }
+
+        // Add grand total row to the job breakdown table
+        int grandTotalShifts = shiftsByDepartment.values().stream()
                 .mapToInt(List::size).sum();
 
         BigDecimal grandTotalHours = shiftsByDepartment.values().stream()
@@ -314,59 +392,42 @@ public class ShiftReportService {
                 .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long totalCompletedShifts = shiftsByDepartment.values().stream()
-                .flatMap(List::stream)
-                .filter(s -> "COMPLETED".equals(s.getStatus().toString()))
-                .count();
+        DeviceRgb totalRowColor = new DeviceRgb(52, 58, 64);
 
-        document.add(new Paragraph(" ").setMarginTop(30));
-
-        Paragraph summaryTitle = new Paragraph("Overall Summary")
-                .setBold()
-                .setFontSize(18)
-                .setMarginBottom(15)
+        // Add grand total row
+        jobTable.addCell(new Cell()
+                .add(new Paragraph("GRAND TOTAL").setBold())
                 .setTextAlignment(TextAlignment.CENTER)
-                .setBackgroundColor(ColorConstants.DARK_GRAY)
-                .setFontColor(ColorConstants.WHITE)
-                .setPadding(10);
-        document.add(summaryTitle);
-
-        Paragraph deptBreakdown = new Paragraph("Department Breakdown:")
-                .setBold()
-                .setFontSize(14)
-                .setMarginBottom(10);
-        document.add(deptBreakdown);
-
-        for (Map.Entry<Long, List<ShiftResponseDTO>> entry : shiftsByDepartment.entrySet()) {
-            String deptName = departmentNames.getOrDefault(entry.getKey(), "Department " + entry.getKey());
-            int deptShiftCount = entry.getValue().size();
-            BigDecimal deptHours = entry.getValue().stream()
-                    .map(ShiftResponseDTO::getHours)
-                    .filter(Objects::nonNull)
-                    .map(BigDecimal::valueOf)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            Paragraph deptLine = new Paragraph(String.format(
-                    "• %s: %d shifts, %.2f hours", deptName, deptShiftCount, deptHours))
-                    .setFontSize(12)
-                    .setMarginLeft(20);
-            document.add(deptLine);
-        }
-
-        Paragraph overallTotals = new Paragraph(String.format(
-                """
-                        
-                        Grand Totals:
-                        • Total Departments: %d
-                        • Total Shifts: %d
-                        • Completed Shifts: %d
-                        • Total Hours: %.2f""",
-                shiftsByDepartment.size(), totalShifts, totalCompletedShifts, grandTotalHours))
+                .setPadding(10)
                 .setFontSize(12)
-                .setBold()
-                .setMarginTop(15)
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setPadding(10);
-        document.add(overallTotals);
+                .setBackgroundColor(totalRowColor)
+                .setFontColor(ColorConstants.WHITE));
+
+        jobTable.addCell(new Cell()
+                .add(new Paragraph("-").setBold())
+                .setTextAlignment(TextAlignment.CENTER)
+                .setPadding(10)
+                .setFontSize(12)
+                .setBackgroundColor(totalRowColor)
+                .setFontColor(ColorConstants.WHITE));
+
+        jobTable.addCell(new Cell()
+                .add(new Paragraph(String.valueOf(grandTotalShifts)).setBold())
+                .setTextAlignment(TextAlignment.CENTER)
+                .setPadding(10)
+                .setFontSize(12)
+                .setBackgroundColor(totalRowColor)
+                .setFontColor(ColorConstants.WHITE));
+
+        jobTable.addCell(new Cell()
+                .add(new Paragraph(String.format("%.2f", grandTotalHours)).setBold())
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setPadding(10)
+                .setFontSize(12)
+                .setBackgroundColor(totalRowColor)
+                .setFontColor(ColorConstants.WHITE));
+
+        document.add(jobTable);
     }
+
 }
