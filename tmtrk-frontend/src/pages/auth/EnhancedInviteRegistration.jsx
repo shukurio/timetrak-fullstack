@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import inviteService from '../../api/inviteService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { normalizeUserFormData } from '../../utils/stringUtils';
 
 const schema = yup.object({
   firstName: yup.string().required('First name is required').min(2, 'Must be at least 2 characters'),
@@ -108,8 +109,11 @@ const EnhancedInviteRegistration = () => {
 
     setIsLoading(true);
     try {
+      // Normalize form data before sending to backend
+      const normalizedData = normalizeUserFormData(data);
+
       await inviteService.registerWithInvite({
-        ...data,
+        ...normalizedData,
         inviteCode
       });
       

@@ -1,53 +1,29 @@
 import apiClient from './client';
 
 class EmployeeService {
-  // Test endpoint to verify auth is working
-  async testAuth() {
-    const response = await apiClient.get('/employee/shifts/test');
-    return response.data;
-  }
-
-  // Shift Management
-  async getMyShifts(params = {}) {
-    // Fix sortBy to avoid field mapping issues
-    const fixedParams = {
-      ...params,
-      sortBy: 'id' // Use 'id' instead of 'clockIn'
-    };
-    const response = await apiClient.get('/employee/shifts', { params: fixedParams });
-    return response.data;
-  }
-
-  async getActiveShift() {
-    const response = await apiClient.get('/employee/shifts/active');
-    return response.data;
-  }
 
   // Silent version for background checks (dashboard, etc.)
   async getActiveShiftSilent() {
     try {
-      const response = await apiClient.get('/employee/shifts/active', {
-        // Suppress axios error logging for this request
-        validateStatus: function (status) {
-          return status < 500; // Don't reject 404, only reject 5xx errors
+      // Try to get active shifts from the regular shifts endpoint
+      const response = await apiClient.get('/employee/shifts', {
+        params: {
+          status: 'ACTIVE',
+          size: 1,
+          page: 0
         }
       });
 
-      // If we got a 404, return null (no active shift)
-      if (response.status === 404) {
-        return null;
+      // If we have active shifts, return the first one
+      if (response.data && response.data.content && response.data.content.length > 0) {
+        return response.data.content[0];
       }
 
-      return response.data;
+      return null;
     } catch (error) {
       // Completely silent - return null if no active shift or any error
       return null;
     }
-  }
-
-  async getShiftsByStatus(status, params = {}) {
-    const response = await apiClient.get(`/employee/shifts/status/${status}`, { params });
-    return response.data;
   }
 
   async getShiftsByDateRange(startDate, endDate, params = {}) {
@@ -75,15 +51,26 @@ class EmployeeService {
     return response.data;
   }
 
-  // Payment History - Note: these endpoints might not exist yet
+  // Payment History
   async getAllPayments(params = {}) {
-    // This endpoint might not exist - returning empty data for now
-    return { content: [], totalElements: 0, totalPages: 0 };
+    try {
+      const response = await apiClient.get('/employee/payments', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      // Return empty data if endpoint doesn't exist
+      return { content: [], totalElements: 0, totalPages: 0 };
+    }
   }
 
   async getPaymentDetails(paymentId) {
-    // This endpoint might not exist - returning empty data for now
-    return null;
+    try {
+      const response = await apiClient.get(`/employee/payments/${paymentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+      return null;
+    }
   }
 
   // Period Management

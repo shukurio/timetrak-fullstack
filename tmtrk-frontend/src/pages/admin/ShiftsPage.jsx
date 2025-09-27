@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, CheckCircle, LogIn, LogOut } from 'lucide-react';
+import { Plus, X, CheckCircle, LogIn, LogOut, Download } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import adminService from '../../api/adminService';
@@ -223,70 +223,44 @@ const ShiftsPage = () => {
     bulkClockMutation.mutate(data);
   };
 
+  const handleDownloadReport = async () => {
+    if (!selectedPeriod) {
+      toast.error('Please select a payment period first');
+      return;
+    }
+
+    try {
+      toast.loading('Generating report...');
+      const blob = await adminService.exportCompanyShifts(selectedPeriod.periodNumber);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `shifts_report_period_${selectedPeriod.periodNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.dismiss();
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Failed to download report');
+      console.error('Download error:', error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Shifts Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shifts Management</h1>
           <p className="text-gray-600 mt-1">Track and manage employee work shifts</p>
-        </div>
-        <div className="flex space-x-3">
-          {isSelectionMode ? (
-            <>
-              <button
-                onClick={() => {
-                  setIsSelectionMode(false);
-                  setSelectedShifts([]);
-                }}
-                className="btn-secondary flex items-center"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Cancel Selection
-              </button>
-              {selectedShifts.length > 0 && (
-                <>
-                  <button
-                    onClick={() => {
-                      setBulkClockAction('in');
-                      setShowBulkClockModal(true);
-                    }}
-                    className="btn-secondary flex items-center"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Clock In ({selectedShifts.length})
-                  </button>
-                  <button
-                    onClick={() => {
-                      setBulkClockAction('out');
-                      setShowBulkClockModal(true);
-                    }}
-                    className="btn-secondary flex items-center"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Clock Out ({selectedShifts.length})
-                  </button>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setIsSelectionMode(true)}
-                className="btn-secondary flex items-center"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Select
-              </button>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn-primary flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Shift
-              </button>
-            </>
-          )}
         </div>
       </div>
 
@@ -299,7 +273,7 @@ const ShiftsPage = () => {
       <ShiftsStatusTabs
         selectedTab={selectedTab}
         onTabChange={handleTabChange}
-        shiftsData={shiftsData}
+        hasActiveShifts={shiftsData?.content?.some(shift => shift.status === 'ACTIVE') || false}
       />
 
       <ShiftsFilters
@@ -315,6 +289,78 @@ const ShiftsPage = () => {
         employeesData={employeesData}
         onClearFilters={clearFilters}
       />
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center sm:justify-end">
+        {isSelectionMode ? (
+          <>
+            <button
+              onClick={() => {
+                setIsSelectionMode(false);
+                setSelectedShifts([]);
+              }}
+              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+            >
+              <X className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Cancel Selection</span>
+              <span className="sm:hidden">Cancel</span>
+            </button>
+            {selectedShifts.length > 0 && (
+              <>
+                <button
+                  onClick={() => {
+                    setBulkClockAction('in');
+                    setShowBulkClockModal(true);
+                  }}
+                  className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Clock In ({selectedShifts.length})</span>
+                  <span className="sm:hidden">In ({selectedShifts.length})</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setBulkClockAction('out');
+                    setShowBulkClockModal(true);
+                  }}
+                  className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Clock Out ({selectedShifts.length})</span>
+                  <span className="sm:hidden">Out ({selectedShifts.length})</span>
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => handleDownloadReport()}
+              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+              disabled={!selectedPeriod}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Download Report</span>
+              <span className="sm:hidden">Download</span>
+            </button>
+            <button
+              onClick={() => setIsSelectionMode(true)}
+              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Select
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn-primary flex items-center justify-center w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Create Shift</span>
+              <span className="sm:hidden">Create</span>
+            </button>
+          </>
+        )}
+      </div>
 
       <ShiftsTable
         shiftsData={shiftsData}

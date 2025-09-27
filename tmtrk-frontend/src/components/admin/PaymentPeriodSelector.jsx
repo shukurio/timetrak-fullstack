@@ -81,11 +81,6 @@ const PaymentPeriodSelector = ({ onPeriodChange, selectedPeriod, periods = [] })
           <Calendar className="h-5 w-5 text-blue-600" />
           <h3 className="text-lg font-semibold text-gray-900">Payment Periods</h3>
         </div>
-        {periods.length > 0 && (
-          <div className="text-sm text-gray-500">
-            {selectedPeriod?.frequency || 'N/A'} Period
-          </div>
-        )}
       </div>
 
       <div className="flex items-center gap-2">

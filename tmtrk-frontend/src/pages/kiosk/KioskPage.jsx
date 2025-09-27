@@ -157,7 +157,6 @@ const KioskPage = () => {
           latitude: location.latitude,
           longitude: location.longitude
         };
-        console.log('Clock in data:', clockData);
         response = await kioskService.clockIn(clockData);
         toast.success('Clocked in successfully!');
       } else {
@@ -167,7 +166,6 @@ const KioskPage = () => {
           latitude: location.latitude,
           longitude: location.longitude
         };
-        console.log('Clock out data:', clockData);
         response = await kioskService.clockOut(clockData);
         toast.success('Clocked out successfully!');
       }
@@ -332,7 +330,7 @@ const KioskPage = () => {
             <div className="w-12 h-12 flex items-center justify-center mr-4">
               <TimeTrakIcon width={48} height={48} />
             </div>
-            <h1 className="text-4xl font-bold text-white">TimeTrack Kiosk</h1>
+            <h1 className="text-4xl font-bold text-white">TimeTrak Kiosk</h1>
           </div>
           <div className="text-6xl font-bold text-blue-400 mb-2 font-mono">
             {format(currentTime, 'HH:mm:ss')}

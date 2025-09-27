@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { 
-  DollarSign, 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  MoreVertical,
+import {
+  DollarSign,
+  Plus,
+  Search,
+  Filter,
+  Download,
   CheckCircle,
   Clock,
   XCircle,
@@ -26,7 +25,7 @@ import adminService from '../../api/adminService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PaymentPeriodSelector from '../../components/admin/PaymentPeriodSelector';
 
-// Validation schema for generate payments
+// Validation schema for calculate payments
 const generatePaymentSchema = yup.object({
   selectedPeriod: yup.object()
     .required('Payment period is required')
@@ -37,12 +36,13 @@ const PaymentsPage = () => {
   const [activeTab, setActiveTab] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showCalculateModal, setShowCalculateModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [selectedPayments, setSelectedPayments] = useState(new Set());
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [availablePeriods, setAvailablePeriods] = useState([]);
   const [selectedGenerationPeriod, setSelectedGenerationPeriod] = useState(null);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const pageSize = 20;
 
   const queryClient = useQueryClient();
@@ -143,26 +143,26 @@ const PaymentsPage = () => {
   };
 
 
-  // Generate payments mutation
+  // Calculate payments mutation
   const generatePaymentsMutation = useMutation({
     mutationFn: (data) => adminService.calculatePaymentsForPeriod({ periodNumber: data.selectedPeriod.periodNumber }),
     onSuccess: (data) => {
       queryClient.invalidateQueries(['payments']);
       queryClient.invalidateQueries(['payment-counts']);
-      setShowGenerateModal(false);
+      setShowCalculateModal(false);
       setSelectedGenerationPeriod(null);
       reset();
       
       const { successCount, failureCount } = data;
       if (failureCount === 0) {
-        toast.success(`Successfully generated ${successCount} payments!`);
+        toast.success(`Successfully calculated ${successCount} payments!`);
       } else {
-        toast.success(`Generated ${successCount} payments, ${failureCount} failed`);
+        toast.success(`Calculated ${successCount} payments, ${failureCount} failed`);
       }
     },
     onError: (error) => {
-      console.error('Generate payments error:', error);
-      toast.error(error.response?.data?.message || 'Failed to generate payments');
+      console.error('Calculate payments error:', error);
+      toast.error(error.response?.data?.message || 'Failed to calculate payments');
     }
   });
 
@@ -223,7 +223,7 @@ const PaymentsPage = () => {
 
   // Remove tab handling - not needed for period-based approach
 
-  const handleGeneratePayments = (data) => {
+  const handleCalculatePayments = (data) => {
     generatePaymentsMutation.mutate(data);
   };
 
@@ -272,30 +272,30 @@ const PaymentsPage = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      CALCULATED: { color: 'bg-yellow-100 text-yellow-800', label: 'Calculated' },
-      ISSUED: { color: 'bg-blue-100 text-blue-800', label: 'Issued' },
-      COMPLETED: { color: 'bg-green-100 text-green-800', label: 'Completed' },
-      VOIDED: { color: 'bg-red-100 text-red-800', label: 'Voided' },
+      CALCULATED: { color: 'bg-yellow-100 text-yellow-800', label: 'CALCULATED' },
+      ISSUED: { color: 'bg-blue-100 text-blue-800', label: 'ISSUED' },
+      COMPLETED: { color: 'bg-green-100 text-green-800', label: 'COMPLETED' },
+      VOIDED: { color: 'bg-red-100 text-red-800', label: 'VOIDED' },
     };
 
-    const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-800', label: status };
-    
+    const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-800', label: status?.toUpperCase() || 'UNKNOWN' };
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase ${config.color}`}>
         {config.label}
       </span>
     );
   };
 
-  const renderGenerateModal = () => (
-    showGenerateModal && (
+  const renderCalculateModal = () => (
+    showCalculateModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 animate-scale-up">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Generate Payments</h2>
+            <h2 className="text-xl font-bold text-gray-900">Calculate Payments</h2>
             <button
               onClick={() => {
-                setShowGenerateModal(false);
+                setShowCalculateModal(false);
                 setSelectedGenerationPeriod(null);
                 reset();
               }}
@@ -305,7 +305,7 @@ const PaymentsPage = () => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit(handleGeneratePayments)} className="space-y-4">
+          <form onSubmit={handleSubmit(handleCalculatePayments)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Payment Period *
@@ -336,7 +336,7 @@ const PaymentsPage = () => {
                 <p className="text-sm text-red-600 mt-1">{errors.selectedPeriod.message}</p>
               )}
               <p className="text-xs text-gray-500 mt-1">
-                Select the pay period for which to generate payments
+                Select the pay period for which to calculate payments
               </p>
             </div>
 
@@ -344,7 +344,7 @@ const PaymentsPage = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setShowGenerateModal(false);
+                  setShowCalculateModal(false);
                   setSelectedGenerationPeriod(null);
                   reset();
                 }}
@@ -360,10 +360,7 @@ const PaymentsPage = () => {
                 {generatePaymentsMutation.isLoading ? (
                   <LoadingSpinner size="sm" text="" />
                 ) : (
-                  <>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Generate
-                  </>
+                  <>Calculate</>
                 )}
               </button>
             </div>
@@ -432,14 +429,10 @@ const PaymentsPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-gray-50 rounded-lg p-4 text-center">
                 <p className="text-sm text-gray-500">Shifts</p>
                 <p className="text-xl font-semibold">{selectedPayment.shiftsCount}</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-500">Jobs</p>
-                <p className="text-xl font-semibold">{selectedPayment.jobsCount}</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 text-center">
                 <p className="text-sm text-gray-500">Calculated</p>
@@ -500,74 +493,107 @@ const PaymentsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Payment Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Payment Management</h1>
           <p className="text-gray-600 mt-1">Manage employee payments and payroll</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={handleExportPayments}
-            className="btn-outline flex items-center"
-            disabled={exportPaymentsByPeriodMutation.isLoading}
-          >
-            {exportPaymentsByPeriodMutation.isLoading ? (
-              <LoadingSpinner size="sm" text="" />
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => setShowGenerateModal(true)}
-            className="btn-primary flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Generate Payments
-          </button>
         </div>
       </div>
 
       {/* Payment Period Selector */}
-      <PaymentPeriodSelector 
+      <PaymentPeriodSelector
         onPeriodChange={handlePeriodChange}
         selectedPeriod={selectedPeriod}
         periods={availablePeriods}
       />
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 justify-end overflow-x-auto">
+        {isSelectionMode ? (
+          <>
+            <button
+              onClick={() => {
+                setIsSelectionMode(false);
+                setSelectedPayments(new Set());
+              }}
+              className="btn-secondary flex items-center"
+            >
+              <X className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Cancel Selection</span>
+              <span className="sm:hidden">Cancel</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setIsSelectionMode(true)}
+              className="btn-secondary flex items-center whitespace-nowrap"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Select
+            </button>
+            <button
+              onClick={handleExportPayments}
+              className="btn-outline flex items-center whitespace-nowrap"
+              disabled={exportPaymentsByPeriodMutation.isLoading}
+            >
+              {exportPaymentsByPeriodMutation.isLoading ? (
+                <LoadingSpinner size="sm" text="" />
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedGenerationPeriod(selectedPeriod);
+                setValue('selectedPeriod', selectedPeriod);
+                setShowCalculateModal(true);
+              }}
+              className="btn-primary flex items-center whitespace-nowrap"
+            >
+              <span className="hidden sm:inline">Calculate Payments</span>
+              <span className="sm:hidden">Calculate</span>
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Payments Table */}
       <div className="card p-0">
 
         {/* Bulk Actions */}
         {selectedPayments.size > 0 && (
-          <div className="px-6 py-3 bg-primary-50 border-b">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-primary-700">
-                {selectedPayments.size} payment{selectedPayments.size !== 1 ? 's' : ''} selected
-              </span>
-              <div className="flex space-x-2">
+          <div className="px-4 sm:px-6 py-4 bg-blue-50 border-b border-blue-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-blue-800">
+                  {selectedPayments.size} payment{selectedPayments.size !== 1 ? 's' : ''} selected
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleStatusUpdate('ISSUED')}
-                  className="btn-sm bg-blue-600 text-white hover:bg-blue-700"
+                  className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 border border-blue-300 rounded-md hover:bg-blue-200 hover:border-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={updateStatusMutation.isLoading}
                 >
-                  Mark as Issued
+                  Mark Issued
                 </button>
                 <button
                   onClick={() => handleStatusUpdate('COMPLETED')}
-                  className="btn-sm bg-green-600 text-white hover:bg-green-700"
+                  className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 border border-green-300 rounded-md hover:bg-green-200 hover:border-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={updateStatusMutation.isLoading}
                 >
-                  Mark as Completed
+                  Mark Completed
                 </button>
                 <button
                   onClick={() => handleStatusUpdate('VOIDED')}
-                  className="btn-sm bg-red-600 text-white hover:bg-red-700"
+                  className="px-4 py-2 text-sm font-medium text-red-700 bg-red-100 border border-red-300 rounded-md hover:bg-red-200 hover:border-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={updateStatusMutation.isLoading}
                 >
-                  Mark as Voided
+                  Mark Voided
                 </button>
               </div>
             </div>
@@ -625,34 +651,124 @@ const PaymentsPage = () => {
                 No payments found
               </h3>
               <p className="text-gray-600 mb-4">
-                Generate payments for a pay period to get started
+                Calculate payments for a pay period to get started
               </p>
               <button
-                onClick={() => setShowGenerateModal(true)}
+                onClick={() => setShowCalculateModal(true)}
                 className="btn-primary"
               >
-                Generate Payments
+                Calculate Payments
               </button>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* Mobile Cards View */}
+              <div className="block sm:hidden">
+                {isSelectionMode && (
+                  <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedPayments.size === paymentsData?.content?.length && paymentsData?.content?.length > 0}
+                        onChange={handleSelectAll}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="ml-3 text-sm text-gray-700">
+                        {selectedPayments.size > 0
+                          ? `${selectedPayments.size} selected`
+                          : `Select all`
+                        }
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-4 space-y-4">
+                  {paymentsData?.content?.map((payment) => (
+                    <div key={payment.id} className="border rounded-lg p-4 bg-white shadow-sm">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          {isSelectionMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedPayments.has(payment.id)}
+                              onChange={() => handleSelectPayment(payment.id)}
+                              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mr-3"
+                            />
+                          )}
+                          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                            <span className="text-primary-600 font-medium text-sm">
+                              {payment.employeeName?.charAt(0)}
+                            </span>
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {payment.employeeName}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              @{payment.employeeUsername}
+                            </div>
+                          </div>
+                        </div>
+                        {getStatusBadge(payment.status)}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs text-gray-600 mb-3">
+                        <div>
+                          <span className="font-medium">Hours:</span><br />
+                          {payment.totalHours?.toFixed(1) || '0'} hrs
+                          <div className="text-gray-500">{payment.shiftsCount} shifts</div>
+                        </div>
+                        <div>
+                          <span className="font-medium">Earnings:</span><br />
+                          <span className="text-green-600 font-semibold">
+                            ${payment.totalEarnings?.toFixed(2) || '0.00'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Avg Rate:</span><br />
+                          ${payment.averageHourlyRate?.toFixed(2) || '0'}/hr
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setSelectedPayment(payment)}
+                          className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                {isSelectionMode && (
+                  <div className="px-6 py-3 bg-gray-50 border-b flex items-center justify-between">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedPayments.size === paymentsData?.content?.length && paymentsData?.content?.length > 0}
+                        onChange={handleSelectAll}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="ml-3 text-sm text-gray-700">
+                        {selectedPayments.size > 0
+                          ? `${selectedPayments.size} selected`
+                          : `Select all ${paymentsData?.content?.length} payments`
+                        }
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left">
-                        <input
-                          type="checkbox"
-                          checked={selectedPayments.size === paymentsData?.content?.length}
-                          onChange={handleSelectAll}
-                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                        />
-                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Employee
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Period
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Total Earnings
@@ -672,15 +788,15 @@ const PaymentsPage = () => {
                     {paymentsData?.content?.map((payment) => (
                       <tr key={payment.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={selectedPayments.has(payment.id)}
-                            onChange={() => handleSelectPayment(payment.id)}
-                            className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
+                            {isSelectionMode && (
+                              <input
+                                type="checkbox"
+                                checked={selectedPayments.has(payment.id)}
+                                onChange={() => handleSelectPayment(payment.id)}
+                                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mr-3"
+                              />
+                            )}
                             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                               <span className="text-primary-600 font-medium text-sm">
                                 {payment.employeeName?.charAt(0)}
@@ -695,9 +811,6 @@ const PaymentsPage = () => {
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {payment.formattedPeriod}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-semibold text-green-600">
@@ -719,12 +832,9 @@ const PaymentsPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
                             onClick={() => setSelectedPayment(payment)}
-                            className="text-primary-600 hover:text-primary-700 mr-3"
+                            className="text-primary-600 hover:text-primary-700"
                           >
                             <Eye className="h-4 w-4" />
-                          </button>
-                          <button className="text-gray-400 hover:text-gray-600">
-                            <MoreVertical className="h-5 w-5" />
                           </button>
                         </td>
                       </tr>
@@ -732,9 +842,11 @@ const PaymentsPage = () => {
                   </tbody>
                 </table>
               </div>
+            </>
+          )}
 
-              {/* Pagination */}
-              {paymentsData.totalPages > 1 && (
+          {/* Pagination */}
+          {paymentsData?.totalPages > 1 && (
                 <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
                   <div className="text-sm text-gray-700">
                     Showing <span className="font-medium">{currentPage * pageSize + 1}</span> to{' '}
@@ -760,14 +872,12 @@ const PaymentsPage = () => {
                     </button>
                   </div>
                 </div>
-              )}
-            </>
           )}
         </div>
       </div>
 
       {/* Modals */}
-      {renderGenerateModal()}
+      {renderCalculateModal()}
       {renderPaymentDetails()}
     </div>
   );

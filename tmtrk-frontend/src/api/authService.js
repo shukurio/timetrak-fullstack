@@ -1,5 +1,4 @@
 import apiClient from './client';
-import axios from 'axios';
 
 class AuthService {
   async login(credentials) {
@@ -27,13 +26,18 @@ class AuthService {
     return response.data;
   }
 
-  async getUserRole() {
-    const response = await apiClient.get('/auth/me/role');
+  async changePassword(passwordData) {
+    const response = await apiClient.post('/user/change-password', passwordData);
     return response.data;
   }
 
-  async changePassword(passwordData) {
-    const response = await apiClient.post('/auth/change-password', passwordData);
+  async updateProfile(profileData) {
+    const response = await apiClient.put('/user/profile', profileData);
+    return response.data;
+  }
+
+  async getProfile() {
+    const response = await apiClient.get('/user/profile');
     return response.data;
   }
 

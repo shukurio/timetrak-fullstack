@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  Building2, User, Mail, Phone, MapPin, Eye, EyeOff, 
+import {
+  Building2, User, Mail, Phone, Eye, EyeOff,
   CheckCircle, ArrowRight, ArrowLeft, Loader2, AlertCircle,
   Users, Shield, Briefcase, Clock
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import companyService from '../../api/companyService';
+import { normalizeUserFormData } from '../../utils/stringUtils';
 
 // Validation schemas for each step
 const companySchema = yup.object({
@@ -25,19 +26,6 @@ const companySchema = yup.object({
     .matches(/^[A-Z0-9]+$/, 'Company code can only contain uppercase letters and numbers'),
   description: yup.string()
     .max(500, 'Description must not exceed 500 characters'),
-  latitude: yup.number()
-    .required('Latitude is required')
-    .min(-90, 'Latitude must be between -90 and 90')
-    .max(90, 'Latitude must be between -90 and 90'),
-  longitude: yup.number()
-    .required('Longitude is required')
-    .min(-180, 'Longitude must be between -180 and 180')
-    .max(180, 'Longitude must be between -180 and 180'),
-  allowedRadius: yup.number()
-    .required('Allowed radius is required')
-    .positive('Allowed radius must be a positive number')
-    .min(50, 'Minimum allowed radius is 50 meters')
-    .max(10000, 'Maximum allowed radius is 10,000 meters'),
   isActive: yup.boolean()
 });
 
@@ -118,27 +106,27 @@ const CompanyRegistration = () => {
 
   const handleAdminSubmit = async (adminData) => {
     setIsLoading(true);
-    
+
     try {
+      // Normalize admin data
+      const normalizedAdminData = normalizeUserFormData(adminData);
+
       const registrationData = {
         // Company data matching CompanyRequestDTO
         company: {
           name: companyData.name,
           code: companyData.code,
-          latitude: companyData.latitude,
-          longitude: companyData.longitude,
-          allowedRadius: companyData.allowedRadius,
           description: companyData.description || null,
           isActive: true
         },
-        
+
         // Admin data matching EmployeeRequestDTO
         admin: {
-          firstName: adminData.firstName,
-          lastName: adminData.lastName,
-          username: adminData.username.toLowerCase(), // Normalize username
-          email: adminData.email.toLowerCase(), // Normalize email
-          phoneNumber: adminData.phoneNumber.replace(/[\s-()]/g, ''), // Clean phone number
+          firstName: normalizedAdminData.firstName,
+          lastName: normalizedAdminData.lastName,
+          username: normalizedAdminData.username,
+          email: normalizedAdminData.email,
+          phoneNumber: adminData.phoneNumber?.replace(/[\s-()]/g, '') || '', // Clean phone number
           password: adminData.password
           // companyId will be set by backend
           // departmentId is optional for admin
@@ -352,99 +340,6 @@ const CompanyRegistration = () => {
                   </div>
 
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <MapPin className="inline w-4 h-4 mr-1" />
-                        Latitude *
-                      </label>
-                      <input
-                        {...companyForm.register('latitude', { valueAsNumber: true })}
-                        type="number"
-                        step="any"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="e.g., 40.7128"
-                      />
-                      {companyForm.formState.errors.latitude && (
-                        <p className="mt-1 text-sm text-red-600">{companyForm.formState.errors.latitude.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <MapPin className="inline w-4 h-4 mr-1" />
-                        Longitude *
-                      </label>
-                      <input
-                        {...companyForm.register('longitude', { valueAsNumber: true })}
-                        type="number"
-                        step="any"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="e.g., -74.0060"
-                      />
-                      {companyForm.formState.errors.longitude && (
-                        <p className="mt-1 text-sm text-red-600">{companyForm.formState.errors.longitude.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="text-blue-600 w-5 h-5 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-900 mb-1">
-                          Company Location
-                        </p>
-                        <p className="text-xs text-blue-700">
-                          Enter the central coordinates of your company location. This will be used for employee check-in validation.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (navigator.geolocation) {
-                              navigator.geolocation.getCurrentPosition(
-                                (position) => {
-                                  companyForm.setValue('latitude', position.coords.latitude);
-                                  companyForm.setValue('longitude', position.coords.longitude);
-                                },
-                                (error) => {
-                                  console.error('Error getting location:', error);
-                                  toast.error('Unable to get your current location');
-                                }
-                              );
-                            } else {
-                              toast.error('Geolocation is not supported by your browser');
-                            }
-                          }}
-                          className="mt-2 text-xs bg-white text-blue-600 px-3 py-1.5 rounded border border-blue-300 hover:bg-blue-50 transition-colors"
-                        >
-                          Use Current Location
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Shield className="inline w-4 h-4 mr-1" />
-                      Allowed Check-in Radius (meters) *
-                    </label>
-                    <input
-                      {...companyForm.register('allowedRadius', { valueAsNumber: true })}
-                      type="number"
-                      min="50"
-                      max="10000"
-                      step="50"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g., 100"
-                    />
-                    {companyForm.formState.errors.allowedRadius && (
-                      <p className="mt-1 text-sm text-red-600">{companyForm.formState.errors.allowedRadius.message}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      Employees must be within this distance from the company location to check in (50-10,000 meters)
-                    </p>
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

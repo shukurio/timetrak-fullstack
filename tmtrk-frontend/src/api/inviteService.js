@@ -34,43 +34,6 @@ const inviteService = {
     return response.data;
   },
 
-  getInviteStats: (invites = []) => {
-    const total = invites.length;
-    const active = invites.filter(invite => invite.isActive).length;
-    const used = invites.filter(invite => invite.usedCount > 0).length;
-    const expired = invites.filter(invite =>
-      invite.expiryDate && new Date(invite.expiryDate) < new Date()
-    ).length;
-
-    return {
-      total,
-      active,
-      used,
-      expired,
-      available: active - used
-    };
-  },
-
-  getUsagePercentage: (invite) => {
-    if (!invite.maxUses || invite.maxUses === 0) {
-      return 0;
-    }
-    return Math.round((invite.usedCount / invite.maxUses) * 100);
-  },
-
-  getInviteStatus: (invite) => {
-    if (!invite.isActive) {
-      return 'inactive';
-    }
-    if (invite.expiryDate && new Date(invite.expiryDate) < new Date()) {
-      return 'expired';
-    }
-    if (invite.maxUses && invite.usedCount >= invite.maxUses) {
-      return 'exhausted';
-    }
-    return 'active';
-  },
-
   // Public Endpoints
   validateInvite: async (inviteCode) => {
     const response = await apiClient.get(`/user/invites/validate/${inviteCode}`);
@@ -137,6 +100,44 @@ const inviteService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  // Utility functions for invite statistics and status
+  getInviteStats: (invites = []) => {
+    const total = invites.length;
+    const active = invites.filter(invite => invite.isActive).length;
+    const used = invites.filter(invite => invite.currentUses > 0).length;
+    const expired = invites.filter(invite =>
+      invite.expiryDate && new Date(invite.expiryDate) < new Date()
+    ).length;
+
+    return {
+      total,
+      active,
+      used,
+      expired,
+      available: active - used
+    };
+  },
+
+  getUsagePercentage: (invite) => {
+    if (!invite.maxUses || invite.maxUses === 0) {
+      return 0;
+    }
+    return Math.round((invite.currentUses / invite.maxUses) * 100);
+  },
+
+  getInviteStatus: (invite) => {
+    if (!invite.isActive) {
+      return 'inactive';
+    }
+    if (invite.expiryDate && new Date(invite.expiryDate) < new Date()) {
+      return 'expired';
+    }
+    if (invite.maxUses && invite.currentUses >= invite.maxUses) {
+      return 'exhausted';
+    }
+    return 'active';
   }
 };
 

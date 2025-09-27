@@ -154,7 +154,100 @@ const ShiftsTable = ({
 
   return (
     <div className="card p-0">
-      <div className="overflow-x-auto">
+      {/* Mobile Cards View */}
+      <div className="block sm:hidden">
+        {isSelectionMode && (
+          <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={selectedShifts.length === shiftsData.content.length && shiftsData.content.length > 0}
+                onChange={(e) => onSelectAllShifts(e.target.checked)}
+                className="h-4 w-4 text-primary-600 rounded border-gray-300"
+              />
+              <span className="ml-3 text-sm text-gray-700">
+                {selectedShifts.length > 0
+                  ? `${selectedShifts.length} selected`
+                  : `Select all`
+                }
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="p-4 space-y-4">
+          {shiftsData.content.map((shift) => (
+            <div key={shift.id} className="border rounded-lg p-4 bg-white shadow-sm">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center">
+                  {isSelectionMode && (
+                    <input
+                      type="checkbox"
+                      checked={selectedShifts.includes(shift.employeeJobId)}
+                      onChange={(e) => onShiftSelection(shift.employeeJobId, e.target.checked)}
+                      className="h-4 w-4 text-primary-600 rounded border-gray-300 mr-3"
+                    />
+                  )}
+                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                    <span className="text-primary-600 font-medium text-sm">
+                      {shift.fullName?.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-sm font-medium text-gray-900">{shift.fullName}</div>
+                    <div className="text-xs text-gray-500">{shift.jobTitle}</div>
+                  </div>
+                </div>
+                {getStatusBadge(shift.status)}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs text-gray-600 mb-3">
+                <div>
+                  <span className="font-medium">Clock In:</span><br />
+                  {shift.clockIn ? format(parseISO(shift.clockIn), 'MMM d, HH:mm') : '-'}
+                </div>
+                <div>
+                  <span className="font-medium">Clock Out:</span><br />
+                  {shift.clockOut ? format(parseISO(shift.clockOut), 'MMM d, HH:mm') : '-'}
+                </div>
+                <div>
+                  <span className="font-medium">Duration:</span><br />
+                  {formatDuration(shift.clockIn, shift.clockOut)}
+                </div>
+                <div>
+                  <span className="font-medium">Earnings:</span><br />
+                  <span className="text-green-600 font-semibold">${shift.shiftEarnings?.toFixed(2) || '0.00'}</span>
+                </div>
+              </div>
+
+              {shift.notes && (
+                <div className="mb-3">
+                  <span className="text-xs font-medium text-gray-700">Notes:</span>
+                  <p className="text-xs text-gray-600 mt-1">{shift.notes}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => onEditShift(shift)}
+                  className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => onDeleteShift(shift)}
+                  className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
         {isSelectionMode && (
           <div className="px-6 py-3 bg-gray-50 border-b flex items-center justify-between">
             <div className="flex items-center">
@@ -165,8 +258,8 @@ const ShiftsTable = ({
                 className="h-4 w-4 text-primary-600 rounded border-gray-300"
               />
               <span className="ml-3 text-sm text-gray-700">
-                {selectedShifts.length > 0 
-                  ? `${selectedShifts.length} selected` 
+                {selectedShifts.length > 0
+                  ? `${selectedShifts.length} selected`
                   : `Select all ${shiftsData.content.length} shifts`
                 }
               </span>
@@ -192,65 +285,66 @@ const ShiftsTable = ({
             {shiftsData.content.map(renderShiftRow)}
           </tbody>
         </table>
+      </div>
 
-        {shiftsData.totalPages > 1 && (
-          <div className="px-6 py-4 flex items-center justify-between border-t">
-            <div className="flex-1 flex justify-between sm:hidden">
-              <button
-                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                disabled={currentPage === 0}
-                className="btn-outline disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage(Math.min(shiftsData.totalPages - 1, currentPage + 1))}
-                disabled={currentPage >= shiftsData.totalPages - 1}
-                className="btn-outline disabled:opacity-50"
-              >
-                Next
-              </button>
+      {/* Pagination */}
+      {shiftsData.totalPages > 1 && (
+        <div className="px-4 sm:px-6 py-4 flex items-center justify-between border-t">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              className="btn-outline disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.min(shiftsData.totalPages - 1, currentPage + 1))}
+              disabled={currentPage >= shiftsData.totalPages - 1}
+              className="btn-outline disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{currentPage * pageSize + 1}</span> to{' '}
+                <span className="font-medium">
+                  {Math.min((currentPage + 1) * pageSize, shiftsData.totalElements)}
+                </span>{' '}
+                of <span className="font-medium">{shiftsData.totalElements}</span> results
+              </p>
             </div>
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{currentPage * pageSize + 1}</span> to{' '}
-                  <span className="font-medium">
-                    {Math.min((currentPage + 1) * pageSize, shiftsData.totalElements)}
-                  </span>{' '}
-                  of <span className="font-medium">{shiftsData.totalElements}</span> results
-                </p>
-              </div>
-              <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                  {Array.from({ length: Math.min(5, shiftsData.totalPages) }, (_, i) => {
-                    const page = currentPage < 3 ? i : currentPage - 2 + i;
-                    if (page >= shiftsData.totalPages) return null;
-                    
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          page === currentPage
-                            ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                        } ${
-                          i === 0 ? 'rounded-l-md' : ''
-                        } ${
-                          i === Math.min(4, shiftsData.totalPages - 1) ? 'rounded-r-md' : ''
-                        }`}
-                      >
-                        {page + 1}
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
+            <div>
+              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                {Array.from({ length: Math.min(5, shiftsData.totalPages) }, (_, i) => {
+                  const page = currentPage < 3 ? i : currentPage - 2 + i;
+                  if (page >= shiftsData.totalPages) return null;
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        page === currentPage
+                          ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
+                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                      } ${
+                        i === 0 ? 'rounded-l-md' : ''
+                      } ${
+                        i === Math.min(4, shiftsData.totalPages - 1) ? 'rounded-r-md' : ''
+                      }`}
+                    >
+                      {page + 1}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
