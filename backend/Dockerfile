@@ -12,9 +12,14 @@ RUN mvn clean package -DskipTests
 # Runtime JDK 21 (slim)
 FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
+
+# Set timezone to Eastern
+ENV TZ=America/Detroit
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8093
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=America/Detroit", "-jar", "app.jar"]
 
 
 

@@ -9,6 +9,13 @@ RUN npm run build
 RUN ls -la /app/dist  # Add this line to see what files are created
 
 FROM nginx:stable-alpine
+
+# Set timezone to Eastern
+ENV TZ=America/Detroit
+RUN apk add --no-cache tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY start-nginx.sh /start-nginx.sh
