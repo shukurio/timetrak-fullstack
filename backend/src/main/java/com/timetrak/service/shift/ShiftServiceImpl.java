@@ -170,24 +170,10 @@ public class ShiftServiceImpl implements ShiftService {
 
     }
 
-
-    @Override
-    public List<ShiftResponseDTO> getShiftsByDateRange(Long companyId, LocalDate startDate, LocalDate endDate) {
-        LocalDateTime startDateTime = toStartOfDay(startDate);
-        LocalDateTime endDateTime = toEndOfDay(endDate);
-        List<Shift> shifts = shiftRepository.findByCompanyIdAndDateRange(companyId,startDateTime,endDateTime);
-        return shiftMapper.toDTOList(shifts);
-    }
-
     @Override
     public Page<ShiftResponseDTO> getShiftsFromDate(LocalDate startDate,Long companyId, Pageable pageable) {
         LocalDateTime startDateTime = toStartOfDay(startDate);
         return shiftRepository.findByDateFrom(startDateTime,companyId, pageable).map(shiftMapper::toDTO);
-    }
-
-    @Override
-    public Page<ShiftResponseDTO> getTodaysShifts(Long companyId, Pageable pageable) {
-        return getShiftsFromDate(LocalDate.now(),companyId, pageable);
     }
 
     @Override
@@ -256,11 +242,13 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public Shift getActiveShift(Long employeeId, Long companyId) {
-        return shiftRepository.findActiveShiftByEmployeeId(employeeId)
+    public ShiftResponseDTO getActiveShift(Long employeeId, Long companyId) {
+        Shift shift =  shiftRepository.findActiveShiftByEmployeeId(employeeId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(ClockErrorCode.NO_ACTIVE_SHIFT.getDefaultMessage()
-                                + " for employee ID: " + employeeId));    }
+                                + " for employee ID: " + employeeId));
+        return shiftMapper.toDTO(shift);
+    }
 
     @Override
     public Map<Employee, List<ShiftResponseDTO>> getAllShiftsByDateRange(

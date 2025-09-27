@@ -5,21 +5,14 @@ class EmployeeService {
   // Silent version for background checks (dashboard, etc.)
   async getActiveShiftSilent() {
     try {
-      // Try to get active shifts from the regular shifts endpoint
-      const response = await apiClient.get('/employee/shifts', {
-        params: {
-          status: 'ACTIVE',
-          size: 1,
-          page: 0
-        }
-      });
+      const response = await apiClient.get('/employee/shifts/active');
 
-      // If we have active shifts, return the first one
-      if (response.data && response.data.content && response.data.content.length > 0) {
-        return response.data.content[0];
+      if (response.data) {
+        return response.data;
       }
 
       return null;
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Completely silent - return null if no active shift or any error
       return null;

@@ -11,16 +11,11 @@ const inviteService = {
     return response.data;
   },
 
-  getInvites: async (params = {}) => {
+  getActiveInvites: async (params = {}) => {
     const { page = 0, size = 10, sortBy = 'createdAt', sortDir = 'desc' } = params;
     const response = await apiClient.get('/admin/invites', {
       params: { page, size, sortBy, sortDir }
     });
-    return response.data;
-  },
-
-  getActiveInvites: async () => {
-    const response = await apiClient.get('/admin/invites/active');
     return response.data;
   },
 

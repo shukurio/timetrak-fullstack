@@ -146,6 +146,21 @@ public class UserShiftController {
     // =============== VALIDATION OPERATIONS ===============
 
 
+    /**
+     * Get active shift for an employee
+     */
+    @GetMapping("/active")
+    public ResponseEntity<ShiftResponseDTO> getActiveShift(){
+        log.warn("It existssss");
+
+        log.debug("Get active shift for employee {}", currentEmployeeId());
+
+        ShiftResponseDTO shift = shiftService.getActiveShift(currentEmployeeId(),currentCompanyId());
+
+
+        return ResponseEntity.ok(shift);
+    }
+
     private Long currentEmployeeId() {
         return authContextService.getCurrentEmployeeId();
     }

@@ -49,13 +49,6 @@ public interface ShiftService {
     Page<ShiftResponseDTO> getShiftsByStatusAndPeriodNumber(Integer periodNumber,ShiftStatus status, Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getShiftsByEmployeeIdAndPeriodNumber(Integer periodNumber, Long employeeId, Long companyId, Pageable pageable);
 
-
-
-    //Internal Use
-    List<ShiftResponseDTO> getShiftsByDateRange(Long companyId,LocalDate startDate, LocalDate endDate);
-
-
-    Page<ShiftResponseDTO> getTodaysShifts(Long companyId,Pageable pageable);
     Page<ShiftResponseDTO> getThisWeekShifts(Long companyId, Pageable pageable);
     Page<ShiftResponseDTO> getThisMonthShifts(Long companyId,Pageable pageable);
 
@@ -67,7 +60,7 @@ public interface ShiftService {
     ///For CLock out operations only/ no companyId required
     Shift getActiveShiftSelf(Long employeeId);
 
-    Shift getActiveShift(Long employeeId,Long companyId);
+    ShiftResponseDTO getActiveShift(Long employeeId,Long companyId);
 
 
 
