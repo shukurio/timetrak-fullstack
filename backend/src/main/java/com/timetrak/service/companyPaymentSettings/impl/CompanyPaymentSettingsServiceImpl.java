@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -93,14 +92,9 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
         return settingsRepository.existsByCompanyId(companyId);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<CompanyPaymentSettings> getPaymentSettingsEntity(Long companyId) {
-        return settingsRepository.findByCompanyId(companyId);
-    }
 
     @Override
-    public CompanyPaymentSettings createDefaultSettings(Long companyId) {
+    public void createDefaultSettings(Long companyId) {
         log.debug("Creating default payment settings for company: {}", companyId);
 
         // Validate company exists
@@ -110,7 +104,8 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
         // Check if settings already exist
         if (settingsRepository.existsByCompanyId(companyId)) {
             log.warn("Payment settings already exist for company: {}, returning existing", companyId);
-            return settingsRepository.findByCompanyId(companyId).get();
+            settingsRepository.findByCompanyId(companyId).orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + companyId));
+            return;
         }
 
         // Create default settings
@@ -119,7 +114,7 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
                 .company(company)
                 .payFrequency(defaultFrequency)
                 .firstDay(LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
-                .calculationDay(getDefaultCalculationDay(defaultFrequency))
+                .calculationDay(getDefaultCalculationDay())
                 .calculationTime(LocalTime.of(2, 0)) // 2 AM
                 .autoCalculate(true)
                 .gracePeriodHours(getDefaultGracePeriodHours(defaultFrequency))
@@ -127,10 +122,9 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
                 .notificationEmail(getDefaultNotificationEmail())
                 .build();
 
-        CompanyPaymentSettings saved = settingsRepository.save(settings);
+        settingsRepository.save(settings);
         log.info("Created default payment settings for company: {}", companyId);
 
-        return saved;
     }
 
     @Override
@@ -161,7 +155,7 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
             settings.setFirstDay(LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)));
         }
         if (settings.getCalculationDay() == null) {
-            settings.setCalculationDay(getDefaultCalculationDay(settings.getPayFrequency()));
+            settings.setCalculationDay(getDefaultCalculationDay());
         }
         if (settings.getCalculationTime() == null) {
             settings.setCalculationTime(LocalTime.of(2, 0));
@@ -184,12 +178,8 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
      * Get smart default calculation day based on pay frequency
      * Accounts for grace period to allow late clock-outs
      */
-    private DayOfWeek getDefaultCalculationDay(PayFrequency frequency) {
-        return switch (frequency) {
-            case WEEKLY -> DayOfWeek.WEDNESDAY;   // Wed morning (72h after Sunday end)
-            case BIWEEKLY -> DayOfWeek.WEDNESDAY; // Wed morning (72h after Sunday end)  
-            case MONTHLY -> DayOfWeek.THURSDAY;   // Thu morning (varies by month end)
-        };
+    private DayOfWeek getDefaultCalculationDay() {
+        return DayOfWeek.TUESDAY;
     }
 
     /**
@@ -204,26 +194,9 @@ public class CompanyPaymentSettingsServiceImpl implements CompanyPaymentSettings
         };
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean canCalculatePayments(Long companyId, LocalDate periodEnd) {
-        CompanyPaymentSettings settings = settingsRepository.findByCompanyId(companyId)
-                .orElseThrow(() -> new PaymentSettingsConfigurationException(
-                        "Payment settings not found for company: " + companyId));
-
-        LocalDateTime gracePeriodEnd = periodEnd.atTime(23, 59, 59)
-                .plusHours(settings.getGracePeriodHours());
-        
-        boolean canCalculate = LocalDateTime.now().isAfter(gracePeriodEnd);
-        
-        log.debug("Grace period check for company {}: periodEnd={}, gracePeriodEnd={}, canCalculate={}", 
-                companyId, periodEnd, gracePeriodEnd, canCalculate);
-        
-        return canCalculate;
-    }
 
     /**
-     * Get default notification email (current admin's email)
+     * Get default notification email (current admin email)
      */
     private String getDefaultNotificationEmail() {
         try {

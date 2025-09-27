@@ -38,7 +38,5 @@ public interface EmployeeJobRepository extends JpaRepository<EmployeeJob, Long> 
     @Query("SELECT ej FROM EmployeeJob ej JOIN ej.employee e WHERE e.username = :username AND e.company.id = :companyId AND ej.deletedAt IS NULL")
     List<EmployeeJob> findByEmployeeUsernameAndCompanyId(@Param("username") String username, @Param("companyId") Long companyId);
 
-    List<EmployeeJob> findByEmployeeUsername(String username);
-
     Optional<EmployeeJob> findByIdAndDeletedAtIsNull(Long empJobId);
 }

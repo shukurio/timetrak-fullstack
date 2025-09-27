@@ -211,7 +211,7 @@ public class PaymentCalculationValidator {
         }
 
         if (shiftsCount > 0) {
-            Double avgHoursPerShift = hours / shiftsCount;
+            double avgHoursPerShift = hours / shiftsCount;
             if (avgHoursPerShift > MAX_SHIFT_DURATION_HOURS) {
                 throw new InvalidPaymentRequestException(
                         "Average hours per shift (" + String.format("%.2f", avgHoursPerShift) + ") " +

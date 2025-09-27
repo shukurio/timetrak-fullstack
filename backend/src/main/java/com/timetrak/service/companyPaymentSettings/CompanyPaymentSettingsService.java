@@ -2,9 +2,7 @@ package com.timetrak.service.companyPaymentSettings;
 
 import com.timetrak.dto.company.settings.CompanyPaymentSettingsRequestDTO;
 import com.timetrak.dto.company.settings.CompanyPaymentSettingsResponseDTO;
-import com.timetrak.entity.CompanyPaymentSettings;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface CompanyPaymentSettingsService {
@@ -29,15 +27,11 @@ public interface CompanyPaymentSettingsService {
      */
     boolean hasPaymentSettings(Long companyId);
 
-    /**
-     * Get payment settings entity (for internal service use)
-     */
-    Optional<CompanyPaymentSettings> getPaymentSettingsEntity(Long companyId);
 
     /**
      * Create default payment settings for a company
      */
-    CompanyPaymentSettings createDefaultSettings(Long companyId);
+    void createDefaultSettings(Long companyId);
 
     /**
      * Initialize default payment settings for a company (returns DTO)
@@ -45,12 +39,7 @@ public interface CompanyPaymentSettingsService {
     CompanyPaymentSettingsResponseDTO initializeDefaultSettings(Long companyId);
 
     /**
-     * Check if it's safe to calculate payments for a period (respects grace period)
-     */
-    boolean canCalculatePayments(Long companyId, LocalDate periodEnd);
-
-    /**
-     * Set current admin's email as notification email
+     * Set current admin email as notification email
      */
     CompanyPaymentSettingsResponseDTO setAdminEmailAsNotification(Long companyId);
 }

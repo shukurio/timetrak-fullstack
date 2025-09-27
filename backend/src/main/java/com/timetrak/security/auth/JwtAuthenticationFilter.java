@@ -68,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             System.out.println("DEBUG: JWT processing failed: " + e.getMessage());
-            e.getMessage();
         }
         filterChain.doFilter(request, response);
     }

@@ -1,6 +1,5 @@
 package com.timetrak.service.auth;
 
-import com.timetrak.enums.Role;
 import com.timetrak.exception.UnauthorizedAccessException;
 import com.timetrak.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +26,6 @@ public class AuthContextService {
         return getAuthentication().getName();
     }
 
-    public Role getCurrentUserRole() {
-        return getCurrentUserDetails().getEmployee().getRole();
-    }
 
     public String getCurrentUserEmail() {
         return getCurrentUserDetails().getEmployee().getEmail();

@@ -74,7 +74,7 @@ public class EmployeeJobManagementServiceImpl implements EmployeeJobManagementSe
         
         for (Long employeeId : employeeIds) {
             try {
-                processIndividualRemoval(employeeId, jobId, companyId, successful, failed);
+                processIndividualRemoval(employeeId, jobId, companyId, successful);
             } catch (Exception e) {
                 String employeeName = getEmployeeNameSafely(employeeId, companyId);
                 failed.add(buildFailureResponse(employeeId, employeeName, e.getMessage(), "REMOVAL_ERROR"));
@@ -171,8 +171,7 @@ public class EmployeeJobManagementServiceImpl implements EmployeeJobManagementSe
     }
 
     private void processIndividualRemoval(Long employeeId, Long jobId, Long companyId, 
-                                        List<EmployeeJobResponseDTO> successful, 
-                                        List<EmployeeJobFailureResponseDTO> failed) {
+                                        List<EmployeeJobResponseDTO> successful) {
         Employee employee = employeeService.getActiveById(employeeId, companyId);
         validationService.validateEmployee(employee, companyId);
         

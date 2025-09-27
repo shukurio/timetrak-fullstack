@@ -7,7 +7,6 @@ import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.ResourceNotFoundException;
 import com.timetrak.exception.TokenExpiredException;
 import com.timetrak.mapper.EmployeeMapper;
-import com.timetrak.repository.DepartmentRepository;
 import com.timetrak.repository.EmployeeRepository;
 import com.timetrak.security.auth.CustomUserDetails;
 import com.timetrak.security.auth.JwtService;
@@ -20,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,8 +28,6 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmployeeMapper employeeMapper;
@@ -121,31 +117,14 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Expired refresh token: {}", e.getMessage());
             throw e;
 
-        } catch (Exception e) {
-            throw e;
         }
     }
 
 
-    @Override
-    public void changePassword(String username, String oldPassword, String newPassword) {
-        Employee employee = employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with username: " + username));
 
-        if (!passwordEncoder.matches(oldPassword, employee.getPassword())) {
-            throw new InvalidCredentialsException("Current password is incorrect");
-        }
-
-        employee.setPassword(passwordEncoder.encode(newPassword));
-        employeeRepository.save(employee);
-
-        log.info("Password changed for user: {}", username);
-    }
 
     @Override
     public void resetPassword(String email) {
-        Employee employee = employeeRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with email: " + email));
 
         // In a real application, I would send an email with a reset link
         // For now, we'll just log the action
@@ -155,6 +134,7 @@ public class AuthServiceImpl implements AuthService {
         // TODO: Implement email service for password reset
         throw new UnsupportedOperationException("Password reset functionality not yet implemented");
     }
+
 
 }
 

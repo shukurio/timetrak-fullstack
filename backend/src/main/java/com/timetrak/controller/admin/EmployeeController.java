@@ -4,6 +4,7 @@ package com.timetrak.controller.admin;
 
 import com.timetrak.dto.employee.EmployeeResponseDTO;
 import com.timetrak.dto.employee.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeUpdateDTO;
 import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.employee.EmployeeService;
@@ -145,7 +146,7 @@ public class EmployeeController {
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable Long id,
-            @Valid @RequestBody EmployeeRequestDTO request) {
+            @Valid @RequestBody EmployeeUpdateDTO request) {
         EmployeeResponseDTO employee = employeeService.updateEmployee(id, request, getCompanyId());
         return ResponseEntity.ok(employee);
     }

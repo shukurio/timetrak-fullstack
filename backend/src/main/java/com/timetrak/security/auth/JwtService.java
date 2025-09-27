@@ -37,10 +37,6 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
-    }
-
     // Main method used to generate access token
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();

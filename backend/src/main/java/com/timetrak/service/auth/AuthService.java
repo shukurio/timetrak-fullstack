@@ -7,6 +7,6 @@ public interface AuthService {
     AuthResponse login(AuthRequest request);
     void logout(String token);
     AuthResponse refreshToken(String refreshToken);
-    void changePassword(String username, String oldPassword, String newPassword);
     void resetPassword(String email);
+
 }
