@@ -105,4 +105,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT COUNT(e) FROM Employee e WHERE e.department.id = :departmentId AND e.status = 'ACTIVE' AND e.deletedAt IS NULL")
     long countActiveEmployeesInDepartment(@Param("departmentId") Long departmentId);
 
+    @Query("SELECT COUNT(e) FROM Employee e " +
+    "WHERE e.company.id= :companyId "+
+    "AND e.deletedAt IS NULL "+
+    "AND e.status=:status")
+    long countEmployeesByStatusInCompany(@Param("companyId") Long companyId,
+                                         @Param("status") EmployeeStatus status);
+
+
+
 }
