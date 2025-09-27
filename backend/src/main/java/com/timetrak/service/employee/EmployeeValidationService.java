@@ -2,6 +2,7 @@ package com.timetrak.service.employee;
 
 import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.employee.EmployeeRequestDTO;
+import com.timetrak.dto.employee.EmployeeUpdateDTO;
 import com.timetrak.entity.Employee;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeValidationException;
@@ -120,49 +121,10 @@ public class EmployeeValidationService {
         validateNoActiveShifts(employee.getId(), "Cannot reactivate employee with active shifts");
     }
 
-    public void validateCanWork(Employee employee) {
-        if (employee.isDeleted()) {
-            throw new InvalidEmployeeException("Deleted employees cannot work", employee.getId());
-        }
-
-        if (employee.isPending()) {
-            throw new InvalidEmployeeException("Pending employees cannot work until approved", employee.getId());
-        }
-
-        if (employee.isDeactivated()) {
-            throw new InvalidEmployeeException("Deactivated employees cannot work", employee.getId());
-        }
-
-        if (employee.isRejected()) {
-            throw new InvalidEmployeeException("Rejected employees cannot work", employee.getId());
-        }
-
-        // Only ACTIVE employees can work
-        if (!employee.isActive()) {
-            throw new InvalidEmployeeException("Only active employees can perform work operations", employee.getId());
-        }
-    }
-
-
-    public void validateCanReceivePayment(Employee employee) {
-        if (employee.isDeleted()) {
-            throw new InvalidEmployeeException("Deleted employees cannot receive payments", employee.getId());
-        }
-
-        if (employee.isPending()) {
-            throw new InvalidEmployeeException("Pending employees cannot receive payments until approved", employee.getId());
-        }
-
-        if (employee.isRejected()) {
-            throw new InvalidEmployeeException("Rejected employees cannot receive payments", employee.getId());
-        }
-
-        // ACTIVE and DEACTIVATED employees can receive payments for past work
-    }
 
     // ========== UPDATE VALIDATION ==========
 
-    public void validateUpdate(Employee existing, EmployeeRequestDTO dto) {
+    public void validateUpdate(Employee existing, EmployeeUpdateDTO dto) {
         validateEmployeeNotDeleted(existing);
         if (existing.isRejected()) {
             throw new InvalidEmployeeException("Rejected employees can only be reactivated, not updated", existing.getId());
@@ -171,12 +133,6 @@ public class EmployeeValidationService {
         if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
             if (employeeRepository.existsByEmailAndIdNot(dto.getEmail(), existing.getId())) {
                 throw new DuplicateEmployeeException("email", dto.getEmail());
-            }
-        }
-
-        if (dto.getUsername() != null && !dto.getUsername().equals(existing.getUsername())) {
-            if (employeeRepository.existsByUsernameAndIdNot(dto.getUsername(), existing.getId())) {
-                throw new DuplicateEmployeeException("username", dto.getUsername());
             }
         }
     }

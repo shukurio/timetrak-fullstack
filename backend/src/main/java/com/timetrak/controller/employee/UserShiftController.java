@@ -1,11 +1,8 @@
-package com.timetrak.controller.user;
+package com.timetrak.controller.employee;
 
 
 import com.timetrak.dto.shift.ShiftResponseDTO;
 import com.timetrak.dto.shift.ShiftSummaryDTO;
-import com.timetrak.entity.Shift;
-import com.timetrak.enums.ShiftStatus;
-import com.timetrak.mapper.ShiftMapper;
 import com.timetrak.misc.PageableHelper;
 import com.timetrak.service.auth.AuthContextService;
 import com.timetrak.service.shift.ShiftService;
@@ -31,41 +28,8 @@ import java.time.LocalDate;
 @Slf4j
 public class UserShiftController {
     private final ShiftService shiftService;
-    private final ShiftMapper shiftMapper;
     private final AuthContextService contextService;
     private final AuthContextService authContextService;
-
-
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Authentication working!");
-    }
-    
-
-    // =============== QUERY OPERATIONS ===============
-
-    /**
-     * Get shifts by employee ID
-     */
-    @GetMapping()
-    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByEmployee(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
-
-        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
-        
-
-
-        Page<ShiftResponseDTO> response = shiftService.getShiftsByEmployeeId(currentEmployeeId(),
-                currentCompanyId(),
-                pageable);
-        log.debug("Get shifts by employee {} - page: {}, size: {}", currentEmployeeId(), page, size);
-
-
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * Get shifts by job title
@@ -87,31 +51,6 @@ public class UserShiftController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get shifts by status and periodNumber
-     */
-    @GetMapping("period/{periodNumber}/status/{status}")
-    public ResponseEntity<Page<ShiftResponseDTO>> getShiftsByStatus(
-            @PathVariable @Positive Integer periodNumber,
-            @PathVariable ShiftStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "clockIn") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
-
-        Pageable pageable = PageableHelper.buildPageable(page, size, sortBy, sortDir);
-
-
-        Page<ShiftResponseDTO> response = shiftService.getShiftsByStatusAndPeriodNumber(periodNumber,
-                status,
-                currentCompanyId(),
-                pageable);
-        log.debug("Get shifts by employee {} and status {} - page: {}, size: {}",
-                currentEmployeeId(), status, page, size);
-
-
-        return ResponseEntity.ok(response);
-    }
 
 
     // =============== DATE RANGE QUERIES ===============
@@ -206,24 +145,6 @@ public class UserShiftController {
 
     // =============== VALIDATION OPERATIONS ===============
 
-
-    /**
-     * Get active shift for an employee
-     */
-    @GetMapping("/active")
-    public ResponseEntity<ShiftResponseDTO> getActiveShift(){
-
-        log.debug("Get active shift for employee {}", currentEmployeeId());
-
-        Shift shift = shiftService.getActiveShiftSelf(currentEmployeeId());
-
-        if (shift == null) {
-            return ResponseEntity.ok(null); // or ResponseEntity.ok().build()
-        }
-        ShiftResponseDTO response = shiftMapper.toDTO(shift);
-
-        return ResponseEntity.ok(response);
-    }
 
     private Long currentEmployeeId() {
         return authContextService.getCurrentEmployeeId();

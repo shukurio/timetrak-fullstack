@@ -114,7 +114,7 @@ public class AutomaticPaymentService {
 
             // Send notifications if enabled
             if (settings.getNotifyOnCalculation()) {
-                sendPaymentNotification(settings, response, currentPeriod);
+                sendPaymentNotification(settings);
             }
 
         } catch (Exception e) {
@@ -123,29 +123,11 @@ public class AutomaticPaymentService {
         }
     }
 
-    private void sendPaymentNotification(CompanyPaymentSettings settings,
-                                         PaymentResponseDTO response,
-                                         Period period) {
+    private void sendPaymentNotification(CompanyPaymentSettings settings) {
         try {
             String email = settings.getNotificationEmail();
             if (email != null && !email.trim().isEmpty()) {
                 // Send email notification
-                String subject = String.format("Payroll Calculated - %s", period.getDescription());
-                String message = String.format(
-                        """
-                                Automatic payroll calculation completed:
-                                
-                                Period: %s
-                                Successful: %d employees
-                                Failed: %d employees
-                                Total Processed: %d employees
-                                
-                                Please review the payments in your dashboard.""",
-                        period.getDescription(),
-                        response.getSuccessCount(),
-                        response.getFailureCount(),
-                        response.getTotalProcessed()
-                );
 
                 // TODO: Implement email service
                 // emailService.sendEmail(email, subject, message);

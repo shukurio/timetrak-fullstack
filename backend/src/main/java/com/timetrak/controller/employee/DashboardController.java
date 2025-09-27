@@ -1,4 +1,4 @@
-package com.timetrak.controller.user;
+package com.timetrak.controller.employee;
 
 import com.timetrak.dto.employee.EmployeeDashboardSummary;
 import com.timetrak.service.EmployeeDashboardService;

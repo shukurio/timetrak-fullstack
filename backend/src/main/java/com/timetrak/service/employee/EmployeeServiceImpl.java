@@ -4,11 +4,13 @@ package com.timetrak.service.employee;
 import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.employee.EmployeeRequestDTO;
 import com.timetrak.dto.employee.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeUpdateDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Department;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
 import com.timetrak.enums.Role;
+import com.timetrak.exception.InvalidCredentialsException;
 import com.timetrak.exception.employee.DuplicateEmployeeException;
 import com.timetrak.exception.employee.EmployeeNotFoundException;
 import com.timetrak.exception.employee.EmployeeValidationException;
@@ -39,12 +41,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeMapper employeeMapper;
     private final EmployeeValidationService validationService;
 
-    @Override
-    public EmployeeResponseDTO getEmployeeDTOById(Long id, Long companyId) {
-        Employee employee = employeeRepository.findByIdAndCompanyIdAndDeletedAtIsNull(id, companyId)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
-        return employeeMapper.toDTO(employee);
-    }
     
     // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
@@ -66,10 +62,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException("Active employee not found with id: " + employeeId));
     }
 
-    @Override
-    public List<Employee> getByIds(List<Long> ids, Long companyId) {
-        return employeeRepository.findAllByIdAndCompanyIdDeletedIncluded(ids, companyId);
-    }
 
     //for company
     @Override
@@ -79,13 +71,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     }
 
-
-    @Override
-    public EmployeeResponseDTO getByUsername(String username, Long companyId) {
-        Employee employee = employeeRepository.findByUsernameAndCompanyId(username, companyId)
-                .orElseThrow(() -> new EmployeeNotFoundException(username));
-        return employeeMapper.toDTO(employee);
-    }
     
     // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
@@ -95,18 +80,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeMapper.toDTO(employee);
     }
 
-    @Override
-    public Employee getByEmail(String email, Long companyId) {
-        return employeeRepository.findByEmailAndCompanyId(email, companyId)
-                .orElseThrow(() -> new EmployeeNotFoundException(email));
-    }
-    
-    // Legacy method (keeping for backward compatibility - NO company scope)
-    @Override
-    public Employee getByEmail(String email) {
-        return employeeRepository.findByEmail(email)
-                .orElseThrow(() -> new EmployeeNotFoundException(email));
-    }
 
     @Override
     public Page<EmployeeResponseDTO> getAllEmployeesForCompany(Long companyId,Pageable pageable) {
@@ -120,7 +93,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto, Long companyId) {
+    public EmployeeResponseDTO updateEmployee(Long id, EmployeeUpdateDTO dto, Long companyId) {
         Employee employee = getById(id, companyId);
 
         validationService.validateUpdate(employee, dto);
@@ -301,12 +274,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     }
 
-    @Override
-    public String getEmployeeNameById(Long id, Long companyId) {
-        return employeeRepository.findFullNameByIdAndCompanyId(id, companyId)
-                .orElse("Employee " + id);
-    }
-    
+
     // Legacy method (keeping for backward compatibility - NO company scope)
     @Override
     public String getEmployeeNameById(Long id) {
@@ -314,12 +282,27 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElse("Employee " + id);
     }
 
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        Employee employee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new EmployeeNotFoundException(username));
+
+        if (!passwordEncoder.matches(oldPassword, employee.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        employee.setPassword(passwordEncoder.encode(newPassword));
+        employeeRepository.save(employee);
+
+        log.info("Password changed for user: {}", username);
+    }
+
 
 
 
     // ========== HELPER METHODS ==========
 
-    private void updateEmployeeFields(Employee employee, EmployeeRequestDTO dto) {
+    private void updateEmployeeFields(Employee employee, EmployeeUpdateDTO dto) {
         if (dto.getFirstName() != null) {
             employee.setFirstName(dto.getFirstName());
         }
@@ -331,10 +314,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         if (dto.getPhoneNumber() != null) {
             employee.setPhoneNumber(dto.getPhoneNumber());
-        }
-
-        if(dto.getUsername()!=null) {
-            employee.setUsername(dto.getUsername());
         }
     }
 

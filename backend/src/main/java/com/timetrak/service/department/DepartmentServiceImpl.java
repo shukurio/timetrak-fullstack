@@ -84,14 +84,6 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
-    public boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId) {
-        if (departmentId == null || companyId == null) {
-            return false;
-        }
-        return departmentRepository.existsByIdAndCompanyId(departmentId, companyId);
-    }
-
-    @Override
     public List<Long> getAllDepartmentIdsForCompany(Long companyId) {
         return departmentRepository.findAllByCompanyIdAndIsActiveTrue(companyId)
                 .stream()

@@ -4,6 +4,7 @@ package com.timetrak.service.employee;
 import com.timetrak.dto.company.AdminRegRequestDTO;
 import com.timetrak.dto.employee.EmployeeRequestDTO;
 import com.timetrak.dto.employee.EmployeeResponseDTO;
+import com.timetrak.dto.employee.EmployeeUpdateDTO;
 import com.timetrak.entity.Company;
 import com.timetrak.entity.Employee;
 import com.timetrak.enums.EmployeeStatus;
@@ -15,18 +16,15 @@ import java.util.List;
 public interface EmployeeService {
 
     // Basic CRUD operations
-    EmployeeResponseDTO getEmployeeDTOById(Long id, Long companyId);
     Employee getById(Long id, Long companyId);
     Employee getActiveById(Long id, Long companyId);
-    List<Employee> getByIds(List<Long> ids, Long companyId);
     Page<EmployeeResponseDTO> getAllActiveForCompany(Long companyId, Pageable pageable);
 
-    EmployeeResponseDTO getByUsername(String username, Long companyId);
-    Employee getByEmail(String email, Long companyId);
     Page<EmployeeResponseDTO> getAllEmployeesForCompany(Long companyId, Pageable pageable);
     List<Long> getAllActiveEmployeeIdsForCompany(Long companyId);
 
-    EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto, Long companyId);
+    EmployeeResponseDTO updateEmployee(Long id, EmployeeUpdateDTO dto, Long companyId);
+
     void deleteEmployee(Long id, Long companyId);
 
     // Employee management
@@ -44,13 +42,12 @@ public interface EmployeeService {
 
     EmployeeResponseDTO createAdmin(AdminRegRequestDTO adminRequest, Company company);
 
-    String getEmployeeNameById(Long employeeId, Long companyId);
-    
     // Legacy methods (keeping for backward compatibility - NO company scope)
     EmployeeResponseDTO getEmployeeDTOById(Long id);
     EmployeeResponseDTO getByUsername(String username);
-    Employee getByEmail(String email);
     String getEmployeeNameById(Long employeeId);
+    void changePassword(String username, String oldPassword, String newPassword);
+
     //TODO login Auth Request
     //TODO Employee Statistics
 }

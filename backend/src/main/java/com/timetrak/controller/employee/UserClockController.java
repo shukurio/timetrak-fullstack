@@ -1,4 +1,4 @@
-package com.timetrak.controller.user;
+package com.timetrak.controller.employee;
 
 
 import com.timetrak.dto.clock.EmployeeClockRequestDTO;

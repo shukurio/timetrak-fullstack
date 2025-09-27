@@ -60,8 +60,9 @@ public class PaymentManagementServiceImpl implements PaymentManagementService {
 
         try {
             validator.validatePaymentConsistency(paymentId, payment, targetStatus);
-            updateStatus(payment, targetStatus, modifierId);
-
+            if(payment!=null) {
+                updateStatus(payment, targetStatus, modifierId);
+            }
             successes.add(new StatusUpdateSuccess(
                     paymentId, currentStatus, targetStatus, LocalDateTime.now(), modifierId
             ));

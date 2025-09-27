@@ -48,12 +48,6 @@ public class DuplicateEmployeeException extends EmployeeException {
     return new DuplicateEmployeeException("email", email);
   }
 
-
-
-  public static DuplicateEmployeeException forPhoneNumber(String phoneNumber) {
-    return new DuplicateEmployeeException("phone number", phoneNumber);
-  }
-
   // Getters
   public String getDuplicateField() {
     return duplicateField;

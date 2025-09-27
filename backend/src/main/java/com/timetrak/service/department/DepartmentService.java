@@ -22,9 +22,6 @@ public interface DepartmentService {
 
     DepartmentResponseDTO updateDepartment(Long id,Long companyId, DepartmentRequestDTO updatedRequest);
 
-
-    boolean validateDepartmentBelongToCompany(Long departmentId, Long companyId);
-
     List<Long> getAllDepartmentIdsForCompany(Long companyId);
 
     DepartmentInfoDTO getDepartmentInfoById(Long id);

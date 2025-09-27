@@ -20,13 +20,6 @@ public class DuplicatePaymentException extends PaymentException {
     this.periodEnd = null;
   }
 
-  public DuplicatePaymentException(Long employeeId, LocalDate periodStart, LocalDate periodEnd) {
-    super(String.format("Payment already exists for employee %d for period %s to %s",
-            employeeId, periodStart, periodEnd), ERROR_CODE);
-    this.employeeId = employeeId;
-    this.periodStart = periodStart;
-    this.periodEnd = periodEnd;
-  }
 
   public Long getEmployeeId() {
     return employeeId;

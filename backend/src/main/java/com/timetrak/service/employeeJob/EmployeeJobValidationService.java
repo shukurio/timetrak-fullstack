@@ -158,33 +158,4 @@ public class EmployeeJobValidationService {
             }
         }
     }
-
-    /**
-     * Validates duplicate assignment
-     */
-    public void validateNoDuplicateAssignment(Long employeeId, Long jobId, Long companyId) {
-        if (queryService.existsAssignment(employeeId, jobId, companyId)) {
-            throw new IllegalArgumentException("Employee is already assigned to this job");
-        }
-    }
-
-    /**
-     * Validates employee list for bulk operations
-     */
-    public void validateEmployeeList(List<Long> employeeIds) {
-        if (employeeIds == null || employeeIds.isEmpty()) {
-            throw new IllegalArgumentException("Employee IDs list cannot be empty");
-        }
-        
-        // Check for duplicates
-        long distinctCount = employeeIds.stream().distinct().count();
-        if (distinctCount != employeeIds.size()) {
-            throw new IllegalArgumentException("Employee IDs list contains duplicates");
-        }
-        
-        // Check for null values
-        if (employeeIds.contains(null)) {
-            throw new IllegalArgumentException("Employee IDs list cannot contain null values");
-        }
-    }
 }
