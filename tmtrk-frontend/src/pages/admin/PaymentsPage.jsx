@@ -492,23 +492,27 @@ const PaymentsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Payment Management</h1>
-          <p className="text-gray-600 mt-1">Manage employee payments and payroll</p>
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Payment Management</h1>
+          </div>
         </div>
-      </div>
 
-      {/* Payment Period Selector */}
-      <PaymentPeriodSelector
-        onPeriodChange={handlePeriodChange}
-        selectedPeriod={selectedPeriod}
-        periods={availablePeriods}
-      />
+        {/* Payment Period Selector */}
+        <div className="p-6 border-b border-gray-200">
+          <PaymentPeriodSelector
+            onPeriodChange={handlePeriodChange}
+            selectedPeriod={selectedPeriod}
+            periods={availablePeriods}
+          />
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 justify-end overflow-x-auto">
+        {/* Action Buttons */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex gap-2 justify-end overflow-x-auto">
         {isSelectionMode ? (
           <>
             <button
@@ -559,10 +563,11 @@ const PaymentsPage = () => {
             </button>
           </>
         )}
-      </div>
+          </div>
+        </div>
 
-      {/* Payments Table */}
-      <div className="card p-0">
+        {/* Payments Table */}
+        <div className="p-6">
 
         {/* Bulk Actions */}
         {selectedPayments.size > 0 && (
@@ -873,6 +878,7 @@ const PaymentsPage = () => {
                   </div>
                 </div>
           )}
+        </div>
         </div>
       </div>
 

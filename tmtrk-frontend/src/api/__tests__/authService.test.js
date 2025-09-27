@@ -49,27 +49,6 @@ describe('AuthService', () => {
     })
   })
 
-  describe('register', () => {
-    it('should register successfully', async () => {
-      const mockResponse = {
-        data: { message: 'Registration successful' }
-      }
-      const userData = {
-        firstName: 'John',
-        lastName: 'Doe',
-        username: 'johndoe',
-        email: 'john@example.com',
-        password: 'password123'
-      }
-
-      apiClient.post.mockResolvedValue(mockResponse)
-
-      const result = await authService.register(userData)
-
-      expect(apiClient.post).toHaveBeenCalledWith('/auth/register', userData)
-      expect(result).toEqual(mockResponse.data)
-    })
-  })
 
   describe('logout', () => {
     it('should logout and clear token', async () => {

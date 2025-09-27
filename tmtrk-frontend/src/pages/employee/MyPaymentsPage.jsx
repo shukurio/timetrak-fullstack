@@ -78,20 +78,25 @@ const MyPaymentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Payment History</h1>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-            <p className="text-red-800">{error}</p>
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Payment History</h1>
           </div>
         </div>
-      )}
 
-      <div className="card">
+        {/* Content Area */}
+        <div className="p-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                <p className="text-red-800">{error}</p>
+              </div>
+            </div>
+          )}
         {payments.length > 0 ? (
           <div className="space-y-4">
             {payments.map((payment) => (
@@ -220,17 +225,18 @@ const MyPaymentsPage = () => {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <DollarSign className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Payments Yet</h3>
-              <p className="text-gray-600">
-                Your payment history will appear here once you complete your first pay period.
-              </p>
+          ) : (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <DollarSign className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Payments Yet</h3>
+                <p className="text-gray-600">
+                  Your payment history will appear here once you complete your first pay period.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

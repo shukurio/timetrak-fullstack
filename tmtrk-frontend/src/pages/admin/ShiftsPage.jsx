@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, CheckCircle, LogIn, LogOut, Download } from 'lucide-react';
+import { Plus, X, CheckCircle, LogIn, LogOut, Download, Clock } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import adminService from '../../api/adminService';
@@ -256,29 +256,36 @@ const ShiftsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shifts Management</h1>
-          <p className="text-gray-600 mt-1">Track and manage employee work shifts</p>
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Shifts Management</h1>
+          </div>
         </div>
-      </div>
 
-      <PaymentPeriodSelector
-        onPeriodChange={handlePeriodChange}
-        selectedPeriod={selectedPeriod}
-        periods={availablePeriods}
-      />
+        {/* Payment Period Selector */}
+        <div className="p-6 border-b border-gray-200">
+          <PaymentPeriodSelector
+            onPeriodChange={handlePeriodChange}
+            selectedPeriod={selectedPeriod}
+            periods={availablePeriods}
+          />
+        </div>
 
-      <ShiftsStatusTabs
-        selectedTab={selectedTab}
-        onTabChange={handleTabChange}
-        hasActiveShifts={shiftsData?.content?.some(shift => shift.status === 'ACTIVE') || false}
-      />
+        {/* Status Tabs */}
+        <ShiftsStatusTabs
+          selectedTab={selectedTab}
+          onTabChange={handleTabChange}
+          hasActiveShifts={shiftsData?.content?.some(shift => shift.status === 'ACTIVE') || false}
+        />
 
-      <ShiftsFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        {/* Filters */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <ShiftsFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
         selectedDepartment={selectedDepartment}
         setSelectedDepartment={setSelectedDepartment}
         selectedEmployee={selectedEmployee}
@@ -288,95 +295,102 @@ const ShiftsPage = () => {
         departmentsData={departmentsData}
         employeesData={employeesData}
         onClearFilters={clearFilters}
-      />
+          />
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center sm:justify-end">
-        {isSelectionMode ? (
-          <>
-            <button
-              onClick={() => {
-                setIsSelectionMode(false);
-                setSelectedShifts([]);
-              }}
-              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
-            >
-              <X className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Cancel Selection</span>
-              <span className="sm:hidden">Cancel</span>
-            </button>
-            {selectedShifts.length > 0 && (
+        {/* Action Buttons */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center sm:justify-end">
+            {isSelectionMode ? (
               <>
                 <button
                   onClick={() => {
-                    setBulkClockAction('in');
-                    setShowBulkClockModal(true);
+                    setIsSelectionMode(false);
+                    setSelectedShifts([]);
                   }}
                   className="btn-secondary flex items-center justify-center w-full sm:w-auto"
                 >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Clock In ({selectedShifts.length})</span>
-                  <span className="sm:hidden">In ({selectedShifts.length})</span>
+                  <X className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Cancel Selection</span>
+                  <span className="sm:hidden">Cancel</span>
+                </button>
+                {selectedShifts.length > 0 && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setBulkClockAction('in');
+                        setShowBulkClockModal(true);
+                      }}
+                      className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Clock In ({selectedShifts.length})</span>
+                      <span className="sm:hidden">In ({selectedShifts.length})</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setBulkClockAction('out');
+                        setShowBulkClockModal(true);
+                      }}
+                      className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Clock Out ({selectedShifts.length})</span>
+                      <span className="sm:hidden">Out ({selectedShifts.length})</span>
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleDownloadReport()}
+                  className="btn-secondary flex items-center justify-center w-full sm:w-auto"
+                  disabled={!selectedPeriod}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Download Report</span>
+                  <span className="sm:hidden">Download</span>
                 </button>
                 <button
-                  onClick={() => {
-                    setBulkClockAction('out');
-                    setShowBulkClockModal(true);
-                  }}
+                  onClick={() => setIsSelectionMode(true)}
                   className="btn-secondary flex items-center justify-center w-full sm:w-auto"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Clock Out ({selectedShifts.length})</span>
-                  <span className="sm:hidden">Out ({selectedShifts.length})</span>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Select
+                </button>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn-primary flex items-center justify-center w-full sm:w-auto"
+                >
+                  <span className="hidden sm:inline">Create Shift</span>
+                  <span className="sm:hidden">Create</span>
                 </button>
               </>
             )}
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => handleDownloadReport()}
-              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
-              disabled={!selectedPeriod}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Download Report</span>
-              <span className="sm:hidden">Download</span>
-            </button>
-            <button
-              onClick={() => setIsSelectionMode(true)}
-              className="btn-secondary flex items-center justify-center w-full sm:w-auto"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Select
-            </button>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn-primary flex items-center justify-center w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Create Shift</span>
-              <span className="sm:hidden">Create</span>
-            </button>
-          </>
-        )}
+          </div>
+        </div>
+
+        {/* Shifts Table */}
+        <div className="p-6">
+          <ShiftsTable
+            shiftsData={shiftsData}
+            shiftsLoading={shiftsLoading}
+            shiftsError={shiftsError}
+            isSelectionMode={isSelectionMode}
+            selectedShifts={selectedShifts}
+            onShiftSelection={handleShiftSelection}
+            onSelectAllShifts={handleSelectAllShifts}
+            onEditShift={handleEditShift}
+            onDeleteShift={handleDeleteShift}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+          />
+        </div>
       </div>
 
-      <ShiftsTable
-        shiftsData={shiftsData}
-        shiftsLoading={shiftsLoading}
-        shiftsError={shiftsError}
-        isSelectionMode={isSelectionMode}
-        selectedShifts={selectedShifts}
-        onShiftSelection={handleShiftSelection}
-        onSelectAllShifts={handleSelectAllShifts}
-        onEditShift={handleEditShift}
-        onDeleteShift={handleDeleteShift}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        pageSize={pageSize}
-      />
-
+      {/* Modals */}
       <ShiftModal
         isOpen={showCreateModal}
         onClose={() => {
@@ -396,6 +410,7 @@ const ShiftsPage = () => {
         onSubmit={handleBulkClock}
         isLoading={bulkClockMutation.isLoading}
       />
+
     </div>
   );
 };

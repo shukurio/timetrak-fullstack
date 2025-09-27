@@ -8,10 +8,6 @@ class AuthService {
     return response.data;
   }
 
-  async register(userData) {
-    const response = await apiClient.post(`/auth/register`, userData);
-    return response.data;
-  }
 
   async logout() {
     try {

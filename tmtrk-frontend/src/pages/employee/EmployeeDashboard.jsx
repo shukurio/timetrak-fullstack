@@ -80,13 +80,9 @@ const EmployeeDashboard = () => {
               <p className="text-3xl font-extrabold text-blue-100">
                 {dashboardData.formattedPeriod}
               </p>
-              {dashboardData.periodNumber && (
-                <p className="text-blue-200 mt-2">Period #{dashboardData.periodNumber}</p>
-              )}
             </div>
             <div className="text-right">
               <Calendar className="h-12 w-12 text-blue-200 mb-2" />
-              <p className="text-blue-200 text-sm">Active Period</p>
             </div>
           </div>
         </div>

@@ -256,35 +256,48 @@ const DepartmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Departments</h1>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search departments..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Department Management</h1>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="btn-primary whitespace-nowrap"
-          >
-            + Add Department
-          </button>
         </div>
-      </div>
 
-      {/* Departments - Responsive Cards for Mobile, Table for Desktop */}
-      {filteredDepartments.length === 0 ? (
-        <div className="card p-12 text-center">
-          <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500">No departments found</p>
+        {/* Search and Create Section */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search departments..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="btn-primary whitespace-nowrap"
+            >
+              Add Department
+            </button>
+          </div>
         </div>
-      ) : (
+
+        {/* Departments Content */}
+        <div className="p-6">
+          {filteredDepartments.length === 0 ? (
+            <div className="text-center py-12">
+              <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No departments found</h3>
+              <p className="text-gray-500">
+                {searchQuery ? 'Try adjusting your search criteria' : 'Create your first department to get started'}
+              </p>
+            </div>
+          ) : (
         <>
           {/* Mobile Cards View */}
           <div className="block sm:hidden space-y-4">
@@ -423,8 +436,10 @@ const DepartmentsPage = () => {
               </table>
             </div>
           </div>
-        </>
-      )}
+          </>
+          )}
+        </div>
+      </div>
 
       {/* Create Department Modal */}
       {showCreateForm && (

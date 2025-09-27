@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import employeeService from '../../api/employeeService';
 import useAuthStore from '../../store/authStore';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PageContainer from '../../components/common/PageContainer';
 
 const ClockPage = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -222,12 +223,7 @@ const ClockPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Time Clock</h1>
-        <p className="text-gray-600 mt-1">Clock in and out of your shifts</p>
-      </div>
+    <PageContainer title="Time Clock" icon={Clock} contentClassName="max-w-4xl mx-auto">
 
       {/* Current Time Display */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg p-8 mb-8 text-white">
@@ -462,7 +458,7 @@ const ClockPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

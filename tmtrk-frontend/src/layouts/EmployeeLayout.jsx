@@ -128,18 +128,16 @@ const EmployeeLayout = () => {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <h2 className="ml-4 lg:ml-0 text-xl font-semibold text-gray-900">
-                Employee Portal
-              </h2>
             </div>
+
+            <h2 className="text-xl font-semibold text-gray-900">
+              Employee Portal
+            </h2>
 
             <div className="flex items-center">
               <div className="flex items-center">
-                <span className="text-sm text-gray-700 mr-3">
-                  Welcome, {user?.firstName}
-                </span>
-                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-700 font-medium text-sm">
+                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                  <span className="text-primary-700 font-semibold text-lg">
                     {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                   </span>
                 </div>

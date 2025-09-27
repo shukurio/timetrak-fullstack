@@ -64,16 +64,11 @@ const PaymentPeriodSelector = ({ onPeriodChange, selectedPeriod, periods = [] })
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-center mb-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-blue-600" />
           <h3 className="text-lg font-semibold text-gray-900">Pay Period</h3>
         </div>
-        {periods.length > 0 && (
-          <div className="text-sm text-gray-500">
-            {selectedPeriod?.frequency || 'N/A'} Period
-          </div>
-        )}
       </div>
 
       <div className="flex items-center gap-2">

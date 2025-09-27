@@ -3,6 +3,7 @@ import { Clock, Calendar, Filter, Search, ChevronLeft, ChevronRight, Activity, A
 import employeeService from '../../api/employeeService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PaymentPeriodSelector from '../../components/employee/PaymentPeriodSelector';
+import PageContainer from '../../components/common/PageContainer';
 
 const MyShiftsPage = () => {
   const [shifts, setShifts] = useState([]);
@@ -14,10 +15,6 @@ const MyShiftsPage = () => {
     size: 20,
     totalPages: 0,
     totalElements: 0
-  });
-  const [filters, setFilters] = useState({
-    status: 'ALL',
-    search: ''
   });
   const [activeShift, setActiveShift] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
@@ -47,7 +44,7 @@ const MyShiftsPage = () => {
     if (selectedPeriod) {
       fetchShiftsByPeriod();
     }
-  }, [selectedPeriod?.periodNumber, pagination.page, filters.status, filters.search]);
+  }, [selectedPeriod?.periodNumber, pagination.page]);
 
   const fetchActiveShift = async () => {
     const shift = await employeeService.getActiveShiftSilent();
@@ -69,22 +66,9 @@ const MyShiftsPage = () => {
       };
 
       const response = await employeeService.getShiftsByPeriod(selectedPeriod.periodNumber, params);
-      let shiftsData = response.content || [];
+      const shiftsData = response.content || [];
 
-      // Apply status filter
-      if (filters.status !== 'ALL') {
-        shiftsData = shiftsData.filter(shift => shift.status === filters.status);
-      }
-
-      // Apply search filter
-      if (filters.search) {
-        shiftsData = shiftsData.filter(shift =>
-          shift.jobTitle?.toLowerCase().includes(filters.search.toLowerCase()) ||
-          shift.notes?.toLowerCase().includes(filters.search.toLowerCase())
-        );
-      }
-
-      setShifts(response.content || []);
+      setShifts(shiftsData);
       setFilteredShifts(shiftsData);
       setPagination(prev => ({
         ...prev,
@@ -106,10 +90,6 @@ const MyShiftsPage = () => {
     setPagination(prev => ({ ...prev, page: 0 })); // Reset to first page
   };
 
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
-    setPagination(prev => ({ ...prev, page: 0 }));
-  };
 
 
   const formatDateTime = (dateTime) => {
@@ -155,81 +135,47 @@ const MyShiftsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">My Shifts</h1>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-            <p className="text-red-800">{error}</p>
-          </div>
-        </div>
-      )}
-
-      {activeShift && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Activity className="h-5 w-5 text-green-600 mr-2" />
-              <div>
-                <p className="text-green-800 font-medium">Active Shift in Progress</p>
-                <p className="text-green-600 text-sm">
-                  {activeShift.jobTitle} • Started at {formatDateTime(activeShift.clockIn)}
-                </p>
+    <PageContainer title="My Shifts" icon={Calendar}>
+      <div className="space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                <p className="text-red-800">{error}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-green-800 font-semibold">
-                {formatDuration(activeShift.hours)}
-              </p>
-              <p className="text-green-600 text-sm">
-                {formatCurrency(activeShift.hourlyWage)}/hr
-              </p>
+          )}
+
+          {activeShift && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Activity className="h-5 w-5 text-green-600 mr-2" />
+                  <div>
+                    <p className="text-green-800 font-medium">Active Shift in Progress</p>
+                    <p className="text-green-600 text-sm">
+                      {activeShift.jobTitle} • Started at {formatDateTime(activeShift.clockIn)}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-green-800 font-semibold">
+                    {formatDuration(activeShift.hours)}
+                  </p>
+                  <p className="text-green-600 text-sm">
+                    {formatCurrency(activeShift.hourlyWage)}/hr
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      <PaymentPeriodSelector
-        onPeriodChange={handlePeriodChange}
-        selectedPeriod={selectedPeriod}
-        periods={availablePeriods}
-      />
+          <PaymentPeriodSelector
+            onPeriodChange={handlePeriodChange}
+            selectedPeriod={selectedPeriod}
+            periods={availablePeriods}
+          />
 
-      <div className="card">
-
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by job title or notes..."
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={filters.search}
-                onChange={(e) => {
-                  handleFilterChange('search', e.target.value);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-        </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -250,7 +196,7 @@ const MyShiftsPage = () => {
                       )}
                     </div>
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(shift.status)}`}>
-                      {shift.status.toLowerCase()}
+                      {shift.status.toUpperCase()}
                     </span>
                   </div>
 
@@ -327,7 +273,7 @@ const MyShiftsPage = () => {
                       </td>
                       <td className="py-4 px-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(shift.status)}`}>
-                          {shift.status.toLowerCase()}
+                          {shift.status.toUpperCase()}
                         </span>
                       </td>
                     </tr>
@@ -369,15 +315,13 @@ const MyShiftsPage = () => {
               <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Shifts Found</h3>
               <p className="text-gray-600">
-                {filters.status !== 'ALL' || filters.dateRange !== 'ALL' || filters.search
-                  ? 'No shifts match your current filters.'
-                  : 'You haven\'t worked any shifts yet.'}
+                You haven't worked any shifts yet.
               </p>
             </div>
           </div>
-        )}
+          )}
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

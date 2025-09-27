@@ -257,28 +257,28 @@ const EmployeesPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Employee Management</h1>
-      </div>
-
-      {/* Search Bar */}
-      <div className="card">
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search employees..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-field pl-10 w-full"
-            />
+      {/* Main container with header and content */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-center py-4 px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-blue-600" />
+            <h1 className="text-lg font-semibold text-gray-900">Employee Management</h1>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="btn-primary flex-1 sm:flex-initial">
-              Search
-            </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search employees..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-field pl-10 w-full"
+              />
+            </div>
             {searchQuery && (
               <button
                 type="button"
@@ -286,19 +286,17 @@ const EmployeesPage = () => {
                   setSearchQuery('');
                   setCurrentPage(0);
                 }}
-                className="btn-outline flex-1 sm:flex-initial"
+                className="btn-outline"
               >
                 Clear
               </button>
             )}
           </div>
-        </form>
-      </div>
+        </div>
 
-      {/* Status Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border">
+        {/* Status Tabs */}
         <div className="border-b border-gray-200 overflow-x-auto">
-          <nav className="-mb-px flex min-w-full" aria-label="Tabs">
+          <nav className="-mb-px flex w-full" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -307,7 +305,7 @@ const EmployeesPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex-1 sm:flex-initial flex flex-col sm:flex-row items-center justify-center py-3 sm:py-4 px-3 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-3 sm:py-4 px-3 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                     isActive
                       ? `border-primary-500 ${tab.activeColor}`
                       : `border-transparent ${tab.color} hover:text-gray-700 hover:border-gray-300`

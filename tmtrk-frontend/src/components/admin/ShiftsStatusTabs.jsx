@@ -24,8 +24,8 @@ const ShiftsStatusTabs = ({ selectedTab, onTabChange, hasActiveShifts }) => {
   ];
 
   return (
-    <div className="border-b border-gray-200 overflow-x-auto">
-      <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
+    <div className="border-b border-gray-200">
+      <nav className="-mb-px flex w-full">
         {statusTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = selectedTab === tab.id;
@@ -34,7 +34,7 @@ const ShiftsStatusTabs = ({ selectedTab, onTabChange, hasActiveShifts }) => {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center py-4 px-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-colors ${
+              className={`flex-1 flex items-center justify-center py-4 px-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-colors ${
                 isActive
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

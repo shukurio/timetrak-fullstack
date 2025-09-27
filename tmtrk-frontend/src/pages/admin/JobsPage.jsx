@@ -19,6 +19,9 @@ import * as yup from 'yup';
 import toast from 'react-hot-toast';
 import adminService from '../../api/adminService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PageContainer from '../../components/common/PageContainer';
+import SearchBar from '../../components/common/SearchBar';
+import AddButton from '../../components/common/AddButton';
 
 // Validation schema for job form
 const jobSchema = yup.object({
@@ -310,89 +313,37 @@ const JobsPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Job Positions</h1>
-          <p className="text-gray-600 mt-1">Manage job positions and their hourly rates</p>
+    <PageContainer title="Job Positions" icon={Briefcase}>
+      {/* Search and Create Section */}
+      <div className="p-6 border-b border-gray-200 bg-gray-50 -m-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search jobs by title..."
+          />
+          <AddButton onClick={() => setShowCreateModal(true)}>
+            Create Job
+          </AddButton>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Job
-        </button>
       </div>
 
-      {/* Filters */}
-      <div className="card">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-            <form onSubmit={handleSearch} className="flex">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search jobs by title..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field pl-10"
-                />
-              </div>
-              <button type="submit" className="btn-primary ml-3">
-                Search
-              </button>
-            </form>
-          </div>
-
-          {/* Department Filter */}
-          <div className="lg:w-64">
-            <select
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="input-field"
-            >
-              <option value="">All Departments</option>
-              {departmentsData?.content?.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Clear Filters */}
-          {(searchQuery || selectedDepartment) && (
-            <button
-              onClick={clearFilters}
-              className="btn-outline flex items-center"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Clear
-            </button>
-          )}
+      {/* Jobs Count Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Available Positions
+            {jobsData && (
+              <span className="ml-2 text-sm text-gray-500">
+                ({Array.isArray(jobsData.content) ? jobsData.content.length : jobsData.length || 0} jobs)
+              </span>
+            )}
+          </h2>
         </div>
       </div>
 
       {/* Jobs Content */}
-      <div className="card p-0">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Job Positions
-              {jobsData && (
-                <span className="ml-2 text-sm text-gray-500">
-                  ({Array.isArray(jobsData.content) ? jobsData.content.length : jobsData.length || 0} jobs)
-                </span>
-              )}
-            </h2>
-          </div>
-        </div>
-
-        <div className="p-6">
+      <div>
           {jobsError ? (
             <div className="text-center py-12">
               <div className="text-red-600 mb-2">⚠️ Error loading jobs</div>
@@ -461,12 +412,11 @@ const JobsPage = () => {
               )}
             </>
           )}
-        </div>
       </div>
 
       {/* Create/Edit Modal */}
       {renderCreateEditModal()}
-    </div>
+    </PageContainer>
   );
 };
 

@@ -99,56 +99,6 @@ describe('Authentication Flow Integration', () => {
     })
   })
 
-  describe('Registration Flow', () => {
-    it('should allow user to register and redirect to login', async () => {
-      const user = userEvent.setup()
-      authService.default.register.mockResolvedValue({
-        message: 'Registration successful'
-      })
-
-      render(<App />)
-
-      // Navigate to register page
-      const registerLink = screen.getByText(/create account/i)
-      await user.click(registerLink)
-
-      expect(screen.getByText(/create your account/i)).toBeInTheDocument()
-
-      // Fill in registration form
-      const firstNameInput = screen.getByLabelText(/first name/i)
-      const lastNameInput = screen.getByLabelText(/last name/i)
-      const usernameInput = screen.getByLabelText(/username/i)
-      const emailInput = screen.getByLabelText(/email/i)
-      const passwordInput = screen.getByLabelText(/^password$/i)
-      const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
-      const registerButton = screen.getByRole('button', { name: /create account/i })
-
-      await user.type(firstNameInput, 'John')
-      await user.type(lastNameInput, 'Doe')
-      await user.type(usernameInput, 'johndoe')
-      await user.type(emailInput, 'john@example.com')
-      await user.type(passwordInput, 'password123')
-      await user.type(confirmPasswordInput, 'password123')
-
-      await user.click(registerButton)
-
-      await waitFor(() => {
-        expect(authService.default.register).toHaveBeenCalledWith({
-          firstName: 'John',
-          lastName: 'Doe',
-          username: 'johndoe',
-          email: 'john@example.com',
-          password: 'password123'
-        })
-      })
-
-      // Should redirect back to login
-      await waitFor(() => {
-        expect(screen.getByText(/welcome to timetrack/i)).toBeInTheDocument()
-      })
-    })
-  })
-
   describe('Logout Flow', () => {
     it('should allow user to logout and redirect to login', async () => {
       const user = userEvent.setup()
