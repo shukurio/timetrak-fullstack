@@ -45,7 +45,6 @@ public class PaymentServiceImpl  implements PaymentService{
         List<JobDetailsDTO> jobDetails = jobDetailsBuilder.buildJobDetailsForPayment(payment);
         payment.setJobDetails(jobDetails);
         return payment;
-
     }
 
     //===================Admin access only=============
@@ -68,10 +67,17 @@ public class PaymentServiceImpl  implements PaymentService{
     }
 
 
+    // For Employee Only not Admin
     @Override
     public Page<PaymentDetailsDTO> getAllPaymentsForEmployee(Long employeeId,Long companyId, Pageable pageable) {
-        Page<Payment> payments =paymentRepository.findByEmployeeIdAndCompanyId(employeeId,companyId,pageable);
-        return payments.map(paymentMapper::toDTO);
+        Page<Payment> payments =paymentRepository.findByEmployeeIdAndCompanyIdExcludingVoided(employeeId,companyId,pageable);
+        Page<PaymentDetailsDTO> paymentDtos = payments.map(paymentMapper::toDTO);
+        return paymentDtos.map(dto-> {
+            List<JobDetailsDTO> jobDetails = jobDetailsBuilder.buildJobDetailsForPayment(dto);
+            dto.setJobDetails(jobDetails);
+            dto.setJobsCount(jobDetails.size());
+            return dto;
+        });
     }
 
 

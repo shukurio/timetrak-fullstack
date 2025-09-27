@@ -1,6 +1,8 @@
 package com.timetrak.controller.admin;
 
+import com.timetrak.dto.company.AdminDashboardDTO;
 import com.timetrak.service.auth.AuthContextService;
+import com.timetrak.service.dashboard.DashboardService;
 import com.timetrak.service.report.ShiftReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +23,7 @@ public class ReportController {
 
     private final ShiftReportService shiftReportService;
     private final AuthContextService authContextService;
+    private final DashboardService dashboardService;
 
     @GetMapping("/shifts/company")
     public ResponseEntity<byte[]> exportCompanyShifts(
@@ -50,6 +53,12 @@ public class ReportController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
                 .body(pdfData);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<AdminDashboardDTO> getAdminDashboardInfo(){
+        AdminDashboardDTO dto = dashboardService.getAdminDashboardInfo(getCurrentCompanyId());
+        return ResponseEntity.ok(dto);
     }
 
     private Long getCurrentCompanyId() {
